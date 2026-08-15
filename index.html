@@ -31,6 +31,15 @@
         </div>
         <svg id="map" viewBox="0 0 975 610" role="img" aria-label="Map of the United States electricity system" hidden></svg>
         <div class="legend" id="legend" hidden></div>
+        <form class="zip-search" id="zip-search" hidden>
+          <label for="zip-input">Type your zip code</label>
+          <div class="zip-row">
+            <input id="zip-input" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{5}" maxlength="5" placeholder="78701" required>
+            <button type="submit">Find me</button>
+          </div>
+          <p class="zip-msg" id="zip-msg"></p>
+        </form>
+        <button class="zoom-reset" id="zoom-reset" hidden>← Whole country</button>
       </div>
 
       <aside class="card" id="card" hidden></aside>

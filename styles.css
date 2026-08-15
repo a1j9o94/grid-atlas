@@ -207,3 +207,39 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 /* wires layer marks: highlight the hovered piece only (2,907 siblings) */
 #g-wires .region { transition: none; }
 #g-wires .region.hov { stroke: var(--ink); stroke-width: 1.5; filter: brightness(0.9) saturate(1.25); }
+
+/* you layer: zip search + fly-to */
+.zip-search {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 6;
+  background: var(--card-bg); border: 1px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(38, 48, 31, 0.16); padding: 10px 12px; text-align: center;
+}
+.zip-search label { display: block; font: 600 12px/1 var(--mono); letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink2); margin-bottom: 7px; }
+.zip-row { display: flex; gap: 6px; }
+.zip-search input {
+  width: 7.5ch; font: 700 18px/1 var(--mono); letter-spacing: 0.08em; text-align: center;
+  border: 1px solid var(--ink2); background: #fff; color: var(--ink); padding: 7px 6px;
+}
+.zip-search button {
+  font: 700 13px/1 var(--ui); border: 1px solid var(--ink); background: var(--ink);
+  color: var(--paper); padding: 7px 12px; cursor: pointer;
+}
+.zip-msg { margin: 6px 0 0; font-size: 12px; color: var(--ink2); min-height: 1em; }
+.zoom-reset {
+  position: absolute; top: 12px; left: 12px; z-index: 6;
+  font: 600 12px/1 var(--mono); border: 1px solid var(--ink2); color: var(--ink2);
+  background: var(--card-bg); padding: 7px 10px; cursor: pointer;
+}
+.zip-neighbor { fill: #dfe3d2; stroke: rgba(38, 48, 31, 0.25); stroke-width: 0.3; }
+.zip-target { fill: #1d6e56; fill-opacity: 0.55; stroke: var(--ink); stroke-width: 0.8; }
+.card .c-fine { font-size: 10.5px; color: var(--ink2); margin-bottom: 0; }
+@media (max-width: 700px) {
+  .zip-search { top: 6px; padding: 8px 10px; }
+  .zip-search label { font-size: 10px; }
+}
+
+.zip-neighbor, .zip-target { vector-effect: non-scaling-stroke; }
+.zip-neighbor { stroke-width: 0.8px; }
+.zip-target { stroke-width: 1.5px; fill-opacity: 0.45; }
+.statelines { vector-effect: non-scaling-stroke; stroke-width: 0.6px; }

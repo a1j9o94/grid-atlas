@@ -4,17 +4,18 @@ import { geoAlbersUsa, geoPath, feature, mesh } from "./vendor.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const LAYERS = ["wholesale", "rules", "wires", "you"];
-const READY = new Set(["wholesale", "rules", "wires"]);
+const READY = new Set(["wholesale", "rules", "wires", "you"]);
 const FILL = {
   PJM: "var(--r-pjm)", ERCOT: "var(--r-ercot)", MISO: "var(--r-miso)",
   SPP: "var(--r-spp)", CAISO: "var(--r-caiso)", NYISO: "var(--r-nyiso)",
   ISONE: "var(--r-isone)", NONE: "var(--r-none)",
 };
-// wires layer: ownership groups (palette validated on the sage surface)
+// wires layer: ownership groups. Palette validated on the sage surface, and
+// deliberately not red-vs-blue (a two-party map is the wrong association).
 const WIRE_GROUPS = {
-  iou: { label: "Investor-owned", color: "#3a6ea8" },
-  coop: { label: "Co-ops", color: "#b4552d" },
-  public: { label: "Public power", color: "#7c5fae" },
+  iou: { label: "Investor-owned", color: "#0087a5" },
+  coop: { label: "Co-ops", color: "#a06b26" },
+  public: { label: "Public power", color: "#8a5fae" },
   other: { label: "Unknown", color: "#c8c3ae" },
 };
 function wireGroup(type) {
@@ -56,12 +57,14 @@ svg.innerHTML = `
   <g id="g-rto" filter="url(#wobble)"></g>
   <g id="g-rules" filter="url(#wobble)" hidden></g>
   <g id="g-wires" filter="url(#wobble)" hidden></g>
+  <g id="g-you" hidden></g>
   <g id="g-statelines"></g>
   <g id="g-labels"></g>
 `;
 const gRto = svg.querySelector("#g-rto");
 const gRules = svg.querySelector("#g-rules");
 const gWires = svg.querySelector("#g-wires");
+const gYou = svg.querySelector("#g-you");
 const gLines = svg.querySelector("#g-statelines");
 const gLabels = svg.querySelector("#g-labels");
 
@@ -139,6 +142,148 @@ async function ensureWires() {
     gWires.appendChild(p);
   });
 }
+
+// ---- You layer: zip search, fly-to, your place in the stack ----
+const zipForm = document.getElementById("zip-search");
+const zipInput = document.getElementById("zip-input");
+const zipMsg = document.getElementById("zip-msg");
+const zoomReset = document.getElementById("zoom-reset");
+const HOME_VIEW = [0, 0, 975, 610];
+let viewAnim = null;
+
+function youBase() {
+  if (gYou.dataset.base) return;
+  gYou.dataset.base = "1";
+  for (const f of statesFC.features) {
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", path(f));
+    p.setAttribute("fill", "#e4e7db");
+    gYou.appendChild(p);
+  }
+  const zg = document.createElementNS(SVG_NS, "g");
+  zg.id = "g-zips";
+  gYou.appendChild(zg);
+}
+
+function animateViewBox(to, ms = 900) {
+  if (viewAnim) cancelAnimationFrame(viewAnim);
+  const from = svg.getAttribute("viewBox").split(" ").map(Number);
+  const t0 = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  const tick = now => {
+    const t = Math.min(1, (now - t0) / ms), k = ease(t);
+    svg.setAttribute("viewBox", from.map((v, i) => v + (to[i] - v) * k).join(" "));
+    if (t < 1) viewAnim = requestAnimationFrame(tick);
+  };
+  viewAnim = requestAnimationFrame(tick);
+}
+
+const zctaCache = {};
+async function zctaShard(pfx) {
+  if (!zctaCache[pfx]) {
+    const [geo, lookup] = await Promise.all([
+      fetch(`data/zcta/${pfx}.topo.json`).then(r => r.ok ? r.json() : null),
+      fetch(`data/zip/${pfx}.json`).then(r => r.ok ? r.json() : null),
+    ]);
+    zctaCache[pfx] = { geo, lookup };
+  }
+  return zctaCache[pfx];
+}
+
+async function findZip(zip) {
+  zipMsg.textContent = "Looking…";
+  const shard = await zctaShard(zip.substring(0, 2));
+  const topo = shard.geo;
+  const fc = topo ? feature(topo, Object.values(topo.objects)[0]) : { features: [] };
+  const target = fc.features.find(f => f.properties.GEOID20 === zip);
+  const utils = shard.lookup?.[zip] || [];
+  if (!target && !utils.length) {
+    zipMsg.textContent = "We can't find that zip. Try another?";
+    return;
+  }
+  zipMsg.textContent = "";
+  youBase();
+  const zg = gYou.querySelector("#g-zips");
+  zg.innerHTML = "";
+  // neighbors for context, target on top
+  for (const f of fc.features) {
+    if (f.properties.GEOID20 === zip) continue;
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", path(f));
+    p.setAttribute("class", "zip-neighbor");
+    zg.appendChild(p);
+  }
+  let view = HOME_VIEW;
+  if (target) {
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", path(target));
+    p.setAttribute("class", "zip-target");
+    zg.appendChild(p);
+    const [[x0, y0], [x1, y1]] = path.bounds(target);
+    const w = Math.max(x1 - x0, 8), h = Math.max(y1 - y0, 8);
+    const pad = Math.max(w, h) * 1.6;
+    view = [x0 - pad, y0 - pad, w + 2 * pad, h + 2 * pad];
+  }
+  animateViewBox(view);
+  setHidden(zoomReset, false);
+  await showYouCard(zip, utils);
+}
+
+async function showYouCard(zip, utils) {
+  // join crosswalk utilities to the wires layer for grid + ownership
+  await ensureWires();
+  const seen = new Set();
+  utils = utils.filter(u => {
+    const k = String(u.id);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  const rows = utils.slice(0, 3).map(u => {
+    const match = wiresFeatures.find(f => String(f.properties.ID) === String(u.id));
+    const g = match ? wireGroup(match.properties.TYPE) : (u.own === "Investor Owned" ? "iou" : u.own === "Cooperative" ? "coop" : u.own ? "public" : "other");
+    const rto = match ? match.properties.RTO : null;
+    return { name: titleCase(u.name), group: g, rto, st: u.st };
+  });
+  const st = rows[0]?.st;
+  const rule = st && rules.states[st] ? rules.states[st] : null;
+  const bucket = rule ? rules.buckets[rule.bucket] : null;
+  const rto = rows.find(r => r.rto && r.rto !== "NONE")?.rto || (rows.some(r => r.rto === "NONE") ? "NONE" : null);
+  const rtoName = rto === null ? null : rto === "NONE" ? "No RTO. Utilities run this grid themselves." : `${copy.regions[rto].name} runs the market here.`;
+  // the honest bottom line: in choice states, co-ops and city utilities are
+  // usually exempt, so their customers still have one seller.
+  // Exception: Lubbock's city utility joined the Texas retail market in 2024.
+  let choiceLine = "";
+  if (bucket) {
+    const primary = rows[0];
+    const exemptOwner = primary && (primary.group === "coop" || primary.group === "public");
+    const lubbock = primary && /Lubbock/i.test(primary.name);
+    if (rule.bucket === "choice" && exemptOwner && !lubbock) {
+      const kind = primary.group === "coop" ? "a co-op" : "city-owned";
+      choiceLine = `<div class="c-choice">Here, probably not: ${primary.name} is ${kind}, and those usually keep one seller even in choice states. Most of the state can pick.</div>`;
+    } else if (lubbock) {
+      choiceLine = `<div class="c-choice">${bucket.label}: Lubbock's city utility joined the Texas shopping market in 2024, the first to do it voluntarily.</div>`;
+    } else {
+      choiceLine = `<div class="c-choice">${bucket.label}: ${bucket.body}</div>`;
+    }
+  }
+  card.innerHTML =
+    `<h3>Zip ${zip} in the stack</h3>` +
+    `<p class="c-body"><b>Your wires:</b> ${rows.map(r => `${r.name} (${WIRE_GROUPS[r.group].label.toLowerCase()})`).join(", ")}${utils.length > 3 ? " and others" : ""}.</p>` +
+    choiceLine +
+    (rtoName ? `<p class="c-body c-note"><b>Your market:</b> ${rtoName}</p>` : "") +
+    `<p class="c-body c-fine">Zip shapes are the Census version of zip codes. Utility match comes from a 2020 federal lookup.</p>`;
+}
+
+zipForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const zip = zipInput.value.trim();
+  if (/^\d{5}$/.test(zip)) findZip(zip);
+});
+zoomReset.addEventListener("click", () => {
+  animateViewBox(HOME_VIEW);
+  setHidden(zoomReset, true);
+});
 
 // legend (content depends on layer)
 const legend = document.getElementById("legend");
@@ -270,8 +415,21 @@ async function setLayer(key) {
   setHidden(gLabels, key !== "wholesale");
   setHidden(gRules, key !== "rules");
   setHidden(gWires, key !== "wires");
+  setHidden(gYou, key !== "you");
+  setHidden(zipForm, key !== "you");
   setHidden(legend, key !== "rules" && key !== "wires");
   svg.classList.remove("has-hover");
+  if (key !== "you") {
+    animateViewBox(HOME_VIEW, 500);
+    setHidden(zoomReset, true);
+  }
+  if (key === "you") {
+    youBase();
+    if (!gYou.querySelector("#g-zips")?.children.length) {
+      card.innerHTML = `<h3>Find yourself</h3><p class="c-body">${copy.layers.you.explainer}</p>`;
+    }
+    setHidden(zoomReset, svg.getAttribute("viewBox") === HOME_VIEW.join(" "));
+  }
   if (key === "wires" && !wiresFeatures) {
     setHidden(svg, true);
     setHidden(drawingNote, false);
@@ -295,8 +453,14 @@ async function setLayer(key) {
 }
 
 renderRail();
-const wanted = new URLSearchParams(location.search).get("layer");
-setLayer(LAYERS.includes(wanted) ? wanted : "wholesale");
+const params = new URLSearchParams(location.search);
+const wanted = params.get("layer");
+const wantedZip = params.get("zip");
+if (wantedZip && /^\d{5}$/.test(wantedZip)) {
+  setLayer("you").then(() => { zipInput.value = wantedZip; findZip(wantedZip); });
+} else {
+  setLayer(LAYERS.includes(wanted) ? wanted : "wholesale");
+}
 
 function updateUrl(key) {
   const url = key === "wholesale" ? location.pathname : `?layer=${key}`;
