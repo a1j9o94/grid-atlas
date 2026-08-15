@@ -118,7 +118,7 @@
       "layer": "wholesale",
       "anchor": { "lonlat": [-96.70, 30.53], "feature": { "name": "CITY OF CALDWELL", "state": "TX" } },
       "title": "The town that switched grids",
-      "body": "Until March 2026, the little city of Caldwell was an island. It sits in the middle of Texas, but its power came from the Eastern grid, through MISO. New lines were built, and Caldwell joined ERCOT. Older maps still show the island.",
+      "body": "Until March 2026, the little city of Caldwell was a MISO island about 80 miles northeast of Austin. Its power came through the Eastern grid. New lines were built, and Caldwell joined ERCOT. Older maps still show the island.",
       "verified": true,
       "sources": [
         "https://www.ercot.com/news/release/03122026-ercot-welcomes-the",

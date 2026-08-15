@@ -19,6 +19,7 @@ function swatchStyle(rto) {
     return "background: repeating-linear-gradient(45deg, #c99a2e 0 4px, #7a621f 4px 5.5px)";
   return `background:${FILL[rto]}`;
 }
+const TRANSITION_SWATCH = "background: repeating-linear-gradient(-45deg, #b4552d 0 4px, #f0d8ca 4px 5.5px)";
 // wires layer: ownership as ONE hue, stepped from investor-owned (light) to
 // citizen-owned (dark). Any two contrasting hues at this area coverage reads
 // as an election map, so the encoding is ordered "how public is your power
@@ -42,15 +43,17 @@ function titleCase(name) {
     .replace(/\bLlc\b/g, "LLC").replace(/\bInc\b/g, "Inc");
 }
 
-const [copy, rules, statesTopo, rtosTopo] = await Promise.all([
+const [copy, rules, statesTopo, rtosTopo, transitionsTopo] = await Promise.all([
   fetch("data/copy.json").then(r => r.json()),
   fetch("data/rules.json").then(r => r.json()),
   fetch("data/states.topo.json").then(r => r.json()),
   fetch("data/rtos.topo.json").then(r => r.json()),
+  fetch("data/transitions.topo.json").then(r => r.json()),
 ]);
 
 const statesFC = feature(statesTopo, Object.values(statesTopo.objects)[0]);
 const rtosFC = feature(rtosTopo, Object.values(rtosTopo.objects)[0]);
+const transitionsFC = feature(transitionsTopo, Object.values(transitionsTopo.objects)[0]);
 const stateLines = mesh(statesTopo, Object.values(statesTopo.objects)[0], (a, b) => a !== b);
 
 const projection = geoAlbersUsa().fitExtent([[8, 8], [967, 602]], statesFC);
@@ -68,8 +71,13 @@ svg.innerHTML = `
       <rect width="6" height="6" fill="var(--r-spp)"/>
       <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(38,48,31,0.4)" stroke-width="1.6"/>
     </pattern>
+    <pattern id="hatch-transition" width="0.18" height="0.18" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+      <rect width="0.18" height="0.18" fill="var(--r-ercot)"/>
+      <line x1="0" y1="0" x2="0" y2="0.18" stroke="rgba(246,238,224,0.95)" stroke-width="0.045"/>
+    </pattern>
   </defs>
   <g id="g-rto" filter="url(#wobble)"></g>
+  <g id="g-transitions" filter="url(#wobble)"></g>
   <g id="g-rules" filter="url(#wobble)" hidden></g>
   <g id="g-wires" filter="url(#wobble)" hidden></g>
   <g id="g-you" hidden></g>
@@ -79,6 +87,7 @@ svg.innerHTML = `
   <g id="g-trivia"></g>
 `;
 const gRto = svg.querySelector("#g-rto");
+const gTransitions = svg.querySelector("#g-transitions");
 const gRules = svg.querySelector("#g-rules");
 const gWires = svg.querySelector("#g-wires");
 const gYou = svg.querySelector("#g-you");
@@ -94,6 +103,18 @@ for (const f of rtosFC.features) {
   p.setAttribute("class", "region");
   p.dataset.rto = f.properties.RTO;
   gRto.appendChild(p);
+}
+
+// The geometry marks the territory that changed. It sits above the current
+// wholesale layer, so the hatch reads as ERCOT today with a visible history.
+for (const [i, f] of transitionsFC.features.entries()) {
+  const p = document.createElementNS(SVG_NS, "path");
+  p.setAttribute("d", path(f));
+  p.setAttribute("fill", "url(#hatch-transition)");
+  p.setAttribute("class", "region transition");
+  p.dataset.transition = i;
+  p.dataset.rto = f.properties.RTO;
+  gTransitions.appendChild(p);
 }
 
 // rules layer marks: one path per state, colored by bucket
@@ -162,24 +183,37 @@ async function ensureWires() {
 }
 
 // ---- trivia markers (wholesale layer): the map's curiosities ----
+const transitionTriviaIds = new Set(transitionsFC.features.map(f => f.properties.TRIVIA));
 copy.trivia.forEach((t, i) => {
   const pt = projection(t.anchor.lonlat);
   if (!pt) return;
   const g = document.createElementNS(SVG_NS, "g");
-  g.setAttribute("class", "trivia");
+  g.setAttribute("class", "trivia" + (transitionTriviaIds.has(t.id) ? " transition-trivia" : ""));
   g.setAttribute("transform", `translate(${pt[0].toFixed(1)},${pt[1].toFixed(1)})`);
   g.dataset.trivia = i;
   g.dataset.x = pt[0].toFixed(1);
   g.dataset.y = pt[1].toFixed(1);
-  g.innerHTML = `<circle r="9"></circle><text dy="4">✳</text>`;
+  if (transitionTriviaIds.has(t.id)) {
+    g.innerHTML = `<line class="trivia-leader" x1="2" y1="-2" x2="11" y2="-9"></line>` +
+      `<circle cx="15" cy="-12" r="9"></circle><text x="15" y="-12" dy="4">✳</text>`;
+  } else {
+    g.innerHTML = `<circle r="9"></circle><text dy="4">✳</text>`;
+  }
   gTrivia.appendChild(g);
 });
 function showTrivia(i) {
   const t = copy.trivia[i];
+  const transition = transitionsFC.features.find(f => f.properties.TRIVIA === t.id)?.properties;
+  const transitionStatus = transition ?
+    `<div class="transition-status" aria-label="Changed from ${transition.FROM_RTO} to ${transition.RTO} on ${transition.CHANGED}">` +
+      `<span><i style="background:${FILL[transition.FROM_RTO]}"></i><b>Before</b>${transition.FROM_RTO}</span>` +
+      `<span class="transition-arrow">→</span>` +
+      `<span><i style="background:${FILL[transition.RTO]}"></i><b>Now</b>${transition.RTO}</span>` +
+    `</div><p class="transition-date">Changed March 12, 2026</p>` : "";
   card.innerHTML =
-    `<div class="c-kicker">Curiosity${t.verified ? "" : " · draft, still being checked"}</div>` +
+    `<div class="c-kicker">${transition ? "Grid change" : "Curiosity"}${t.verified ? "" : " · draft, still being checked"}</div>` +
     `<h3>${t.title}</h3>` +
-    `<p class="c-body">${t.body}</p>`;
+    transitionStatus + `<p class="c-body">${t.body}</p>`;
 }
 gTrivia.addEventListener("mouseover", e => {
   const g = e.target.closest(".trivia");
@@ -221,9 +255,10 @@ function setVb(v) {
   const k = HOME_VIEW[2] / v[2];
   wobbleDisp.setAttribute("scale", (6.5 / Math.max(1, k * 0.75)).toFixed(2));
   // trivia markers keep their on-screen size at any zoom
-  const mk = (1 / Math.max(1, k * 0.8)).toFixed(3);
-  for (const m of gTrivia.children)
-    m.setAttribute("transform", `translate(${m.dataset.x},${m.dataset.y}) scale(${mk})`);
+  const mk = 1 / Math.max(1, k * 0.8);
+  for (const m of gTrivia.children) {
+    m.setAttribute("transform", `translate(${m.dataset.x},${m.dataset.y}) scale(${mk.toFixed(3)})`);
+  }
   if (typeof current !== "undefined" && (current === "wires" || current === "you"))
     setHidden(zoomReset, k < 1.05);
 }
@@ -437,7 +472,9 @@ zoomReset.addEventListener("click", () => {
 // legend (content depends on layer)
 const legend = document.getElementById("legend");
 function renderLegend(key) {
-  if (key === "rules") {
+  if (key === "wholesale") {
+    legend.innerHTML = `<span class="lg-item"><span class="lg-swatch" style="${TRANSITION_SWATCH}"></span>Changed grids in 2026</span>`;
+  } else if (key === "rules") {
     legend.innerHTML = Object.values(rules.buckets)
       .map(b => `<span class="lg-item"><span class="lg-swatch" style="background:${b.color}"></span>${b.label}</span>`)
       .join("");
@@ -501,6 +538,7 @@ svg.addEventListener("mousemove", e => {
   const d = e.target.dataset || {};
   if (current === "wholesale" && d.rto) {
     setHover(gRto, p => p.dataset.rto === d.rto);
+    setHover(gTransitions, p => p.dataset.rto === d.rto);
     let splitKey;
     if (d.rto === "NONE") {
       const { x, y } = svgPoint(e);
@@ -521,7 +559,7 @@ svg.addEventListener("mousemove", e => {
 let hoveredWire = null;
 svg.addEventListener("mouseleave", () => {
   svg.classList.remove("has-hover");
-  for (const g of [gRto, gRules]) for (const p of g.children) p.classList.remove("hov");
+  for (const g of [gRto, gTransitions, gRules]) for (const p of g.children) p.classList.remove("hov");
   if (hoveredWire) { hoveredWire.classList.remove("hov"); hoveredWire = null; }
 });
 function setHover(group, match) {
@@ -561,6 +599,7 @@ async function setLayer(key) {
   const ready = READY.has(key);
   setHidden(card, !ready);
   setHidden(gRto, key !== "wholesale");
+  setHidden(gTransitions, key !== "wholesale");
   setHidden(gLabels, key !== "wholesale");
   setHidden(gTrivia, key !== "wholesale");
   setHidden(gRules, key !== "rules");
@@ -568,7 +607,7 @@ async function setLayer(key) {
   setHidden(gYou, key !== "you");
   setHidden(zipForm, key !== "you" && key !== "wires");
   setHidden(svg.querySelector("#g-zipoutline"), key !== "wires");
-  setHidden(legend, key !== "rules" && key !== "wires");
+  setHidden(legend, key !== "wholesale" && key !== "rules" && key !== "wires");
   svg.classList.remove("has-hover");
   if (key !== "you") {
     animateViewBox(HOME_VIEW, 500);
@@ -617,7 +656,14 @@ if (wantedZip && /^\d{5}$/.test(wantedZip)) {
     showTrivia(i);
     const pt = projection(copy.trivia[i].anchor.lonlat);
     if (pt) {
-      animateViewBox([pt[0] - 130, pt[1] - 90, 260, 180]);
+      const transition = transitionsFC.features.find(f => f.properties.TRIVIA === wantedTrivia);
+      if (transition) {
+        const [[x0, y0], [x1, y1]] = path.bounds(transition);
+        const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+        animateViewBox([cx - 12.5, cy - 8, 25, 16]);
+      } else {
+        animateViewBox([pt[0] - 130, pt[1] - 90, 260, 180]);
+      }
       setHidden(zoomReset, false);
     }
   });
