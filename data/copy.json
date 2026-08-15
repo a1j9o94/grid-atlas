@@ -83,6 +83,12 @@
       "stats": { "states": "6", "people": "~15M" },
       "choice": "Can people pick their power company? Yes, in most of New England."
     },
+    "SPPWEST": {
+      "name": "SPP West",
+      "body": "This is brand new. In April 2026 a group of western utilities switched on a second SPP market, this one on the Western grid. The same referee now runs markets on both sides of the great East-West seam. But the two grids still connect only through a few special converter stations, so power cannot flow freely between them.",
+      "stats": { "states": "~8 (parts)", "people": "~3.5M" },
+      "choice": "Can people pick their power company? No."
+    },
     "NONE": {
       "name": "No RTO",
       "display_split": {

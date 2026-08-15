@@ -9,7 +9,16 @@ const FILL = {
   PJM: "var(--r-pjm)", ERCOT: "var(--r-ercot)", MISO: "var(--r-miso)",
   SPP: "var(--r-spp)", CAISO: "var(--r-caiso)", NYISO: "var(--r-nyiso)",
   ISONE: "var(--r-isone)", NONE: "var(--r-none)",
+  // SPP West: same operator as SPP, so same ochre, hatched to mark that it
+  // sits on the other side of the East-West interconnection seam.
+  SPPWEST: "url(#hatch-sppwest)",
 };
+// HTML swatches can't reference SVG patterns; mirror the hatch in CSS.
+function swatchStyle(rto) {
+  if (rto === "SPPWEST")
+    return "background: repeating-linear-gradient(45deg, #c99a2e 0 4px, #7a621f 4px 5.5px)";
+  return `background:${FILL[rto]}`;
+}
 // wires layer: ownership as ONE hue, stepped from investor-owned (light) to
 // citizen-owned (dark). Any two contrasting hues at this area coverage reads
 // as an election map, so the encoding is ordered "how public is your power
@@ -55,6 +64,10 @@ svg.innerHTML = `
       <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="11" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="6.5" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
+    <pattern id="hatch-sppwest" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="var(--r-spp)"/>
+      <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(38,48,31,0.4)" stroke-width="1.6"/>
+    </pattern>
   </defs>
   <g id="g-rto" filter="url(#wobble)"></g>
   <g id="g-rules" filter="url(#wobble)" hidden></g>
@@ -156,6 +169,8 @@ copy.trivia.forEach((t, i) => {
   g.setAttribute("class", "trivia");
   g.setAttribute("transform", `translate(${pt[0].toFixed(1)},${pt[1].toFixed(1)})`);
   g.dataset.trivia = i;
+  g.dataset.x = pt[0].toFixed(1);
+  g.dataset.y = pt[1].toFixed(1);
   g.innerHTML = `<circle r="9"></circle><text dy="4">✳</text>`;
   gTrivia.appendChild(g);
 });
@@ -205,6 +220,10 @@ function setVb(v) {
   svg.setAttribute("viewBox", v.join(" "));
   const k = HOME_VIEW[2] / v[2];
   wobbleDisp.setAttribute("scale", (6.5 / Math.max(1, k * 0.75)).toFixed(2));
+  // trivia markers keep their on-screen size at any zoom
+  const mk = (1 / Math.max(1, k * 0.8)).toFixed(3);
+  for (const m of gTrivia.children)
+    m.setAttribute("transform", `translate(${m.dataset.x},${m.dataset.y}) scale(${mk})`);
   if (typeof current !== "undefined" && (current === "wires" || current === "you"))
     setHidden(zoomReset, k < 1.05);
 }
@@ -368,8 +387,18 @@ async function showYouCard(zip, utils) {
   const st = rows[0]?.st;
   const rule = st && rules.states[st] ? rules.states[st] : null;
   const bucket = rule ? rules.buckets[rule.bucket] : null;
-  const rto = rows.find(r => r.rto && r.rto !== "NONE")?.rto || (rows.some(r => r.rto === "NONE") ? "NONE" : null);
-  const rtoName = rto === null ? null : rto === "NONE" ? "No RTO. Utilities run this grid themselves." : `${copy.regions[rto].name} runs the market here.`;
+  // a zip can straddle a grid border (Caldwell, Lubbock): name each market
+  const rtoSet = [...new Set(rows.filter(r => r.rto).map(r => r.rto))];
+  let rtoName = null;
+  if (rtoSet.length === 1) {
+    rtoName = rtoSet[0] === "NONE"
+      ? "No RTO. Utilities run this grid themselves."
+      : `${copy.regions[rtoSet[0]].name} runs the market here.`;
+  } else if (rtoSet.length > 1) {
+    rtoName = "This zip sits near a grid border. " + rows.filter(r => r.rto)
+      .map(r => `${r.name} trades in ${r.rto === "NONE" ? "no market" : copy.regions[r.rto].name}`)
+      .join(". ") + ".";
+  }
   // the honest bottom line: in choice states, co-ops and city utilities are
   // usually exempt, so their customers still have one seller.
   // Exception: Lubbock's city utility joined the Texas retail market in 2024.
@@ -425,7 +454,7 @@ function showRegion(rto, splitKey) {
   const r = copy.regions[rto];
   const body = rto === "NONE" && splitKey ? r.display_split[splitKey].body : r.body;
   card.innerHTML =
-    `<span class="c-swatch" style="background:${FILL[rto]}"></span><h3>${r.name}</h3>` +
+    `<span class="c-swatch" style="${swatchStyle(rto)}"></span><h3>${r.name}</h3>` +
     `<p class="c-body">${body}</p>` +
     `<div class="c-stats"><span class="c-stat"><b>${r.stats.states}</b>states</span>` +
     `<span class="c-stat"><b>${r.stats.people}</b>people</span></div>` +
@@ -578,8 +607,20 @@ renderRail();
 const params = new URLSearchParams(location.search);
 const wanted = params.get("layer");
 const wantedZip = params.get("zip");
+const wantedTrivia = params.get("trivia");
 if (wantedZip && /^\d{5}$/.test(wantedZip)) {
   setLayer("you").then(() => { zipInput.value = wantedZip; findZip(wantedZip); });
+} else if (wantedTrivia && copy.trivia.some(t => t.id === wantedTrivia)) {
+  // deep link to a curiosity: open the card and fly to its marker
+  setLayer("wholesale").then(() => {
+    const i = copy.trivia.findIndex(t => t.id === wantedTrivia);
+    showTrivia(i);
+    const pt = projection(copy.trivia[i].anchor.lonlat);
+    if (pt) {
+      animateViewBox([pt[0] - 130, pt[1] - 90, 260, 180]);
+      setHidden(zoomReset, false);
+    }
+  });
 } else {
   setLayer(LAYERS.includes(wanted) ? wanted : "wholesale");
 }
@@ -630,4 +671,4 @@ document.getElementById("tour-start").addEventListener("click", () => tourShow(0
 // first visit: offer the tour automatically (skippable, never repeats)
 let tourSeen = true;
 try { tourSeen = !!localStorage.getItem("ga-tour-done"); } catch {}
-if (!tourSeen && !wantedZip && !wanted) tourShow(0);
+if (!tourSeen && !wantedZip && !wanted && !wantedTrivia) tourShow(0);
