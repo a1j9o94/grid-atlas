@@ -10,12 +10,14 @@ const FILL = {
   SPP: "var(--r-spp)", CAISO: "var(--r-caiso)", NYISO: "var(--r-nyiso)",
   ISONE: "var(--r-isone)", NONE: "var(--r-none)",
 };
-// wires layer: ownership groups. Palette validated on the sage surface, and
-// deliberately not red-vs-blue (a two-party map is the wrong association).
+// wires layer: ownership as ONE hue, stepped from investor-owned (light) to
+// citizen-owned (dark). Any two contrasting hues at this area coverage reads
+// as an election map, so the encoding is ordered "how public is your power
+// company" instead of team colors. Ramp validated on the sage surface.
 const WIRE_GROUPS = {
-  iou: { label: "Investor-owned", color: "#0087a5" },
-  coop: { label: "Co-ops", color: "#a06b26" },
-  public: { label: "Public power", color: "#8a5fae" },
+  iou: { label: "Owned by investors", color: "#a98cc4" },
+  coop: { label: "Owned by its members", color: "#7c5fae" },
+  public: { label: "Owned by the public", color: "#4b3178" },
   other: { label: "Unknown", color: "#c8c3ae" },
 };
 function wireGroup(type) {
@@ -60,6 +62,7 @@ svg.innerHTML = `
   <g id="g-you" hidden></g>
   <g id="g-statelines"></g>
   <g id="g-labels"></g>
+  <g id="g-trivia"></g>
 `;
 const gRto = svg.querySelector("#g-rto");
 const gRules = svg.querySelector("#g-rules");
@@ -67,6 +70,7 @@ const gWires = svg.querySelector("#g-wires");
 const gYou = svg.querySelector("#g-you");
 const gLines = svg.querySelector("#g-statelines");
 const gLabels = svg.querySelector("#g-labels");
+const gTrivia = svg.querySelector("#g-trivia");
 
 // wholesale layer marks
 for (const f of rtosFC.features) {
@@ -142,6 +146,33 @@ async function ensureWires() {
     gWires.appendChild(p);
   });
 }
+
+// ---- trivia markers (wholesale layer): the map's curiosities ----
+copy.trivia.forEach((t, i) => {
+  const pt = projection(t.anchor.lonlat);
+  if (!pt) return;
+  const g = document.createElementNS(SVG_NS, "g");
+  g.setAttribute("class", "trivia");
+  g.setAttribute("transform", `translate(${pt[0].toFixed(1)},${pt[1].toFixed(1)})`);
+  g.dataset.trivia = i;
+  g.innerHTML = `<circle r="9"></circle><text dy="4">✳</text>`;
+  gTrivia.appendChild(g);
+});
+function showTrivia(i) {
+  const t = copy.trivia[i];
+  card.innerHTML =
+    `<div class="c-kicker">Curiosity${t.verified ? "" : " · draft, still being checked"}</div>` +
+    `<h3>${t.title}</h3>` +
+    `<p class="c-body">${t.body}</p>`;
+}
+gTrivia.addEventListener("mouseover", e => {
+  const g = e.target.closest(".trivia");
+  if (g) showTrivia(+g.dataset.trivia);
+});
+gTrivia.addEventListener("click", e => {
+  const g = e.target.closest(".trivia");
+  if (g) showTrivia(+g.dataset.trivia);
+});
 
 // ---- You layer: zip search, fly-to, your place in the stack ----
 const zipForm = document.getElementById("zip-search");
@@ -413,6 +444,7 @@ async function setLayer(key) {
   setHidden(card, !ready);
   setHidden(gRto, key !== "wholesale");
   setHidden(gLabels, key !== "wholesale");
+  setHidden(gTrivia, key !== "wholesale");
   setHidden(gRules, key !== "rules");
   setHidden(gWires, key !== "wires");
   setHidden(gYou, key !== "you");
@@ -475,3 +507,39 @@ aboutToggle.addEventListener("click", () => {
   setHidden(aboutOverlay, !open);
   aboutToggle.setAttribute("aria-expanded", String(open));
 });
+
+// ---- the 30-second tour ----
+const tourPanel = document.getElementById("tour-panel");
+const tourTitle = document.getElementById("tour-title");
+const tourBody = document.getElementById("tour-body");
+const tourStepLabel = document.getElementById("tour-step-label");
+const tourNext = document.getElementById("tour-next");
+const tourSkip = document.getElementById("tour-skip");
+let tourIdx = -1;
+
+function tourShow(i) {
+  tourIdx = i;
+  const step = copy.tour[i];
+  setLayer(step.layer);
+  tourStepLabel.textContent = `${i + 1} of ${copy.tour.length}`;
+  tourTitle.textContent = step.title;
+  tourBody.textContent = step.body;
+  tourNext.textContent = i === copy.tour.length - 1 ? "Explore" : "Next";
+  setHidden(tourPanel, false);
+}
+function tourEnd() {
+  tourIdx = -1;
+  setHidden(tourPanel, true);
+  try { localStorage.setItem("ga-tour-done", "1"); } catch {}
+}
+tourNext.addEventListener("click", () => {
+  if (tourIdx >= copy.tour.length - 1) { tourEnd(); zipInput.focus(); }
+  else tourShow(tourIdx + 1);
+});
+tourSkip.addEventListener("click", tourEnd);
+document.getElementById("tour-start").addEventListener("click", () => tourShow(0));
+
+// first visit: offer the tour automatically (skippable, never repeats)
+let tourSeen = true;
+try { tourSeen = !!localStorage.getItem("ga-tour-done"); } catch {}
+if (!tourSeen && !wantedZip && !wanted) tourShow(0);

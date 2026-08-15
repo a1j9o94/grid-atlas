@@ -243,3 +243,35 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .zip-neighbor { stroke-width: 0.8px; }
 .zip-target { stroke-width: 1.5px; fill-opacity: 0.45; }
 .statelines { vector-effect: non-scaling-stroke; stroke-width: 0.6px; }
+
+/* trivia markers */
+.trivia { cursor: pointer; }
+.trivia circle { fill: var(--card-bg); stroke: var(--ink); stroke-width: 1.2;
+  vector-effect: non-scaling-stroke; }
+.trivia text { font: 700 11px var(--mono); fill: var(--ink); text-anchor: middle; pointer-events: none; }
+.trivia:hover circle { fill: var(--choice-bg); }
+.card .c-kicker { font: 600 10px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink2); margin-bottom: 6px; }
+
+/* tour */
+.foot-buttons { display: flex; gap: 8px; }
+.tour-start {
+  font: 600 12px/1 var(--mono); letter-spacing: 0.06em;
+  border: 1px solid var(--ink); color: var(--paper); background: var(--ink);
+  padding: 6px 10px; cursor: pointer;
+}
+.tour-panel {
+  position: absolute; left: 50%; bottom: 54px; transform: translateX(-50%); z-index: 45;
+  width: min(430px, calc(100vw - 48px));
+  background: var(--card-bg); border: 1px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(38, 48, 31, 0.2); padding: 14px 16px;
+}
+.tour-step { font: 600 10px/1 var(--mono); letter-spacing: 0.12em; color: var(--ink2); margin: 0 0 6px; }
+.tour-panel h3 { font: 700 16px/1.25 var(--display); margin: 0 0 6px; }
+.tour-body { font-size: 13.5px; line-height: 1.45; margin: 0 0 12px; }
+.tour-actions { display: flex; justify-content: space-between; }
+.tour-actions button {
+  font: 600 13px/1 var(--ui); padding: 7px 14px; cursor: pointer;
+  border: 1px solid var(--ink2); background: none; color: var(--ink2);
+}
+.tour-actions button.primary { border-color: var(--ink); background: var(--ink); color: var(--paper); }

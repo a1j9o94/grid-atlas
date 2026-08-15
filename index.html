@@ -48,8 +48,20 @@
     <footer class="foot">
       <p class="note">Region shapes come from utility service areas, so borders are honest but not smooth. Blank gaps are areas where no utility is mapped; much of that is wilderness.</p>
       <p class="note">Part of a series on how electricity markets work. I work at Light, which only exists because Texas structured its market a particular way. Judge my arguments accordingly.</p>
-      <button class="about-toggle" id="about-toggle" aria-expanded="false">About this map</button>
+      <span class="foot-buttons">
+        <button class="tour-start" id="tour-start">▶ 30-second tour</button>
+        <button class="about-toggle" id="about-toggle" aria-expanded="false">About this map</button>
+      </span>
     </footer>
+    <div class="tour-panel" id="tour-panel" hidden>
+      <p class="tour-step" id="tour-step-label"></p>
+      <h3 id="tour-title"></h3>
+      <p class="tour-body" id="tour-body"></p>
+      <div class="tour-actions">
+        <button id="tour-skip">Skip</button>
+        <button id="tour-next" class="primary">Next</button>
+      </div>
+    </div>
     <div class="about-overlay" id="about-overlay" hidden>
       <p class="note">Region shapes come from utility service areas, so borders are honest but not smooth. Blank gaps are areas where no utility is mapped; much of that is wilderness.</p>
       <p class="note">Part of a series on how electricity markets work. I work at Light, which only exists because Texas structured its market a particular way. Judge my arguments accordingly.</p>
