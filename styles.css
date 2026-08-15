@@ -123,3 +123,17 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* map marks */
+.region { stroke: rgba(38, 48, 31, 0.45); stroke-width: 0.7; transition: filter 120ms ease, opacity 120ms ease; }
+svg.has-hover .region { opacity: 0.45; }
+svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); }
+.statelines { fill: none; stroke: rgba(38, 48, 31, 0.28); stroke-width: 0.45; pointer-events: none; }
+.rlabel {
+  font: 600 16px var(--mono); letter-spacing: 0.1em; fill: var(--ink);
+  paint-order: stroke; stroke: rgba(238, 240, 233, 0.85); stroke-width: 4px; stroke-linejoin: round;
+  text-anchor: middle; pointer-events: none;
+}
+.rlabel.small { font-size: 12px; }
+
+[hidden] { display: none !important; }
