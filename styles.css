@@ -203,3 +203,7 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .lg-item { display: inline-flex; align-items: center; gap: 6px; }
 .lg-swatch { width: 11px; height: 11px; display: inline-block; border: 1px solid rgba(38,48,31,0.35); }
 .card .c-note { border-top: 1px solid var(--hair); padding-top: 8px; }
+
+/* wires layer marks: highlight the hovered piece only (2,907 siblings) */
+#g-wires .region { transition: none; }
+#g-wires .region.hov { stroke: var(--ink); stroke-width: 1.5; filter: brightness(0.9) saturate(1.25); }

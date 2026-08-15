@@ -4,12 +4,31 @@ import { geoAlbersUsa, geoPath, feature, mesh } from "./vendor.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const LAYERS = ["wholesale", "rules", "wires", "you"];
-const READY = new Set(["wholesale", "rules"]);
+const READY = new Set(["wholesale", "rules", "wires"]);
 const FILL = {
   PJM: "var(--r-pjm)", ERCOT: "var(--r-ercot)", MISO: "var(--r-miso)",
   SPP: "var(--r-spp)", CAISO: "var(--r-caiso)", NYISO: "var(--r-nyiso)",
   ISONE: "var(--r-isone)", NONE: "var(--r-none)",
 };
+// wires layer: ownership groups (palette validated on the sage surface)
+const WIRE_GROUPS = {
+  iou: { label: "Investor-owned", color: "#3a6ea8" },
+  coop: { label: "Co-ops", color: "#b4552d" },
+  public: { label: "Public power", color: "#7c5fae" },
+  other: { label: "Unknown", color: "#c8c3ae" },
+};
+function wireGroup(type) {
+  if (type === "INVESTOR OWNED") return "iou";
+  if (type === "COOPERATIVE") return "coop";
+  if (["MUNICIPAL", "POLITICAL SUBDIVISION", "STATE", "FEDERAL"].includes(type)) return "public";
+  return "other";
+}
+function titleCase(name) {
+  return name.toLowerCase()
+    .replace(/ - \([a-z]{2}\)$/i, "")
+    .replace(/\b[a-z]/g, c => c.toUpperCase())
+    .replace(/\bLlc\b/g, "LLC").replace(/\bInc\b/g, "Inc");
+}
 
 const [copy, rules, statesTopo, rtosTopo] = await Promise.all([
   fetch("data/copy.json").then(r => r.json()),
@@ -36,11 +55,13 @@ svg.innerHTML = `
   </defs>
   <g id="g-rto" filter="url(#wobble)"></g>
   <g id="g-rules" filter="url(#wobble)" hidden></g>
+  <g id="g-wires" filter="url(#wobble)" hidden></g>
   <g id="g-statelines"></g>
   <g id="g-labels"></g>
 `;
 const gRto = svg.querySelector("#g-rto");
 const gRules = svg.querySelector("#g-rules");
+const gWires = svg.querySelector("#g-wires");
 const gLines = svg.querySelector("#g-statelines");
 const gLabels = svg.querySelector("#g-labels");
 
@@ -94,11 +115,44 @@ function addLabel(text, x, y, small) {
   gLabels.appendChild(t);
 }
 
-// rules legend
+// wires layer: lazy-loaded on first open (5.8MB of geometry)
+let wiresFeatures = null;
+let wiresCounts = null;
+async function ensureWires() {
+  if (wiresFeatures) return;
+  const topo = await (await fetch("data/wires.topo.json")).json();
+  const fc = feature(topo, Object.values(topo.objects)[0]);
+  // draw big territories first so small ones stay hoverable on top
+  wiresFeatures = fc.features
+    .map(f => ({ f, area: path.area(f) }))
+    .sort((a, b) => b.area - a.area)
+    .map(x => x.f);
+  wiresCounts = { iou: 0, coop: 0, public: 0, other: 0 };
+  wiresFeatures.forEach((f, i) => {
+    const g = wireGroup(f.properties.TYPE);
+    wiresCounts[g]++;
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", path(f));
+    p.setAttribute("fill", WIRE_GROUPS[g].color);
+    p.setAttribute("class", "region wire");
+    p.dataset.wire = i;
+    gWires.appendChild(p);
+  });
+}
+
+// legend (content depends on layer)
 const legend = document.getElementById("legend");
-legend.innerHTML = Object.values(rules.buckets)
-  .map(b => `<span class="lg-item"><span class="lg-swatch" style="background:${b.color}"></span>${b.label}</span>`)
-  .join("");
+function renderLegend(key) {
+  if (key === "rules") {
+    legend.innerHTML = Object.values(rules.buckets)
+      .map(b => `<span class="lg-item"><span class="lg-swatch" style="background:${b.color}"></span>${b.label}</span>`)
+      .join("");
+  } else if (key === "wires") {
+    legend.innerHTML = Object.entries(WIRE_GROUPS)
+      .map(([g, w]) => `<span class="lg-item"><span class="lg-swatch" style="background:${w.color}"></span>${w.label}${wiresCounts ? ` · ${wiresCounts[g].toLocaleString()}` : ""}</span>`)
+      .join("");
+  }
+}
 
 // ---- hover cards ----
 const card = document.getElementById("card");
@@ -122,6 +176,28 @@ function showState(abbr) {
     `<p class="c-body">${bucket.body}</p>` +
     (st.note ? `<p class="c-body c-note">${st.note}</p>` : "");
 }
+function showWire(i) {
+  const p = wiresFeatures[i].properties;
+  const g = wireGroup(p.TYPE);
+  const typeInfo = copy.wires_types[p.TYPE] || copy.wires_types["NOT AVAILABLE"];
+  const customers = p.CUSTOMERS > 0
+    ? `<span class="c-stat"><b>${p.CUSTOMERS.toLocaleString()}</b>customers</span>` : "";
+  const rtoName = p.RTO === "NONE" ? "No RTO" : (copy.regions[p.RTO]?.name || p.RTO);
+  card.innerHTML =
+    `<span class="c-swatch" style="background:${WIRE_GROUPS[g].color}"></span><h3>${titleCase(p.NAME)}</h3>` +
+    `<div class="c-choice">${typeInfo.label} · ${p.STATE}</div>` +
+    `<p class="c-body">${typeInfo.body}</p>` +
+    `<div class="c-stats">${customers}<span class="c-stat"><b>${rtoName}</b>grid</span></div>`;
+}
+function showWiresIntro() {
+  card.innerHTML =
+    `<h3>Almost 3,000 wire owners</h3>` +
+    `<p class="c-body">Every piece on this map is a company that owns poles and wires. Hover any piece to meet it.</p>` +
+    `<div class="c-stats">` +
+    `<span class="c-stat"><b>${wiresCounts.coop.toLocaleString()}</b>co-ops</span>` +
+    `<span class="c-stat"><b>${wiresCounts.iou.toLocaleString()}</b>investor-owned</span>` +
+    `<span class="c-stat"><b>${wiresCounts.public.toLocaleString()}</b>public power</span></div>`;
+}
 
 function svgPoint(e) {
   const pt = new DOMPoint(e.clientX, e.clientY);
@@ -141,11 +217,18 @@ svg.addEventListener("mousemove", e => {
   } else if (current === "rules" && d.state) {
     setHover(gRules, p => p.dataset.state === d.state);
     showState(d.state);
+  } else if (current === "wires" && d.wire !== undefined) {
+    if (hoveredWire) hoveredWire.classList.remove("hov");
+    hoveredWire = e.target;
+    hoveredWire.classList.add("hov");
+    showWire(+d.wire);
   }
 });
+let hoveredWire = null;
 svg.addEventListener("mouseleave", () => {
   svg.classList.remove("has-hover");
   for (const g of [gRto, gRules]) for (const p of g.children) p.classList.remove("hov");
+  if (hoveredWire) { hoveredWire.classList.remove("hov"); hoveredWire = null; }
 });
 function setHover(group, match) {
   svg.classList.add("has-hover");
@@ -178,23 +261,35 @@ function renderRail() {
   explainer.innerHTML = `<b>${l.title}.</b> ${l.explainer}`;
 }
 
-function setLayer(key) {
+async function setLayer(key) {
   current = key;
   renderRail();
   const ready = READY.has(key);
-  setHidden(svg, !ready);
   setHidden(card, !ready);
-  setHidden(drawingNote, ready);
   setHidden(gRto, key !== "wholesale");
   setHidden(gLabels, key !== "wholesale");
   setHidden(gRules, key !== "rules");
-  setHidden(legend, key !== "rules");
+  setHidden(gWires, key !== "wires");
+  setHidden(legend, key !== "rules" && key !== "wires");
   svg.classList.remove("has-hover");
+  if (key === "wires" && !wiresFeatures) {
+    setHidden(svg, true);
+    setHidden(drawingNote, false);
+    drawingNote.querySelector("p").textContent = "Inking 2,907 utilities.";
+    drawingNote.querySelector(".sub").textContent = "One moment.";
+    await ensureWires();
+    if (current !== "wires") return;
+    setHidden(gWires, false);
+  }
+  setHidden(svg, !ready);
+  setHidden(drawingNote, ready);
+  renderLegend(key);
   if (key === "wholesale") showRegion("ERCOT");
   if (key === "rules") showState("TX");
+  if (key === "wires") showWiresIntro();
   if (!ready) {
     drawingNote.querySelector("p").textContent = `The ${copy.layers[key].title} layer is being inked.`;
-    drawingNote.querySelector(".sub").textContent = "It lands in the next update. Wholesale and Rules are live now.";
+    drawingNote.querySelector(".sub").textContent = "It lands in the next update. Wholesale, Rules, and Wires are live now.";
   }
   if (typeof updateUrl === "function") updateUrl(key);
 }
