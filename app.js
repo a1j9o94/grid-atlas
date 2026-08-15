@@ -156,3 +156,12 @@ function setLayer(key) {
 renderRail();
 setHidden(svg, false);
 setHidden(drawingNote, true);
+
+// about overlay (mobile)
+const aboutToggle = document.getElementById("about-toggle");
+const aboutOverlay = document.getElementById("about-overlay");
+aboutToggle.addEventListener("click", () => {
+  const open = aboutOverlay.hasAttribute("hidden");
+  setHidden(aboutOverlay, !open);
+  aboutToggle.setAttribute("aria-expanded", String(open));
+});
