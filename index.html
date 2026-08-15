@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How your electricity works — an explorable map</title>
+<meta name="description" content="Who runs the grid where you live, in four layers. An explorable map of America's electricity system.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="plate">
+  <div class="plate-inner">
+    <header class="head">
+      <p class="kicker">Plate 1 · An explorable map</p>
+      <h1>How your electricity works</h1>
+      <p class="dek">Who runs the grid where you live, in four layers. Start wide. Zoom to your zip code.</p>
+    </header>
+
+    <div class="body">
+      <nav class="rail" aria-label="Map layers">
+        <h2>The stack</h2>
+        <div class="steps" id="rail"></div>
+        <aside class="explainer" id="explainer"></aside>
+      </nav>
+
+      <div class="map-panel">
+        <div class="drawing-note" id="drawing-note">
+          <p>The map is being drawn.</p>
+          <p class="sub">Check back shortly. The boundaries of 2,900 utilities take a moment to ink.</p>
+        </div>
+        <svg id="map" viewBox="0 0 975 610" role="img" aria-label="Map of the United States electricity system" hidden></svg>
+      </div>
+
+      <aside class="card" id="card" hidden></aside>
+    </div>
+
+    <footer class="foot">
+      <p class="note">Region shapes come from utility service areas, so borders are honest but not smooth. Blank gaps are areas where no utility is mapped; much of that is wilderness.</p>
+      <p class="note">Part of a series on how electricity markets work. I work at Light, which only exists because Texas structured its market a particular way. Judge my arguments accordingly.</p>
+    </footer>
+  </div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

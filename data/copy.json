@@ -1,0 +1,222 @@
+{
+  "meta": {
+    "version": "2026-08-15",
+    "reading_level": "5th-6th grade",
+    "notes": "Source of truth for every string the map shows. Anchors are [lon, lat] EPSG:4326; the site projects them. verified:false entries need a fact-check pass before launch. People counts in region cards are rough and marked with ~.",
+    "honesty_footnotes": [
+      "Region shapes come from utility service areas, so borders are honest but not smooth.",
+      "Zip shapes are the Census version of zip codes (ZCTAs). They are very close, not exact.",
+      "Where the map shows a blank white gap, no utility is mapped there. Much of it is wilderness."
+    ]
+  },
+
+  "layers": {
+    "wholesale": {
+      "title": "Wholesale",
+      "gloss": "who runs the market",
+      "explainer": "An RTO is a referee for electricity. It doesn't make power or own wires. It runs the market and keeps the grid balanced, second by second. About a third of the country has no RTO at all."
+    },
+    "rules": {
+      "title": "Rules",
+      "gloss": "can you pick your seller?",
+      "explainer": "Each state writes its own rules. In some states you can pick the company that sells you power, like picking a phone plan. In most states one company is the only choice, and a state board checks its prices."
+    },
+    "wires": {
+      "title": "Wires",
+      "gloss": "who owns the poles",
+      "explainer": "Almost 3,000 different companies own the poles and wires in America. Some are owned by investors. Some are owned by cities. Some are co-ops, owned by the very customers they serve."
+    },
+    "you": {
+      "title": "You",
+      "gloss": "your zip code",
+      "explainer": "Type your zip code and see your place in the stack: your utility, your state's rules, and your grid."
+    }
+  },
+
+  "tour": [
+    { "layer": "wholesale", "title": "Start wide", "body": "This is the whole country, split by who runs each power market. These referees are called RTOs. The gray areas have no referee at all." },
+    { "layer": "rules", "title": "States make the rules", "body": "Color by state now. In the bright states you can pick who sells you power. In the rest, one company is the only choice." },
+    { "layer": "wires", "title": "Almost 3,000 wire owners", "body": "Zoom in and the map shatters into almost 3,000 pieces. Every piece is a company that owns poles and wires. Co-ops, city utilities, big investor companies." },
+    { "layer": "you", "title": "Find yourself", "body": "Type your zip code. The map flies to your neighborhood and shows your utility, your rules, and your grid." }
+  ],
+
+  "regions": {
+    "PJM": {
+      "name": "PJM",
+      "body": "PJM runs the power market for 13 states plus Washington, DC, from Chicago to the coast. It is the biggest grid operator in America.",
+      "stats": { "states": "13 + DC", "people": "~65M" },
+      "choice": "Can people pick their power company? In most PJM states, yes."
+    },
+    "ERCOT": {
+      "name": "ERCOT",
+      "body": "ERCOT runs the grid for most of Texas. Think of it as air-traffic control for electricity. It doesn't own the power plants or the wires. It keeps supply and demand matched every second. Texas keeps its grid separate from the rest of the country, on purpose.",
+      "stats": { "states": "1", "people": "~27M" },
+      "choice": "Can people pick their power company? In most of Texas, yes."
+    },
+    "MISO": {
+      "name": "MISO",
+      "body": "MISO stretches from Minnesota down to Louisiana. It runs the wholesale market for about 15 states in the middle of the country.",
+      "stats": { "states": "~15", "people": "~45M" },
+      "choice": "Can people pick their power company? Mostly no. One utility per town."
+    },
+    "SPP": {
+      "name": "SPP",
+      "body": "Southwest Power Pool runs the market across the windy middle of the country, from the Dakotas down through Kansas and Oklahoma into the Texas Panhandle.",
+      "stats": { "states": "~14 (parts)", "people": "~18M" },
+      "choice": "Can people pick their power company? No. One utility per town."
+    },
+    "CAISO": {
+      "name": "CAISO",
+      "body": "CAISO runs most of California's grid. California opened its market in the 1990s, hit a crisis in 2000, and mostly closed it again.",
+      "stats": { "states": "1 (most of CA)", "people": "~30M" },
+      "choice": "Can people pick their power company? Mostly no. Some cities buy power together for everyone in town."
+    },
+    "NYISO": {
+      "name": "NYISO",
+      "body": "NYISO runs the grid for exactly one state: New York.",
+      "stats": { "states": "1", "people": "~20M" },
+      "choice": "Can people pick their power company? Yes."
+    },
+    "ISONE": {
+      "name": "ISO-NE",
+      "body": "ISO New England runs the grid for all six New England states.",
+      "stats": { "states": "6", "people": "~15M" },
+      "choice": "Can people pick their power company? Yes, in most of New England."
+    },
+    "NONE": {
+      "name": "No RTO",
+      "display_split": {
+        "NONE_W": { "label": "NO RTO", "anchor": [-114.0, 42.5],
+          "body": "No shared market here. In most of the West, one company does everything: makes the power, moves it, sells it. A state board checks its prices. Utilities still trade with each other, just without one shared referee." },
+        "NONE_SE": { "label": "NO RTO", "anchor": [-84.5, 33.5],
+          "body": "No shared market in the Southeast either. Big utilities here do it all: one company, one bill. A state board checks the prices." }
+      },
+      "stats": { "states": "~17", "people": "~70M" },
+      "choice": "Can people pick their power company? No."
+    }
+  },
+
+  "wires_types": {
+    "INVESTOR OWNED": { "label": "Investor-owned", "body": "A company owned by investors. It answers to shareholders and to a state board that checks its prices." },
+    "COOPERATIVE": { "label": "Co-op", "body": "A power company owned by its own customers. Every member gets a vote. Co-ops keep the lights on across most of rural America." },
+    "MUNICIPAL": { "label": "City-owned", "body": "A power company owned by the town it serves, like the library or the fire department." },
+    "POLITICAL SUBDIVISION": { "label": "Public power district", "body": "A public utility run by a local district, owned by the public it serves." },
+    "STATE": { "label": "State-owned", "body": "A utility owned by the state." },
+    "FEDERAL": { "label": "Federal", "body": "A utility run by the federal government, usually selling power from big dams." },
+    "NOT AVAILABLE": { "label": "Utility", "body": "A local power company." }
+  },
+
+  "trivia": [
+    {
+      "id": "caldwell-switched-grids",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-96.70, 30.53], "feature": { "name": "CITY OF CALDWELL", "state": "TX" } },
+      "title": "The town that switched grids",
+      "body": "Until March 2026, the little city of Caldwell was an island. It sits in the middle of Texas, but its power came from the Eastern grid, through MISO. New lines were built, and Caldwell joined ERCOT. Older maps still show the island.",
+      "verified": true,
+      "sources": [
+        "https://www.ercot.com/news/release/03122026-ercot-welcomes-the",
+        "https://www.lcra.org/news-story/lcra-helps-city-of-caldwell-move-into-ercot-grid/",
+        "https://www.publicpower.org/periodical/article/ercot-welcomes-city-caldwell-texas-system"
+      ]
+    },
+    {
+      "id": "panhandle-not-ercot",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-101.8, 35.2] },
+      "title": "The Panhandle isn't on the Texas grid",
+      "body": "ERCOT's border is not the Texas border. The Panhandle and the South Plains run on the Eastern grid, inside SPP. Lubbock, the biggest city up here, switched its wires over to ERCOT in 2021 so its people could shop for power.",
+      "verified": false,
+      "verify_notes": "Lubbock LP&L interconnection switch year (2021) and framing; SPS/Xcel as the anchor utility.",
+      "sources": []
+    },
+    {
+      "id": "el-paso-western-grid",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-106.3, 31.8] },
+      "title": "El Paso is on the Western grid",
+      "body": "El Paso is in Texas, but not on the Texas grid. Its utility is part of the Western grid that runs to the Pacific. In the big freeze of 2021, most of Texas lost power. El Paso mostly kept its lights on.",
+      "verified": true,
+      "sources": []
+    },
+    {
+      "id": "east-texas-miso",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-94.8, 30.5] },
+      "title": "Southeast Texas runs on a different grid",
+      "body": "The land from Beaumont up past Lufkin is Texas, but its market is MISO, the same referee as Minnesota. Pockets of this eastern-grid territory reach surprisingly far west, woven between ERCOT co-ops.",
+      "verified": false,
+      "verify_notes": "Check the western pockets against Entergy Texas's own service-area map before launch.",
+      "sources": ["https://electricrates.org/blog/entergy-texas-service-guide/"]
+    },
+    {
+      "id": "northeast-texas-spp",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-94.6, 32.6] },
+      "title": "The SPP fingers in East Texas",
+      "body": "See the yellow fingers reaching into East Texas? Those co-ops get their power through SPP, on the Eastern grid, not through ERCOT. The border between grids runs right between neighboring farms.",
+      "verified": false,
+      "verify_notes": "SWEPCO belt framing: Upshur, Wood County, Bowie-Cass, Rusk, Panola-Harrison co-ops.",
+      "sources": []
+    },
+    {
+      "id": "oklahoma-aeci-holes",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-95.2, 35.8] },
+      "title": "The holes in SPP",
+      "body": "Eastern Oklahoma looks like Swiss cheese. The holes are co-ops that never joined SPP. They get their power from AECI, an alliance of co-ops in Missouri that runs its own control room and never joined any RTO.",
+      "verified": false,
+      "verify_notes": "AECI relationship to OK co-ops (via KAMO Power); same story explains the Missouri hole in MISO.",
+      "sources": []
+    },
+    {
+      "id": "nebraska-two-grids",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-103.3, 41.8] },
+      "title": "Nebraska sits on two grids",
+      "body": "The line between America's Eastern and Western grids runs through Nebraska. Towns in the panhandle are on the Western grid, tied to federal dams. The rest of the state is on the Eastern grid, in SPP.",
+      "verified": false,
+      "verify_notes": "WACM control area for panhandle utilities; exact seam framing.",
+      "sources": []
+    },
+    {
+      "id": "maine-through-canada",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-67.9, 45.6] },
+      "title": "The corner of Maine that routes through Canada",
+      "body": "The far eastern and northern edges of Maine are not connected to New England's grid at all. Their power comes through New Brunswick, Canada. To reach the rest of America's grid, it crosses the border twice.",
+      "verified": false,
+      "verify_notes": "Eastern Maine Electric Coop + Houlton, NBSO control area; check current arrangement.",
+      "sources": []
+    },
+    {
+      "id": "la-runs-its-own-grid",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-118.24, 34.05] },
+      "title": "Los Angeles runs its own grid",
+      "body": "The big hole in CAISO is Los Angeles. The city's own utility, LADWP, has run its own grid for a hundred years. It never joined California's market.",
+      "verified": true,
+      "sources": []
+    },
+    {
+      "id": "sacramento-hole",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-121.49, 38.58] },
+      "title": "Sacramento opted out too",
+      "body": "California's capital is also a hole in CAISO. Sacramento's city-owned utility runs its own balancing authority with a few neighbors.",
+      "verified": false,
+      "verify_notes": "SMUD/BANC framing.",
+      "sources": []
+    },
+    {
+      "id": "michigan-pjm-corner",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-85.8, 42.0] },
+      "title": "Michigan's odd corner",
+      "body": "Michigan is MISO country, except its southwest corner. Those towns and co-ops are served through PJM, the market centered hundreds of miles east.",
+      "verified": false,
+      "verify_notes": "Indiana Michigan Power (AEP) + Midwest Energy Coop; PJM membership via AEP zone.",
+      "sources": []
+    }
+  ]
+}
