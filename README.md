@@ -17,6 +17,7 @@ The map should show current reality, so we keep a small, documented corrections 
 
 - **City of Caldwell, TX → ERCOT.** HIFLD still shows Caldwell in MISO. The town completed its move into ERCOT in March 2026 (PUCT docket 56164; LCRA built the interconnection). Until then it really was an Eastern-grid island inside Texas. There's a marker on the map telling that story.
 - **24 shapes excluded.** Generation-and-transmission co-ops and joint-action agencies (STEC, Sam Rayburn MPA, Wolverine, EKPC's umbrella shape, WPPI, NC Eastern MPA, Badger) draw shapes that overlay the distribution utilities that actually serve those areas. Their members are all present individually, so drawing both creates phantom islands. Also excluded: Canadian utilities and island territories the Albers USA projection cannot show.
+- **Ownership type inferred from names.** 1,684 utilities carry no ownership type in HIFLD, but the names encode it ("... Electric Coop", "City of ...", "... Public Power District"). We classify 1,558 of them by name pattern; the ~130 genuinely ambiguous ones stay Unknown on the map.
 
 ## Honest limits
 
