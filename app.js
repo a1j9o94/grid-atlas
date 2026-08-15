@@ -60,6 +60,7 @@ svg.innerHTML = `
   <g id="g-rules" filter="url(#wobble)" hidden></g>
   <g id="g-wires" filter="url(#wobble)" hidden></g>
   <g id="g-you" hidden></g>
+  <g id="g-zipoutline"></g>
   <g id="g-statelines"></g>
   <g id="g-labels"></g>
   <g id="g-trivia"></g>
@@ -196,18 +197,83 @@ function youBase() {
   gYou.appendChild(zg);
 }
 
+// viewBox is the single source of zoom state; setVb also scales the hand-inked
+// wobble down with zoom so boundaries stay crisp, and manages the reset button.
+const wobbleDisp = svg.querySelector("#wobble feDisplacementMap");
+function getVb() { return svg.getAttribute("viewBox").split(" ").map(Number); }
+function setVb(v) {
+  svg.setAttribute("viewBox", v.join(" "));
+  const k = HOME_VIEW[2] / v[2];
+  wobbleDisp.setAttribute("scale", (6.5 / Math.max(1, k * 0.75)).toFixed(2));
+  if (typeof current !== "undefined" && (current === "wires" || current === "you"))
+    setHidden(zoomReset, k < 1.05);
+}
 function animateViewBox(to, ms = 900) {
   if (viewAnim) cancelAnimationFrame(viewAnim);
-  const from = svg.getAttribute("viewBox").split(" ").map(Number);
+  const from = getVb();
   const t0 = performance.now();
   const ease = t => 1 - Math.pow(1 - t, 3);
   const tick = now => {
     const t = Math.min(1, (now - t0) / ms), k = ease(t);
-    svg.setAttribute("viewBox", from.map((v, i) => v + (to[i] - v) * k).join(" "));
+    setVb(from.map((v, i) => v + (to[i] - v) * k));
     if (t < 1) viewAnim = requestAnimationFrame(tick);
   };
   viewAnim = requestAnimationFrame(tick);
 }
+
+// ---- free zoom & pan (wires and you layers) ----
+const zoomable = () => current === "wires" || current === "you";
+function zoomAt(pt, factor) {
+  const [x, y, w, h] = getVb();
+  const nw = Math.min(Math.max(w * factor, HOME_VIEW[2] / 32), HOME_VIEW[2] * 1.15);
+  const k = nw / w, nh = h * k;
+  setVb([pt.x - (pt.x - x) * k, pt.y - (pt.y - y) * k, nw, nh]);
+}
+svg.addEventListener("wheel", e => {
+  if (!zoomable()) return;
+  e.preventDefault();
+  zoomAt(svgPoint(e), Math.exp(e.deltaY * 0.0022));
+}, { passive: false });
+svg.addEventListener("dblclick", e => { if (zoomable()) zoomAt(svgPoint(e), 0.5); });
+
+let drag = null;
+let pinch = null;
+svg.addEventListener("pointerdown", e => {
+  if (!zoomable() || pinch || e.button !== 0) return;
+  drag = { x: e.clientX, y: e.clientY, vb: getVb() };
+  svg.setPointerCapture(e.pointerId);
+});
+svg.addEventListener("pointermove", e => {
+  if (!drag || pinch) return;
+  const r = svg.getBoundingClientRect();
+  const [x, y, w, h] = drag.vb;
+  const dx = (e.clientX - drag.x) * (w / r.width);
+  const dy = (e.clientY - drag.y) * (h / r.height);
+  setVb([x - dx, y - dy, w, h]);
+});
+svg.addEventListener("pointerup", () => { drag = null; });
+svg.addEventListener("pointercancel", () => { drag = null; });
+
+svg.addEventListener("touchstart", e => {
+  if (zoomable() && e.touches.length === 2) {
+    drag = null;
+    pinch = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY);
+  }
+}, { passive: true });
+svg.addEventListener("touchmove", e => {
+  if (!zoomable() || e.touches.length !== 2 || !pinch) return;
+  e.preventDefault();
+  const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+    e.touches[0].clientY - e.touches[1].clientY);
+  const mid = svgPoint({
+    clientX: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+    clientY: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+  });
+  zoomAt(mid, pinch / d);
+  pinch = d;
+}, { passive: false });
+svg.addEventListener("touchend", () => { pinch = null; }, { passive: true });
 
 const zctaCache = {};
 async function zctaShard(pfx) {
@@ -233,6 +299,29 @@ async function findZip(zip) {
     return;
   }
   zipMsg.textContent = "";
+
+  // on the Wires layer the search flies to your area and outlines your zip
+  // over the utility pieces, then hands you back to hover.
+  if (current === "wires") {
+    const zo = svg.querySelector("#g-zipoutline");
+    zo.innerHTML = "";
+    let view = HOME_VIEW;
+    if (target) {
+      const p = document.createElementNS(SVG_NS, "path");
+      p.setAttribute("d", path(target));
+      p.setAttribute("class", "zip-outline");
+      zo.appendChild(p);
+      const [[x0, y0], [x1, y1]] = path.bounds(target);
+      const w = Math.max(x1 - x0, 8), h = Math.max(y1 - y0, 8);
+      const pad = Math.max(w, h) * 2.2;
+      view = [x0 - pad, y0 - pad, w + 2 * pad, h + 2 * pad];
+    }
+    animateViewBox(view);
+    card.innerHTML = `<h3>Zip ${zip}</h3>` +
+      `<p class="c-body">The dashed line is your zip. Hover the pieces around it to meet the companies that own the wires near you.</p>`;
+    return;
+  }
+
   youBase();
   const zg = gYou.querySelector("#g-zips");
   zg.innerHTML = "";
@@ -448,7 +537,8 @@ async function setLayer(key) {
   setHidden(gRules, key !== "rules");
   setHidden(gWires, key !== "wires");
   setHidden(gYou, key !== "you");
-  setHidden(zipForm, key !== "you");
+  setHidden(zipForm, key !== "you" && key !== "wires");
+  setHidden(svg.querySelector("#g-zipoutline"), key !== "wires");
   setHidden(legend, key !== "rules" && key !== "wires");
   svg.classList.remove("has-hover");
   if (key !== "you") {
@@ -499,14 +589,12 @@ function updateUrl(key) {
   history.replaceState(null, "", url);
 }
 
-// about overlay (mobile)
-const aboutToggle = document.getElementById("about-toggle");
-const aboutOverlay = document.getElementById("about-overlay");
-aboutToggle.addEventListener("click", () => {
-  const open = aboutOverlay.hasAttribute("hidden");
-  setHidden(aboutOverlay, !open);
-  aboutToggle.setAttribute("aria-expanded", String(open));
-});
+// methodology & about modal
+const methodModal = document.getElementById("method-modal");
+document.getElementById("method-toggle").addEventListener("click", () => setHidden(methodModal, false));
+document.getElementById("method-close").addEventListener("click", () => setHidden(methodModal, true));
+methodModal.addEventListener("click", e => { if (e.target === methodModal) setHidden(methodModal, true); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") setHidden(methodModal, true); });
 
 // ---- the 30-second tour ----
 const tourPanel = document.getElementById("tour-panel");

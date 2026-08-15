@@ -87,7 +87,7 @@
       "name": "No RTO",
       "display_split": {
         "NONE_W": { "label": "NO RTO", "anchor": [-114.0, 42.5],
-          "body": "No shared market here. In most of the West, one company does everything: makes the power, moves it, sells it. A state board checks its prices. Utilities still trade with each other, just without one shared referee." },
+          "body": "No shared market here. In most of the West, one company does everything: makes the power, moves it, sells it. A state board checks its prices. That is starting to change: in 2026 a group of western utilities joined SPP's market." },
         "NONE_SE": { "label": "NO RTO", "anchor": [-84.5, 33.5],
           "body": "No shared market in the Southeast either. Big utilities here do it all: one company, one bill. A state board checks the prices." }
       },
@@ -125,10 +125,12 @@
       "layer": "wholesale",
       "anchor": { "lonlat": [-101.8, 35.2] },
       "title": "The Panhandle isn't on the Texas grid",
-      "body": "ERCOT's border is not the Texas border. The Panhandle and the South Plains run on the Eastern grid, inside SPP. Lubbock, the biggest city up here, switched its wires over to ERCOT in 2021 so its people could shop for power.",
-      "verified": false,
-      "verify_notes": "Lubbock LP&L interconnection switch year (2021) and framing; SPS/Xcel as the anchor utility.",
-      "sources": []
+      "body": "ERCOT's border is not the Texas border. The Panhandle and the South Plains run on the Eastern grid, inside SPP. Lubbock, the biggest city up here, began moving its wires to ERCOT in 2021 and finished in 2023. In 2024 its people got to shop for their power for the first time.",
+      "verified": true,
+      "sources": [
+        "https://www.publicpower.org/periodical/article/lubbock-power-light-completes-historic-move-ercot",
+        "https://www.ercot.com/news/release/2023-12-12-lubbock-power-and"
+      ]
     },
     {
       "id": "el-paso-western-grid",
@@ -144,10 +146,13 @@
       "layer": "wholesale",
       "anchor": { "lonlat": [-94.8, 30.5] },
       "title": "Southeast Texas runs on a different grid",
-      "body": "The land from Beaumont up past Lufkin is Texas, but its market is MISO, the same referee as Minnesota. Pockets of this eastern-grid territory reach surprisingly far west, woven between ERCOT co-ops.",
-      "verified": false,
-      "verify_notes": "Check the western pockets against Entergy Texas's own service-area map before launch.",
-      "sources": ["https://electricrates.org/blog/entergy-texas-service-guide/"]
+      "body": "The land from Beaumont up past Lufkin is Texas, but its market is MISO, the same referee as Minnesota. Pockets of this eastern-grid territory reach west past Bryan-College Station, woven between ERCOT co-ops.",
+      "verified": true,
+      "shape_note": "Entergy's own map confirms service in Burleson, Robertson, Leon, Limestone, and Madison counties; the HIFLD polygon overshoots ~20mi into Milam County (true edge is the Brazos line, ~-96.9).",
+      "sources": [
+        "https://www.entergy.com/communities/areas",
+        "https://www.entergy.com/blog/entergy-texas-power-grid-what-it-why-should-i-care"
+      ]
     },
     {
       "id": "northeast-texas-spp",
@@ -155,39 +160,47 @@
       "anchor": { "lonlat": [-94.6, 32.6] },
       "title": "The SPP fingers in East Texas",
       "body": "See the yellow fingers reaching into East Texas? Those co-ops get their power through SPP, on the Eastern grid, not through ERCOT. The border between grids runs right between neighboring farms.",
-      "verified": false,
-      "verify_notes": "SWEPCO belt framing: Upshur, Wood County, Bowie-Cass, Rusk, Panola-Harrison co-ops.",
-      "sources": []
+      "verified": true,
+      "sources": [
+        "https://www.spp.org/documents/36494/2016-03-01_east%20texas%20cooperatives%20stated%20rate_er16-1054-000.pdf",
+        "https://www.etec.coop/member-coops"
+      ]
     },
     {
       "id": "oklahoma-aeci-holes",
       "layer": "wholesale",
       "anchor": { "lonlat": [-95.2, 35.8] },
       "title": "The holes in SPP",
-      "body": "Eastern Oklahoma looks like Swiss cheese. The holes are co-ops that never joined SPP. They get their power from AECI, an alliance of co-ops in Missouri that runs its own control room and never joined any RTO.",
-      "verified": false,
-      "verify_notes": "AECI relationship to OK co-ops (via KAMO Power); same story explains the Missouri hole in MISO.",
-      "sources": []
+      "body": "Eastern Oklahoma looks like Swiss cheese. The holes are co-ops that never joined SPP. They buy power through KAMO Power, part of a family of co-ops called Associated Electric, based in Missouri. Associated runs its own control room and never joined any RTO.",
+      "verified": true,
+      "sources": [
+        "https://www.aeci.org/three-tiered-system-service-area",
+        "https://kamopower.com/about-us"
+      ]
     },
     {
       "id": "nebraska-two-grids",
       "layer": "wholesale",
       "anchor": { "lonlat": [-103.3, 41.8] },
       "title": "Nebraska sits on two grids",
-      "body": "The line between America's Eastern and Western grids runs through Nebraska. Towns in the panhandle are on the Western grid, tied to federal dams. The rest of the state is on the Eastern grid, in SPP.",
-      "verified": false,
-      "verify_notes": "WACM control area for panhandle utilities; exact seam framing.",
-      "sources": []
+      "body": "The line between America's Eastern and Western grids runs through Nebraska. Towns in the panhandle are on the Western grid, tied to federal dams. The rest of the state is on the Eastern grid. Today one operator, SPP, runs markets on both sides. But power still cannot flow freely across the seam. It must pass through special converter stations, like the one near Sidney.",
+      "verified": true,
+      "sources": [
+        "https://spp.org/news-list/spp-and-member-utilities-successfully-complete-historic-western-expansion/",
+        "https://www.spp.org/western-services/rto-expansion/"
+      ]
     },
     {
       "id": "maine-through-canada",
       "layer": "wholesale",
       "anchor": { "lonlat": [-67.9, 45.6] },
       "title": "The corner of Maine that routes through Canada",
-      "body": "The far eastern and northern edges of Maine are not connected to New England's grid at all. Their power comes through New Brunswick, Canada. To reach the rest of America's grid, it crosses the border twice.",
-      "verified": false,
-      "verify_notes": "Eastern Maine Electric Coop + Houlton, NBSO control area; check current arrangement.",
-      "sources": []
+      "body": "The far eastern and northern edges of Maine are not connected to New England's grid at all. Their power comes through New Brunswick, Canada. To reach the rest of America's grid, it crosses the border twice. New England's grid operator is now planning a line to finally connect this area.",
+      "verified": true,
+      "sources": [
+        "https://www.nmisa.com/wp-content/uploads/2022/04/2022-Seven-Year-Outlook-final-1.pdf",
+        "https://mainemorningstar.com/2026/02/09/maine-again-looks-north-for-onshore-wind-but-full-grid-integration-will-have-to-wait/"
+      ]
     },
     {
       "id": "la-runs-its-own-grid",
@@ -203,20 +216,36 @@
       "layer": "wholesale",
       "anchor": { "lonlat": [-121.49, 38.58] },
       "title": "Sacramento opted out too",
-      "body": "California's capital is also a hole in CAISO. Sacramento's city-owned utility runs its own balancing authority with a few neighbors.",
-      "verified": false,
-      "verify_notes": "SMUD/BANC framing.",
-      "sources": []
+      "body": "California's capital is also a hole in CAISO. Sacramento's city-owned utility runs its own balancing authority with a few neighbors. It trades power in CAISO's markets, but it controls its own piece of the grid.",
+      "verified": true,
+      "sources": [
+        "https://thebanc.org/",
+        "https://www.smud.org/en/Corporate/About-us/News-and-Media/2021/2021/Four-more-Balancing-Authority-of-Northern-California-members-join-California-ISO"
+      ]
+    },
+    {
+      "id": "north-dakota-split",
+      "layer": "wholesale",
+      "anchor": { "lonlat": [-100.4, 47.6] },
+      "title": "North Dakota is split down the middle",
+      "body": "Co-ops in eastern North Dakota trade power in MISO, the market that stretches from Minnesota to Louisiana. Co-ops in the west trade in SPP. The west runs on power from federal dams on the Missouri River and from Basin Electric's big plants. That whole system joined SPP in 2015. The east had already tied its lines to Minnesota, so it runs with MISO.",
+      "verified": true,
+      "sources": [
+        "https://www.basinelectric.com/about-us/transmission/SPP-Upper-Missouri-Zone",
+        "https://www.wapa.gov/about-wapa/regions/ugp/ugp-power-marketing/spp-membership/"
+      ]
     },
     {
       "id": "michigan-pjm-corner",
       "layer": "wholesale",
       "anchor": { "lonlat": [-85.8, 42.0] },
       "title": "Michigan's odd corner",
-      "body": "Michigan is MISO country, except its southwest corner. Those towns and co-ops are served through PJM, the market centered hundreds of miles east.",
-      "verified": false,
-      "verify_notes": "Indiana Michigan Power (AEP) + Midwest Energy Coop; PJM membership via AEP zone.",
-      "sources": []
+      "body": "Michigan is MISO country, except its far southwest corner. There, an Indiana-based utility and its neighbors buy and sell power through PJM, the market centered hundreds of miles east.",
+      "verified": true,
+      "sources": [
+        "https://www.michigan.gov/mpsc/commission/news-releases/2025/08/21/michigan-electricity-providers-file-reports-showing-they-again-have-enough-capacity",
+        "https://www.ferc.gov/industries-data/electric/electric-power-markets/pjm"
+      ]
     }
   ]
 }

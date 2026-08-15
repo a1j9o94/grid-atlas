@@ -275,3 +275,36 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   border: 1px solid var(--ink2); background: none; color: var(--ink2);
 }
 .tour-actions button.primary { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+
+/* zip outline on the wires layer */
+.zip-outline { fill: none; stroke: var(--ink); stroke-width: 2px; stroke-dasharray: 6 4;
+  vector-effect: non-scaling-stroke; pointer-events: none; }
+.region { vector-effect: non-scaling-stroke; stroke-width: 0.55px; }
+
+/* footer buttons + github link */
+.method-toggle {
+  font: 600 12px/1 var(--mono); letter-spacing: 0.06em;
+  border: 1px solid var(--ink2); color: var(--ink2); background: none;
+  padding: 6px 10px; cursor: pointer;
+}
+.gh-link { font: 600 12px/1 var(--mono); letter-spacing: 0.04em; color: var(--ink2); }
+.gh-link:hover { color: var(--ink); }
+
+/* methodology modal */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
+  background: rgba(38, 48, 31, 0.35); padding: 18px;
+}
+.modal {
+  position: relative; max-width: 520px; max-height: 84dvh; overflow-y: auto;
+  background: var(--card-bg); border: 1px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(38, 48, 31, 0.25); padding: 18px 20px;
+}
+.modal h2 { font: 600 20px/1.25 var(--display); margin: 0 0 10px; }
+.modal .note { font-size: 13px; line-height: 1.5; color: var(--ink2); margin: 0 0 10px; }
+.modal .note b { color: var(--ink); }
+.modal .note a { color: var(--ink); }
+.modal-close {
+  position: absolute; top: 10px; right: 10px; border: none; background: none;
+  font: 700 14px var(--mono); color: var(--ink2); cursor: pointer; padding: 4px;
+}
