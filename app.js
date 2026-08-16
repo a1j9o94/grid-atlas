@@ -80,6 +80,11 @@ svg.innerHTML = `
   <g id="g-transitions" filter="url(#wobble)"></g>
   <g id="g-rules" filter="url(#wobble)" hidden></g>
   <g id="g-wires" filter="url(#wobble)" hidden></g>
+  <!-- No wobble on the cartogram. The hand-ink filter displaces by an absolute
+       6.5px, which would fling a 1px circle several times its own width off
+       position and corrupt the area encoding this view exists to show. -->
+  <g id="g-cartogram" hidden></g>
+  <g id="g-sizekey" hidden></g>
   <g id="g-you" hidden></g>
   <g id="g-zipoutline"></g>
   <g id="g-statelines"></g>
@@ -90,6 +95,8 @@ const gRto = svg.querySelector("#g-rto");
 const gTransitions = svg.querySelector("#g-transitions");
 const gRules = svg.querySelector("#g-rules");
 const gWires = svg.querySelector("#g-wires");
+const gCartogram = svg.querySelector("#g-cartogram");
+const gSizeKey = svg.querySelector("#g-sizekey");
 const gYou = svg.querySelector("#g-you");
 const gLines = svg.querySelector("#g-statelines");
 const gLabels = svg.querySelector("#g-labels");
@@ -163,13 +170,35 @@ let wiresCounts = null;
 // per-utility measures from EIA-861, keyed on utility id. Kept out of the
 // geometry so the big topojson stays cached when the numbers change.
 let measures = null;
+// precomputed Dorling layouts, one per magnitude measure. Relaxing 2,900
+// circles in the browser would settle visibly and cost a force library, so the
+// pipeline does it and ships the positions.
+let cartogram = null;
+// null means draw territories by land. Otherwise the id of the measure sizing
+// the circles.
+let sizeBy = null;
+
+// The layouts are in projected space, so they only line up if the pipeline used
+// the same projection this file builds. Say so loudly rather than silently
+// drawing every circle in the wrong place.
+function assertCartogramProjection() {
+  const p = cartogram?.meta?.projection;
+  if (!p) return;
+  const want = JSON.stringify([[8, 8], [967, 602]]);
+  const vb = JSON.stringify([0, 0, 975, 610]);
+  if (JSON.stringify(p.fitExtent) !== want || JSON.stringify(p.viewBox) !== vb)
+    console.warn("cartogram.json was built for a different projection; circle positions will not match the map", p);
+}
 async function ensureWires() {
   if (wiresFeatures) return;
-  const [topo, meas] = await Promise.all([
+  const [topo, meas, carto] = await Promise.all([
     (await fetch("data/wires.topo.json")).json(),
     fetch("data/measures.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
+    fetch("data/cartogram.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
   ]);
   measures = meas;
+  cartogram = carto;
+  assertCartogramProjection();
   const fc = feature(topo, Object.values(topo.objects)[0]);
   // draw big territories first so small ones stay hoverable on top
   wiresFeatures = fc.features
@@ -187,6 +216,85 @@ async function ensureWires() {
     p.dataset.wire = i;
     gWires.appendChild(p);
   });
+  buildCircles();
+}
+
+// One circle per utility, drawn once and re-aimed whenever the measure changes.
+// They carry the same dataset.wire index as the territories, so the existing
+// mousemove handler resolves them without knowing they are circles.
+let circleEls = null;
+function buildCircles() {
+  if (!cartogram || circleEls) return;
+  circleEls = [];
+  wiresFeatures.forEach((f, i) => {
+    const id = f.properties.ID;
+    const seat = cartogram.centroids[id];
+    if (!seat) return;
+    const c = document.createElementNS(SVG_NS, "circle");
+    c.setAttribute("fill", WIRE_GROUPS[wireGroup(f.properties.TYPE)].color);
+    c.setAttribute("class", "region dot");
+    c.setAttribute("cx", seat[0]);
+    c.setAttribute("cy", seat[1]);
+    c.setAttribute("r", 0);
+    c.dataset.wire = i;
+    c.dataset.id = id;
+    gCartogram.appendChild(c);
+    circleEls.push(c);
+  });
+}
+
+// Tween from where a utility sits on the ground to where its circle has room,
+// growing the radius from nothing. Reuses the ease from animateViewBox.
+let morphAnim = null;
+function morphCircles(key, ms = 900) {
+  if (!cartogram || !circleEls) return;
+  if (morphAnim) cancelAnimationFrame(morphAnim);
+  const layout = key ? cartogram.measures[key]?.circles : null;
+  const from = circleEls.map(c => [+c.getAttribute("cx"), +c.getAttribute("cy"), +c.getAttribute("r")]);
+  const to = circleEls.map(c => {
+    const seat = cartogram.centroids[c.dataset.id];
+    const t = layout?.[c.dataset.id];
+    // with no measure, or none reported, the circle collapses back to its seat
+    return t ? t : [seat[0], seat[1], 0];
+  });
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  // Seed the clock from the first frame, not from performance.now(). rAF hands
+  // back the timestamp of the frame it belongs to, which on a busy load can
+  // predate a now() captured just before the request. That makes t negative,
+  // and the cubic ease turns a small negative into a large one: radii came out
+  // around -600 on the deep-link path.
+  let t0 = null;
+  const tick = now => {
+    if (t0 === null) t0 = now;
+    const t = Math.min(1, (now - t0) / ms), k = ease(t);
+    for (let i = 0; i < circleEls.length; i++) {
+      const a = from[i], b = to[i], c = circleEls[i];
+      c.setAttribute("cx", (a[0] + (b[0] - a[0]) * k).toFixed(1));
+      c.setAttribute("cy", (a[1] + (b[1] - a[1]) * k).toFixed(1));
+      c.setAttribute("r", Math.max(0, a[2] + (b[2] - a[2]) * k).toFixed(2));
+    }
+    if (t < 1) morphAnim = requestAnimationFrame(tick);
+  };
+  morphAnim = requestAnimationFrame(tick);
+}
+
+// Switch between the land map and a sized map. `key` is null for land.
+function setSizeBy(key) {
+  sizeBy = key;
+  setHidden(gCartogram, current !== "wires");
+  gWires.classList.toggle("faded", !!key);
+  morphCircles(key);
+  renderSizeKey(key);
+  renderLegend(current);
+  renderSizeControls();
+  if (typeof updateUrl === "function") updateUrl(current);
+  if (key) {
+    const m = copy.cartogram.measures[key];
+    card.innerHTML =
+      `<h3>${copy.cartogram.intro_title}</h3>` +
+      `<p class="c-body">${copy.cartogram.intro_body}</p>` +
+      `<p class="c-body c-note"><b>${m.label}.</b> ${m.blurb}</p>`;
+  } else if (wiresCounts) showWiresIntro();
 }
 
 // Read a measure for one utility. Measures declared as `derived` are computed
@@ -288,9 +396,12 @@ function setVb(v) {
 function animateViewBox(to, ms = 900) {
   if (viewAnim) cancelAnimationFrame(viewAnim);
   const from = getVb();
-  const t0 = performance.now();
+  // seeded from the first frame: rAF's timestamp can predate performance.now(),
+  // which drives t negative and the cubic ease overshoots hard
+  let t0 = null;
   const ease = t => 1 - Math.pow(1 - t, 3);
   const tick = now => {
+    if (t0 === null) t0 = now;
     const t = Math.min(1, (now - t0) / ms), k = ease(t);
     setVb(from.map((v, i) => v + (to[i] - v) * k));
     if (t < 1) viewAnim = requestAnimationFrame(tick);
@@ -492,8 +603,60 @@ zoomReset.addEventListener("click", () => {
   setHidden(zoomReset, true);
 });
 
+// size controls: land vs each magnitude measure, inside the wires layer so the
+// four-step stack stays four steps.
+const sizeControls = document.getElementById("size-controls");
+function renderSizeControls() {
+  if (!cartogram) return;
+  const c = copy.cartogram;
+  const opts = [[null, c.toggle_land], ...Object.keys(cartogram.measures).map(k => [k, c.measures[k].label])];
+  sizeControls.innerHTML = `<span class="sz-label">${c.toggle_label}</span>` + opts
+    .map(([k, label]) =>
+      `<button class="sz-btn" data-size="${k ?? ""}" aria-pressed="${sizeBy === k}">${label}</button>`)
+    .join("");
+}
+sizeControls.addEventListener("click", e => {
+  const b = e.target.closest("[data-size]");
+  if (b) setSizeBy(b.dataset.size || null);
+});
+
 // legend (content depends on layer)
 const legend = document.getElementById("legend");
+const fmtBig = v => v >= 1e9 ? `${(v / 1e9).toFixed(1)}B` : v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : v >= 1e3 ? `${Math.round(v / 1e3)}K` : `${v}`;
+
+// The size key is drawn on the plate rather than in the HTML legend, in the
+// map's own coordinates, so its circles are exactly the size of the map's. A
+// key that had to be rescaled to fit a legend strip would not be a size key.
+// It sits bottom-left, over the empty Pacific.
+function renderSizeKey(key) {
+  const m = key && cartogram?.measures[key];
+  setHidden(gSizeKey, !m);
+  if (!m) return;
+  const spec = measures?.measures?.find(x => x.id === key);
+  const vals = [m.max, m.max / 8, m.max / 40];
+  const R = m.maxRadius;
+  const rs = vals.map(v => R * Math.sqrt(v / m.max));
+  // Bottom-centre-left is the emptiest part of the plate at every measure, but
+  // never completely clear, so the key sits on its own backing panel.
+  const baseX = 306, baseY = 584;
+  gSizeKey.innerHTML =
+    `<rect class="sk-plate" x="${baseX - R - 10}" y="${baseY - 2 * R - 20}" ` +
+    `width="${2 * R + 78}" height="${2 * R + 36}"/>` +
+    rs.map(r => `<circle cx="${baseX}" cy="${(baseY - r).toFixed(1)}" r="${r.toFixed(1)}"/>`).join("") +
+    rs.map((r, i) =>
+      `<line x1="${baseX}" y1="${(baseY - 2 * r).toFixed(1)}" x2="${(baseX + R + 6).toFixed(1)}" y2="${(baseY - 2 * r).toFixed(1)}"/>` +
+      `<text x="${(baseX + R + 9).toFixed(1)}" y="${(baseY - 2 * r + 3).toFixed(1)}">${fmtBig(vals[i])}</text>`).join("") +
+    `<text class="sk-unit" x="${baseX - R - 4}" y="${baseY + 11}">${spec?.short ?? ""}</text>`;
+}
+
+// The strip keeps the words; the circles are on the plate.
+function sizeLegend(key) {
+  const m = cartogram?.measures[key];
+  if (!m) return "";
+  const missing = Object.keys(cartogram.centroids).length - Object.keys(m.circles).length;
+  return `<span class="lg-size">${copy.cartogram.legend_note}` +
+    (missing > 0 ? ` ${copy.cartogram.missing_note.replace("{n}", missing)}` : "") + `</span>`;
+}
 function renderLegend(key) {
   if (key === "wholesale") {
     legend.innerHTML = `<span class="lg-item"><span class="lg-swatch" style="${TRANSITION_SWATCH}"></span>Changed grids in 2026</span>`;
@@ -504,7 +667,7 @@ function renderLegend(key) {
   } else if (key === "wires") {
     legend.innerHTML = Object.entries(WIRE_GROUPS)
       .map(([g, w]) => `<span class="lg-item"><span class="lg-swatch" style="background:${w.color}"></span>${w.label}${wiresCounts ? ` · ${wiresCounts[g].toLocaleString()}` : ""}</span>`)
-      .join("");
+      .join("") + (sizeBy ? sizeLegend(sizeBy) : "");
   }
 }
 
@@ -638,6 +801,8 @@ async function setLayer(key) {
   setHidden(gTrivia, key !== "wholesale");
   setHidden(gRules, key !== "rules");
   setHidden(gWires, key !== "wires");
+  setHidden(gCartogram, key !== "wires" || !sizeBy);
+  setHidden(sizeControls, key !== "wires");
   setHidden(gYou, key !== "you");
   setHidden(zipForm, key !== "you" && key !== "wires");
   setHidden(svg.querySelector("#g-zipoutline"), key !== "wires");
@@ -665,10 +830,16 @@ async function setLayer(key) {
   }
   setHidden(svg, !ready);
   setHidden(drawingNote, ready);
+  if (key === "wires") {
+    renderSizeControls();
+    setHidden(gCartogram, !sizeBy);
+    gWires.classList.toggle("faded", !!sizeBy);
+  }
+  renderSizeKey(current === "wires" ? sizeBy : null);
   renderLegend(key);
   if (key === "wholesale") showRegion("ERCOT");
   if (key === "rules") showState("TX");
-  if (key === "wires") showWiresIntro();
+  if (key === "wires" && !sizeBy) showWiresIntro();
   if (!ready) {
     drawingNote.querySelector("p").textContent = `The ${copy.layers[key].title} layer is being inked.`;
     drawingNote.querySelector(".sub").textContent = "It lands in the next update. Wholesale, Rules, and Wires are live now.";
@@ -701,13 +872,22 @@ if (wantedZip && /^\d{5}$/.test(wantedZip)) {
       setHidden(zoomReset, false);
     }
   });
+} else if (wanted === "wires" && params.get("size")) {
+  // deep link straight into a sized map, e.g. ?layer=wires&size=cust
+  setLayer("wires").then(() => {
+    const k = params.get("size");
+    if (cartogram?.measures[k]) setSizeBy(k);
+  });
 } else {
   setLayer(LAYERS.includes(wanted) ? wanted : "wholesale");
 }
 
 function updateUrl(key) {
-  const url = key === "wholesale" ? location.pathname : `?layer=${key}`;
-  history.replaceState(null, "", url);
+  const q = new URLSearchParams();
+  if (key !== "wholesale") q.set("layer", key);
+  if (key === "wires" && sizeBy) q.set("size", sizeBy);
+  const s = q.toString();
+  history.replaceState(null, "", s ? `?${s}` : location.pathname);
 }
 
 // methodology & about modal

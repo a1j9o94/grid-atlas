@@ -189,14 +189,25 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .rlabel.small { font-size: 15px; }
 }
 
+
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
 
+/* Bottom-left stack: legend on top, size controls under it. One flow container
+   rather than two absolutely-positioned boxes, so they cannot collide when the
+   legend wraps on a narrow screen. */
+.map-ui {
+  position: absolute; left: 14px; bottom: 10px; z-index: 5;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  max-width: calc(100% - 28px); pointer-events: none;
+}
+.map-ui > * { pointer-events: auto; }
+
 /* rules-layer legend */
 .legend {
-  position: absolute; left: 14px; bottom: 10px; z-index: 5;
-  display: flex; gap: 12px; align-items: center;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
   background: var(--card-bg); border: 1px solid var(--hair);
   padding: 6px 10px; font-size: 12px; color: var(--ink);
 }
@@ -207,6 +218,42 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 /* wires layer marks: highlight the hovered piece only (2,907 siblings) */
 #g-wires .region { transition: none; }
 #g-wires .region.hov { stroke: var(--ink); stroke-width: 1.5; filter: brightness(0.9) saturate(1.25); }
+
+/* cartogram: circles sized by a measure. Dorling circles touch by design, so
+   each carries a paper-coloured ring to keep adjacent same-colour fills apart. */
+#g-cartogram circle {
+  stroke: var(--paper); stroke-width: 1.2; transition: none;
+  vector-effect: non-scaling-stroke;
+}
+#g-cartogram circle.hov { stroke: var(--ink); stroke-width: 1.6; filter: brightness(0.9) saturate(1.25); }
+/* the land map stays faintly under the circles as a ghost of where things are */
+#g-wires.faded { opacity: 0.13; }
+
+.size-controls {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 5px;
+  background: var(--card-bg); border: 1px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(38, 48, 31, 0.16); padding: 7px 9px;
+}
+.sz-label {
+  font: 600 10px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink2); margin-right: 3px;
+}
+.sz-btn {
+  font: 500 11.5px/1 inherit; padding: 9px 10px; cursor: pointer; min-height: 32px;
+  border: 1px solid rgba(38,48,31,0.4); background: transparent; color: var(--ink);
+}
+.sz-btn:hover { background: rgba(38,48,31,0.07); }
+.sz-btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* The nested-circle key lives on the plate, in map coordinates, so its circles
+   are literally the same size as the map's. A key in the HTML legend strip
+   would have to be rescaled to fit, which defeats the point of a size key. */
+.lg-size { font-size: 11px; color: var(--ink2); border-left: 1px solid var(--hair); padding-left: 12px; }
+#g-sizekey .sk-plate { fill: var(--card-bg); fill-opacity: 0.93; stroke: var(--hair); stroke-width: 0.6; vector-effect: non-scaling-stroke; }
+#g-sizekey circle { fill: none; stroke: var(--ink2); stroke-width: 0.8; vector-effect: non-scaling-stroke; }
+#g-sizekey .sk-unit { font-size: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
+#g-sizekey text { font: 9px var(--mono); fill: var(--ink2); }
+#g-sizekey line { stroke: var(--ink2); stroke-width: 0.5; vector-effect: non-scaling-stroke; }
 
 /* you layer: zip search + fly-to */
 .zip-search {
@@ -316,4 +363,67 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .modal-close {
   position: absolute; top: 10px; right: 10px; border: none; background: none;
   font: 700 14px var(--mono); color: var(--ink2); cursor: pointer; padding: 4px;
+}
+
+/* ---- responsive overrides: last, so they win over the component rules ---- */
+/* Short landscape phones hit the tablet breakpoint on width but have no room
+   for a vertical rail: at 844x390 it ran 280px tall from y=119 and pushed
+   through the footer. Height, not width, is what makes the rail impossible. */
+@media (max-height: 500px) and (min-width: 701px) {
+  .body { display: flex; flex-direction: column; padding: 2px; }
+  .rail { flex: none; padding: 4px 10px; overflow-x: auto; overflow-y: hidden; }
+  .rail .steps { display: flex; gap: 4px; align-items: center; width: max-content; }
+  .rail h2, .explainer { display: none; }
+  .step {
+    display: flex; align-items: center; gap: 7px; width: auto; flex: none;
+    border: 1px solid var(--hair); border-left: 1px solid var(--hair);
+    padding: 7px 11px; margin: 0;
+  }
+  .step[aria-current="true"] { border-color: var(--ink); padding-left: 11px; margin-left: 0; }
+  .step .dot { margin-top: 0; width: 8px; height: 8px; }
+  .step .s-gloss, .step br { display: none; }
+  .map-panel { flex: 1; min-height: 0; }
+  .card { flex: none; margin: 4px 6px 6px; max-height: 34dvh; }
+}
+/* A short landscape phone leaves the map panel about 130px tall, which is less
+   than the stacked chrome needs. Everything gets its compact form: the zip
+   search collapses to a single row, the card gives back height, and the legend
+   keeps only its swatches. */
+@media (max-height: 500px) {
+  /* The map is the point, and on a 390px-tall screen the title block and card
+     were together taking three quarters of it. Everything else gives way. */
+  .kicker { display: none; }
+  h1 { font-size: 19px; }
+  .head { padding: 6px 14px 0; }
+  .foot { padding: 2px 14px 4px; }
+  .card { max-height: 21dvh; padding: 8px 10px; }
+  .card .c-body { margin: 5px 0 6px; }
+  /* out of the centre so it clears the bottom-left controls */
+  .zip-search {
+    top: 4px; left: auto; right: 6px; transform: none;
+    padding: 4px 6px; display: flex; align-items: center; gap: 6px;
+  }
+  /* the placeholder and numeric keypad carry the meaning; the label stays for
+     screen readers rather than being removed */
+  .zip-search label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+  .zip-search input { width: 78px; }
+  /* The legend alone is 62px against a 92px map panel here. Colour meanings
+     live in the methodology modal; the map itself does not. */
+  .legend { display: none; }
+  .map-ui { bottom: 4px; left: 6px; }
+  .sz-btn { font-size: 10.5px; padding: 6px 7px; min-height: 28px; }
+}
+/* Tight viewports: the map is the point, so the legend sheds its prose and the
+   controls lose their label rather than stealing height from the plate. */
+@media (max-width: 700px), (max-height: 560px) {
+  .map-ui { left: 6px; bottom: 6px; gap: 4px; max-width: calc(100% - 12px); }
+  .legend { gap: 7px; padding: 4px 7px; font-size: 10.5px; }
+  .lg-swatch { width: 9px; height: 9px; }
+  .lg-size { display: none; }
+  .size-controls { padding: 4px 6px; gap: 4px; }
+  .sz-label { display: none; }
+  .sz-btn { font-size: 11px; padding: 8px 8px; }
 }
