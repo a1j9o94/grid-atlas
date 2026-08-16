@@ -160,9 +160,16 @@ function addLabel(text, x, y, small) {
 // wires layer: lazy-loaded on first open (5.8MB of geometry)
 let wiresFeatures = null;
 let wiresCounts = null;
+// per-utility measures from EIA-861, keyed on utility id. Kept out of the
+// geometry so the big topojson stays cached when the numbers change.
+let measures = null;
 async function ensureWires() {
   if (wiresFeatures) return;
-  const topo = await (await fetch("data/wires.topo.json")).json();
+  const [topo, meas] = await Promise.all([
+    (await fetch("data/wires.topo.json")).json(),
+    fetch("data/measures.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
+  ]);
+  measures = meas;
   const fc = feature(topo, Object.values(topo.objects)[0]);
   // draw big territories first so small ones stay hoverable on top
   wiresFeatures = fc.features
@@ -180,6 +187,22 @@ async function ensureWires() {
     p.dataset.wire = i;
     gWires.appendChild(p);
   });
+}
+
+// Read a measure for one utility. Measures declared as `derived` are computed
+// here from two stored fields, so a variable like average price never has to be
+// stored twice or kept in sync.
+function measureValue(id, measureId, cls = "tot") {
+  const u = measures?.utilities?.[id];
+  if (!u) return null;
+  const spec = measures.measures?.find(m => m.id === measureId);
+  if (spec?.derived) {
+    const n = u[spec.derived.numerator]?.[cls];
+    const d = u[spec.derived.denominator]?.[cls];
+    if (n == null || !d) return null;
+    return (n / d) * (spec.derived.scale ?? 1);
+  }
+  return u[measureId]?.[cls] ?? null;
 }
 
 // ---- trivia markers (wholesale layer): the map's curiosities ----
@@ -511,14 +534,25 @@ function showWire(i) {
   const p = wiresFeatures[i].properties;
   const g = wireGroup(p.TYPE);
   const typeInfo = copy.wires_types[p.TYPE] || copy.wires_types["NOT AVAILABLE"];
-  const customers = p.CUSTOMERS > 0
-    ? `<span class="c-stat"><b>${p.CUSTOMERS.toLocaleString()}</b>customers</span>` : "";
+  // Meters, not people. These are billing accounts, and commercial and
+  // industrial ones are in the count. HIFLD's own field is only the fallback:
+  // it is blank for every delivery-only utility in Texas, which is why the
+  // five biggest wires companies in ERCOT used to show nothing here.
+  const meters = measureValue(p.ID, "cust") ?? (p.CUSTOMERS > 0 ? p.CUSTOMERS : null);
+  const metersStat = meters
+    ? `<span class="c-stat"><b>${Math.round(meters).toLocaleString()}</b>meters</span>`
+    : `<span class="c-stat"><b>not reported</b>meters</span>`;
+  // Service states come from EIA, because HIFLD's STATE is where the company
+  // files its paperwork, not where it serves. PacifiCorp files in Oregon and
+  // serves six states; Appalachian Power files in Ohio and serves none of it.
+  const served = measures?.utilities?.[p.ID]?.st;
+  const where = (served?.length ? served : [p.STATE]).filter(Boolean).join(", ");
   const rtoName = p.RTO === "NONE" ? "No RTO" : (copy.regions[p.RTO]?.name || p.RTO);
   card.innerHTML =
     `<span class="c-swatch" style="background:${WIRE_GROUPS[g].color}"></span><h3>${titleCase(p.NAME)}</h3>` +
-    `<div class="c-choice">${typeInfo.label} · ${p.STATE}</div>` +
+    `<div class="c-choice">${typeInfo.label} · ${where}</div>` +
     `<p class="c-body">${typeInfo.body}</p>` +
-    `<div class="c-stats">${customers}<span class="c-stat"><b>${rtoName}</b>grid</span></div>`;
+    `<div class="c-stats">${metersStat}<span class="c-stat"><b>${rtoName}</b>grid</span></div>`;
 }
 function showWiresIntro() {
   card.innerHTML =
