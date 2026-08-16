@@ -45,3 +45,15 @@ Static site: vanilla JS, d3-geo for the Albers USA projection, TopoJSON for geom
 ## License
 
 Code is MIT. The underlying data comes from public federal sources (HIFLD, Census, DOE/OpenEI).
+
+## Checking the layout
+
+The layout contract is that the page fits the viewport at every size: no scrolling, panels shrink or collapse rather than overlap. That is easy to break and hard to see, so it is asserted rather than eyeballed.
+
+```
+npm install
+npx playwright install chromium   # or set CHROME_PATH to one you have
+npm run audit                     # add -- --shots to also write PNGs
+```
+
+It drives the real site across six viewports and six views, and fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, a tap target under 28px, text clipped by its own box, or any console error. The first run found 29 problems. The tooling is dev-only and is kept out of the deploy by `.vercelignore`, so the site stays a zero-config static build.

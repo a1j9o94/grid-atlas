@@ -1,3 +1,9 @@
 node_modules
 .env.local
 .git
+# Dev tooling only. Keeping package.json out of the deploy is deliberate: with
+# it present Vercel stops treating this as a zero-config static site and starts
+# looking for a framework and a build step. There is neither.
+package.json
+package-lock.json
+tools

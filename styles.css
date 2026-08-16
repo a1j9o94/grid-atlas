@@ -271,6 +271,13 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .zip-search button {
   font: 700 13px/1 var(--ui); border: 1px solid var(--ink); background: var(--ink);
   color: var(--paper); padding: 7px 12px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+}
+/* Scoped past `.map-panel svg`, which sets width/height to 100% and otherwise
+   wins on specificity and inflates the whole form. */
+.zip-search .ico-search {
+  display: none; width: 15px; height: 15px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round;
 }
 .zip-msg { margin: 6px 0 0; font-size: 12px; color: var(--ink2); min-height: 1em; }
 .zoom-reset {
@@ -314,7 +321,7 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .tour-start {
   font: 600 12px/1 var(--mono); letter-spacing: 0.06em;
   border: 1px solid var(--ink); color: var(--paper); background: var(--ink);
-  padding: 6px 10px; cursor: pointer;
+  padding: 8px 10px; cursor: pointer; min-height: 30px;
 }
 .tour-panel {
   position: absolute; left: 50%; bottom: 54px; transform: translateX(-50%); z-index: 45;
@@ -341,7 +348,7 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .method-toggle {
   font: 600 12px/1 var(--mono); letter-spacing: 0.06em;
   border: 1px solid var(--ink2); color: var(--ink2); background: none;
-  padding: 6px 10px; cursor: pointer;
+  padding: 8px 10px; cursor: pointer; min-height: 30px;
 }
 .gh-link { font: 600 12px/1 var(--mono); letter-spacing: 0.04em; color: var(--ink2); }
 .gh-link:hover { color: var(--ink); }
@@ -426,4 +433,24 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .size-controls { padding: 4px 6px; gap: 4px; }
   .sz-label { display: none; }
   .sz-btn { font-size: 11px; padding: 8px 8px; }
+
+  /* The zip box shrinks to one row: field plus a magnifier. "Type your zip
+     code" is what the field already looks like, and "Find me" is what a
+     magnifier already means, so both words go visually and stay for screen
+     readers. Frees roughly 50px of height over the map. */
+  .zip-search { top: 6px; right: 6px; left: auto; transform: none; padding: 5px 6px; text-align: left; }
+  /* the reset button shares this strip, so it takes the other end */
+  .zoom-reset { top: 6px; left: 6px; padding: 8px 9px; font-size: 11px; }
+  .zip-search label, .zip-search .btn-txt {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+  .zip-row { gap: 4px; }
+  /* five digits plus 0.08em tracking; anything under 7ch clips the last one */
+  .zip-search input { width: 7ch; font-size: 15px; padding: 6px 4px; }
+  .zip-search button { padding: 6px 9px; min-height: 32px; }
+  .zip-search .ico-search { display: block; }
+  /* only reserve a line for the message once there is one to show */
+  .zip-msg { margin: 0; min-height: 0; font-size: 11px; }
+  .zip-msg:not(:empty) { margin-top: 4px; }
 }

@@ -1,0 +1,12 @@
+{
+  "name": "grid-atlas",
+  "private": true,
+  "type": "module",
+  "description": "Dev tooling only. The site itself is static: no build step, no runtime dependencies. This file is listed in .vercelignore so the deploy stays zero-config.",
+  "scripts": {
+    "audit": "node tools/layout-audit.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

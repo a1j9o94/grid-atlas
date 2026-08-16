@@ -367,8 +367,14 @@ function youBase() {
   if (gYou.dataset.base) return;
   gYou.dataset.base = "1";
   for (const f of statesFC.features) {
+    // Albers USA has no place for Puerto Rico, Guam, the Virgin Islands,
+    // American Samoa or the Marianas, so path() hands back null for them.
+    // Passing that to setAttribute writes the string "null" and the browser
+    // rejects the path. Skip them: the omission is footnoted in the copy deck.
+    const d = path(f);
+    if (!d) continue;
     const p = document.createElementNS(SVG_NS, "path");
-    p.setAttribute("d", path(f));
+    p.setAttribute("d", d);
     p.setAttribute("fill", "#e4e7db");
     gYou.appendChild(p);
   }
@@ -496,7 +502,7 @@ async function findZip(zip) {
     let view = HOME_VIEW;
     if (target) {
       const p = document.createElementNS(SVG_NS, "path");
-      p.setAttribute("d", path(target));
+      p.setAttribute("d", path(target) ?? "");
       p.setAttribute("class", "zip-outline");
       zo.appendChild(p);
       const [[x0, y0], [x1, y1]] = path.bounds(target);
@@ -516,15 +522,17 @@ async function findZip(zip) {
   // neighbors for context, target on top
   for (const f of fc.features) {
     if (f.properties.GEOID20 === zip) continue;
+    const d = path(f);
+    if (!d) continue; // zips the projection cannot place, as above
     const p = document.createElementNS(SVG_NS, "path");
-    p.setAttribute("d", path(f));
+    p.setAttribute("d", d);
     p.setAttribute("class", "zip-neighbor");
     zg.appendChild(p);
   }
   let view = HOME_VIEW;
   if (target) {
     const p = document.createElementNS(SVG_NS, "path");
-    p.setAttribute("d", path(target));
+    p.setAttribute("d", path(target) ?? "");
     p.setAttribute("class", "zip-target");
     zg.appendChild(p);
     const [[x0, y0], [x1, y1]] = path.bounds(target);

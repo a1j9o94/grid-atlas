@@ -38,7 +38,15 @@
           <label for="zip-input">Type your zip code</label>
           <div class="zip-row">
             <input id="zip-input" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{5}" maxlength="5" placeholder="78701" required>
-            <button type="submit">Find me</button>
+            <!-- The label text stays in the DOM at every size and is only
+                 hidden visually, so the button keeps the accessible name
+                 "Find me" when the glyph is all you can see. -->
+            <button type="submit">
+              <svg class="ico-search" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <circle cx="6.8" cy="6.8" r="4.4"/><path d="M10.1 10.1 L14 14"/>
+              </svg>
+              <span class="btn-txt">Find me</span>
+            </button>
           </div>
           <p class="zip-msg" id="zip-msg"></p>
         </form>
