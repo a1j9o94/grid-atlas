@@ -52,9 +52,15 @@ const [copy, rules, statesTopo, rtosTopo, transitionsTopo, statePrices] = await 
 // Sequential ramps, built in OKLCH at even lightness steps. Lightness carries
 // the information, so they survive any colour vision and print. Never used for
 // identity: the categorical encodings keep their own hues.
+// All four run L 0.895 down to 0.415 in even steps of 0.12, so no ramp reads as
+// darker than another at the same step. Solar sits at hue 95 rather than
+// somewhere warmer: the outage ramp already owns hue 45, and two gold-brown maps
+// would make switching colour measures look like nothing had changed.
 const RAMPS = {
   price: ["#c5e5e5", "#97c1c0", "#6a9d9c", "#3c7b7a", "#00595a"],
   outage: ["#fad5c5", "#daac97", "#ba846b", "#9a5d41", "#7a3713"],
+  solar: ["#eddda0", "#ccb55f", "#a88f29", "#816c00", "#5b4a00"],
+  meter: ["#c7dffa", "#92bae4", "#6295c9", "#3c71a5", "#234e78"],
 };
 const NO_DATA = "#dcdccf";
 // A utility whose parent falls outside the named twenty still has a parent.
@@ -65,11 +71,16 @@ const OTHER_PARENT = "#9aa08c";
 // Bucket a value onto a ramp. Quantiles rather than equal intervals, because
 // these distributions have long tails: Hawaii at 42.86 cents would otherwise
 // flatten the other fifty states into the first two steps.
-function makeScale(values, ramp) {
+//
+// A measure can override with `fixed` breaks, and one has to. Smart meter
+// rollout is close to binary per utility, so its quantiles come out as
+// [0, 59.13, 100, 100]: two identical breaks drawing a five-step legend over a
+// three-colour map. Quantiles need a spread distribution to describe.
+function makeScale(values, ramp, fixed) {
   const sorted = values.filter(v => v != null && Number.isFinite(v)).sort((a, b) => a - b);
   if (!sorted.length) return { of: () => NO_DATA, breaks: [], ramp };
-  const breaks = [];
-  for (let i = 1; i < ramp.length; i++) breaks.push(sorted[Math.floor((sorted.length * i) / ramp.length)]);
+  const breaks = fixed ? fixed.slice(0, ramp.length - 1) : [];
+  if (!fixed) for (let i = 1; i < ramp.length; i++) breaks.push(sorted[Math.floor((sorted.length * i) / ramp.length)]);
   return {
     ramp,
     breaks,
@@ -234,6 +245,12 @@ async function ensureWires() {
   ]);
   measures = meas;
   cartogram = carto;
+  // Each measure that offers variants opens on the first one the registry lists.
+  // Reliability leads with the storm-free number on purpose: one hurricane can
+  // outweigh everything else a utility does in a year.
+  for (const m of measures?.measures ?? []) {
+    if (m.variants) variantOf[m.id] ??= Object.keys(m.variants)[0];
+  }
   assertCartogramProjection();
   const fc = feature(topo, Object.values(topo.objects)[0]);
   // draw big territories first so small ones stay hoverable on top
@@ -710,15 +727,62 @@ sizeControls.addEventListener("click", e => {
   if (b) setSizeBy(b.dataset.size || null);
 });
 
-// ---- wires layer: colour by ownership, by corporate parent, or by outages ----
-// All three are attributes of the same territories, so they share the colour
+// ---- wires layer: colour by ownership, by parent, or by any colour measure ----
+// These are all attributes of the same territories, so they share the colour
 // channel rather than each becoming a layer. The channel already answered "who
 // owns this" through the ownership types; parent company is a sharper answer to
 // the same question.
+//
+// Ownership and parent are read off the geometry. Everything else comes from the
+// measure registry: any measure marked `colourOnly` becomes a button here
+// without this file learning what it means. That is the whole point of the
+// registry, and it is why rooftop solar and smart meters needed no new branches.
 let colourBy = "type";
 let parentGroups = null;   // holding company -> { color, meters, n }
-let saidiScale = null;
-let saidiVariant = "norm";
+const colourScales = new Map();
+const variantOf = {};      // measure id -> which variant is showing
+// Which ramp suits which measure. A measure with no entry falls back rather
+// than failing, so a new one is legible before anyone picks its colours.
+const RAMP_FOR = { saidi: "outage", solarw: "solar", amishare: "meter" };
+
+const measureSpec = id => measures?.measures?.find(m => m.id === id);
+const colourMeasures = () => measures?.measures?.filter(m => m.colourOnly) ?? [];
+const isColourMeasure = id => id !== "type" && id !== "parent" && !!measureSpec(id)?.colourOnly;
+
+// Format a value the way its registry entry asks. Keeps the legend ticks and the
+// hover card reading identically without either knowing the measure.
+//
+// `precise` is for legend ticks, where a rounded break can misstate the scale.
+// The top smart-meter break is 99.9%, and rounding it to "100%" would tell the
+// reader the darkest step begins at a value nothing can exceed. Data values stay
+// rounded, because "84%" is the honest precision for a share of meters.
+function fmtMeasure(spec, precise) {
+  if (spec?.format === "percent0")
+    return v => `${precise && !Number.isInteger(v) ? v.toFixed(1) : Math.round(v)}%`;
+  if (spec?.format === "decimal1") return v => v.toFixed(1);
+  return v => Math.round(v).toLocaleString();
+}
+
+// Reliability stores a block of storm variants where other measures store a
+// block of customer classes, so it is read directly and the rest go through the
+// class-aware reader. `cls` lets a measure name the class it means: rooftop
+// solar per home is residential over residential, never total over total.
+function colourValue(uid, id) {
+  const spec = measureSpec(id);
+  if (spec?.variants) return measures?.utilities?.[uid]?.[id]?.[variantOf[id]] ?? null;
+  return measureValue(uid, id, spec?.cls ?? "tot");
+}
+function colourScale(id) {
+  if (!wiresFeatures || !isColourMeasure(id)) return null;
+  const spec = measureSpec(id);
+  const key = spec.variants ? `${id}:${variantOf[id]}` : id;
+  if (!colourScales.has(key)) {
+    colourScales.set(key, makeScale(
+      wiresFeatures.map(f => colourValue(f.properties.ID, id)),
+      RAMPS[RAMP_FOR[id]] ?? RAMPS.price, spec.breaks));
+  }
+  return colourScales.get(key);
+}
 
 // HIFLD repeats the utility's own name in HOLDING_CO for the ~2,700 municipals
 // and co-ops that have no parent, so a plain distinct count says 2,831 and
@@ -744,13 +808,6 @@ function buildParentGroups() {
   const ranked = [...tally.entries()].sort((a, b) => b[1].meters - a[1].meters).slice(0, PARENT_COLORS.length);
   parentGroups = new Map(ranked.map(([name, t], i) => [name, { ...t, color: PARENT_COLORS[i], rank: i }]));
 }
-function buildSaidiScale() {
-  if (saidiScale || !wiresFeatures) return;
-  saidiScale = {};
-  for (const v of ["norm", "all"]) {
-    saidiScale[v] = makeScale(wiresFeatures.map(f => measures?.utilities?.[f.properties.ID]?.saidi?.[v]), RAMPS.outage);
-  }
-}
 function wireFill(f) {
   const p = f.properties;
   if (colourBy === "parent") {
@@ -758,8 +815,8 @@ function wireFill(f) {
     if (!parent || parent.toUpperCase() === (p.NAME || "").trim().toUpperCase()) return NO_DATA;
     return parentGroups?.get(parent)?.color ?? OTHER_PARENT;
   }
-  if (colourBy === "saidi") {
-    return saidiScale[saidiVariant].of(measures?.utilities?.[p.ID]?.saidi?.[saidiVariant]);
+  if (isColourMeasure(colourBy)) {
+    return colourScale(colourBy)?.of(colourValue(p.ID, colourBy)) ?? NO_DATA;
   }
   return WIRE_GROUPS[wireGroup(p.TYPE)].color;
 }
@@ -777,24 +834,24 @@ function repaintWires() {
 const colourControls = document.getElementById("colour-controls");
 function renderColourControls() {
   const opts = [["type", copy.controls.colour_type], ["parent", copy.controls.colour_parent]];
-  if (measures?.measures?.some(m => m.id === "saidi")) opts.push(["saidi", copy.controls.colour_saidi]);
+  for (const m of colourMeasures()) opts.push([m.id, copy.controls[`colour_${m.id}`] ?? m.label]);
+  const active = isColourMeasure(colourBy) ? measureSpec(colourBy) : null;
   colourControls.innerHTML = `<span class="sz-label">${copy.controls.colour_label}</span>` +
     opts.map(([k, label]) => `<button class="sz-btn" data-colour="${k}" aria-pressed="${colourBy === k}">${label}</button>`).join("") +
-    (colourBy === "saidi"
-      ? `<span class="sz-sub">` + Object.entries(measures.measures.find(m => m.id === "saidi").variants)
-        .map(([k, label]) => `<button class="sz-btn sz-alt" data-variant="${k}" aria-pressed="${saidiVariant === k}">${label}</button>`).join("") + `</span>`
+    (active?.variants
+      ? `<span class="sz-sub">` + Object.entries(active.variants)
+        .map(([k, label]) => `<button class="sz-btn sz-alt" data-variant="${k}" aria-pressed="${variantOf[colourBy] === k}">${label}</button>`).join("") + `</span>`
       : "");
 }
 colourControls.addEventListener("click", e => {
   const c = e.target.closest("[data-colour]");
   if (c) return setColourBy(c.dataset.colour);
   const v = e.target.closest("[data-variant]");
-  if (v) { saidiVariant = v.dataset.variant; setColourBy("saidi"); }
+  if (v) { variantOf[colourBy] = v.dataset.variant; setColourBy(colourBy); }
 });
 function setColourBy(key) {
   colourBy = key;
   if (key === "parent") buildParentGroups();
-  if (key === "saidi") buildSaidiScale();
   repaintWires();
   renderColourControls();
   renderLegend("wires");
@@ -802,9 +859,14 @@ function setColourBy(key) {
   const c = copy.controls;
   if (key === "parent") {
     card.innerHTML = `<h3>${c.parent_intro_title}</h3><p class="c-body">${c.parent_intro_body}</p>`;
-  } else if (key === "saidi") {
-    card.innerHTML = `<h3>${c.saidi_intro_title}</h3><p class="c-body">${c.saidi_intro_body}</p>` +
-      `<p class="c-body c-note">${c.saidi_storm_note}</p>`;
+  } else if (isColourMeasure(key)) {
+    // Copy deck first, registry note as the fallback. A measure that nobody has
+    // written an introduction for still explains itself.
+    const spec = measureSpec(key);
+    const note = c[`${key}_note`] ?? spec.note;
+    card.innerHTML = `<h3>${c[`${key}_intro_title`] ?? spec.label}</h3>` +
+      `<p class="c-body">${c[`${key}_intro_body`] ?? ""}</p>` +
+      (note ? `<p class="c-body c-note">${note}</p>` : "");
   } else if (!sizeBy && wiresCounts) showWiresIntro();
 }
 
@@ -843,7 +905,7 @@ function sizeLegend(key) {
   if (!m) return "";
   const missing = Object.keys(cartogram.centroids).length - Object.keys(m.circles).length;
   return `<span class="lg-size">${copy.cartogram.legend_note}` +
-    (missing > 0 ? ` ${copy.cartogram.missing_note.replace("{n}", missing)}` : "") + `</span>`;
+    (missing > 0 ? ` ${copy.cartogram.missing_note.replace("{n}", missing.toLocaleString())}` : "") + `</span>`;
 }
 // A sequential scale gets a stepped bar with the break values under it, not a
 // list of swatches. The steps are quantiles, so the numbers are what separates
@@ -880,8 +942,9 @@ function renderLegend(key) {
         `<span class="lg-item"><span class="lg-swatch" style="background:${OTHER_PARENT}"></span>Another parent company</span>` +
         `<span class="lg-item"><span class="lg-swatch" style="background:${NO_DATA}"></span>Owned locally</span>` +
         `<span class="lg-size">${parentGroups.size} parent companies cover ${Math.round(covered / 1e6)} million meters, about half the country.</span>`;
-    } else if (colourBy === "saidi" && saidiScale) {
-      base = rampLegend(saidiScale[saidiVariant], "min/yr", v => Math.round(v).toLocaleString());
+    } else if (isColourMeasure(colourBy) && colourScale(colourBy)) {
+      const spec = measureSpec(colourBy);
+      base = rampLegend(colourScale(colourBy), spec.short ?? spec.label, fmtMeasure(spec, true));
     } else {
       base = Object.entries(WIRE_GROUPS)
         .map(([g, w]) => `<span class="lg-item"><span class="lg-swatch" style="background:${w.color}"></span>${w.label}${wiresCounts ? ` · ${wiresCounts[g].toLocaleString()}` : ""}</span>`)
@@ -931,11 +994,22 @@ function showWire(i) {
   const served = measures?.utilities?.[p.ID]?.st;
   const where = (served?.length ? served : [p.STATE]).filter(Boolean).join(", ");
   const rtoName = p.RTO === "NONE" ? "No RTO" : (copy.regions[p.RTO]?.name || p.RTO);
+  // Whichever channel is carrying a measure, the card has to say what this
+  // company's value actually is. Without it the reader can see that a territory
+  // is darker, or its circle bigger, and has no way to find out by how much.
+  // Meters already have their own stat, so sizing by them adds nothing.
+  let measureStat = "";
+  for (const key of [colourBy, sizeBy]) {
+    const spec = key && key !== "cust" && (isColourMeasure(key) || cartogram?.measures[key]) ? measureSpec(key) : null;
+    if (!spec) continue;
+    const v = isColourMeasure(key) ? colourValue(p.ID, key) : measureValue(p.ID, key);
+    measureStat += `<span class="c-stat"><b>${v == null ? "not reported" : fmtMeasure(spec)(v)}</b>${spec.short ?? spec.label}</span>`;
+  }
   card.innerHTML =
     `<span class="c-swatch" style="background:${WIRE_GROUPS[g].color}"></span><h3>${titleCase(p.NAME)}</h3>` +
     `<div class="c-choice">${typeInfo.label} · ${where}</div>` +
     `<p class="c-body">${typeInfo.body}</p>` +
-    `<div class="c-stats">${metersStat}<span class="c-stat"><b>${rtoName}</b>grid</span></div>`;
+    `<div class="c-stats">${metersStat}${measureStat}<span class="c-stat"><b>${rtoName}</b>grid</span></div>`;
 }
 function showWiresIntro() {
   card.innerHTML =
@@ -1103,9 +1177,16 @@ if (wantedZip && /^\d{5}$/.test(wantedZip)) {
   setLayer("wires").then(() => {
     const k = params.get("size");
     if (k && cartogram?.measures[k]) setSizeBy(k);
+    // A trailing "-variant" picks a storm basis, as in saidi-all. Split on the
+    // last hyphen only, so a measure id containing one still resolves.
     let c = params.get("colour");
-    if (c === "saidi-all") { saidiVariant = "all"; c = "saidi"; }
-    if (["parent", "saidi"].includes(c)) setColourBy(c);
+    if (c) {
+      const cut = c.lastIndexOf("-");
+      const base = cut > 0 ? c.slice(0, cut) : c;
+      const variant = cut > 0 ? c.slice(cut + 1) : null;
+      if (variant && measureSpec(base)?.variants?.[variant]) { variantOf[base] = variant; c = base; }
+      if (c === "parent" || isColourMeasure(c)) setColourBy(c);
+    }
   });
 } else if (wanted === "rules" && params.get("shade")) {
   setLayer("rules").then(() => {
@@ -1120,7 +1201,13 @@ function updateUrl(key) {
   const q = new URLSearchParams();
   if (key !== "wholesale") q.set("layer", key);
   if (key === "wires" && sizeBy) q.set("size", sizeBy);
-  if (key === "wires" && colourBy !== "type") q.set("colour", colourBy === "saidi" && saidiVariant === "all" ? "saidi-all" : colourBy);
+  if (key === "wires" && colourBy !== "type") {
+    // The default variant is left off, so the ordinary link stays short and the
+    // existing ?colour=saidi and ?colour=saidi-all links keep their meaning.
+    const spec = isColourMeasure(colourBy) ? measureSpec(colourBy) : null;
+    const v = spec?.variants ? variantOf[colourBy] : null;
+    q.set("colour", v && v !== Object.keys(spec.variants)[0] ? `${colourBy}-${v}` : colourBy);
+  }
   if (key === "rules" && shadeBy !== "bucket") q.set("shade", shadeBy);
   const s = q.toString();
   history.replaceState(null, "", s ? `?${s}` : location.pathname);

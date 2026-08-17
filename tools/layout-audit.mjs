@@ -44,7 +44,13 @@ const VIEWS = [
   { name: "wires-energy", q: "?layer=wires&size=mwh" },
   { name: "wires-parent", q: "?layer=wires&colour=parent" },
   { name: "wires-outages", q: "?layer=wires&colour=saidi" },
+  { name: "wires-solar", q: "?layer=wires&colour=solarw" },
+  { name: "wires-smart", q: "?layer=wires&colour=amishare" },
+  { name: "wires-solar-size", q: "?layer=wires&size=solarmw" },
   { name: "wires-size-colour", q: "?layer=wires&size=cust&colour=saidi" },
+  // Three stats plus a long legend label is the widest the card and the legend
+  // ever get, so the combination is worth a viewport of its own.
+  { name: "wires-solar-both", q: "?layer=wires&size=solarmw&colour=solarw" },
   { name: "rules-price", q: "?layer=rules&shade=res" },
   { name: "rules-delivery", q: "?layer=rules&shade=delivery" },
   { name: "you", q: "?zip=78701" },
