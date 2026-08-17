@@ -6,8 +6,13 @@
 // an input clipping its last character, and both shipped at least once.
 //
 // Usage: npm run audit            (serves ./ on a free port, runs headless)
-//        npm run audit -- --url http://localhost:8899
+//        npm run audit -- --url https://grid-atlas-coral.vercel.app
 //        npm run audit -- --shots  (also write PNGs to tools/shots/)
+//
+// Auditing a remote --url needs the browser to reach the internet. Behind a
+// proxy, set HTTPS_PROXY or pass --proxy; some sandboxes block browser egress
+// outright, in which case audit the local server and compare the deployed
+// files by checksum instead.
 
 import { createServer } from "http";
 import { readFile } from "fs/promises";
@@ -81,9 +86,16 @@ const host = external ? { url: external, server: null } : await serve();
 // than insisting on Playwright's own download. Set CHROME_PATH, or pass
 // --browser, to reuse a system Chromium.
 const executablePath = opt("browser", process.env.CHROME_PATH) || undefined;
+// Auditing a deployed URL from behind a corporate or sandbox proxy needs the
+// browser pointed at it too; node's env vars do not reach Chromium's network
+// stack. The local server path never hits this, which is why it went unnoticed.
+const proxyServer = opt("proxy", process.env.HTTPS_PROXY || process.env.HTTP_PROXY) || undefined;
 let browser;
 try {
-  browser = await chromium.launch({ executablePath });
+  browser = await chromium.launch({
+    executablePath,
+    ...(proxyServer && external ? { proxy: { server: proxyServer } } : {}),
+  });
 } catch (e) {
   host.server?.close();
   console.error(`could not start a browser: ${e.message.split("\n")[0]}`);
