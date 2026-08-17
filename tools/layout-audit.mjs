@@ -42,6 +42,11 @@ const VIEWS = [
   { name: "wires-land", q: "?layer=wires" },
   { name: "wires-meters", q: "?layer=wires&size=cust" },
   { name: "wires-energy", q: "?layer=wires&size=mwh" },
+  { name: "wires-parent", q: "?layer=wires&colour=parent" },
+  { name: "wires-outages", q: "?layer=wires&colour=saidi" },
+  { name: "wires-size-colour", q: "?layer=wires&size=cust&colour=saidi" },
+  { name: "rules-price", q: "?layer=rules&shade=res" },
+  { name: "rules-delivery", q: "?layer=rules&shade=delivery" },
   { name: "you", q: "?zip=78701" },
 ];
 
@@ -55,6 +60,8 @@ const PANELS = {
   rail: "#rail",
   foot: ".foot",
   zoomReset: "#zoom-reset",
+  colourControls: "#colour-controls",
+  shadeControls: "#shade-controls",
 };
 
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };

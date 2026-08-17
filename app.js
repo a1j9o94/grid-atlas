@@ -43,13 +43,49 @@ function titleCase(name) {
     .replace(/\bLlc\b/g, "LLC").replace(/\bInc\b/g, "Inc");
 }
 
-const [copy, rules, statesTopo, rtosTopo, transitionsTopo] = await Promise.all([
+const [copy, rules, statesTopo, rtosTopo, transitionsTopo, statePrices] = await Promise.all([
   fetch("data/copy.json").then(r => r.json()),
   fetch("data/rules.json").then(r => r.json()),
   fetch("data/states.topo.json").then(r => r.json()),
   fetch("data/rtos.topo.json").then(r => r.json()),
   fetch("data/transitions.topo.json").then(r => r.json()),
+  fetch("data/state-prices.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
 ]);
+
+// Sequential ramps, built in OKLCH at even lightness steps. Lightness carries
+// the information, so they survive any colour vision and print. Never used for
+// identity: the categorical encodings keep their own hues.
+const RAMPS = {
+  price: ["#c5e5e5", "#97c1c0", "#6a9d9c", "#3c7b7a", "#00595a"],
+  outage: ["#fad5c5", "#daac97", "#ba846b", "#9a5d41", "#7a3713"],
+};
+const NO_DATA = "#dcdccf";
+// A utility whose parent falls outside the named twenty still has a parent.
+// Painting it the same as a town-owned utility would say the opposite, so it
+// gets its own neutral, darker than "no parent" and quieter than the named hues.
+const OTHER_PARENT = "#9aa08c";
+
+// Bucket a value onto a ramp. Quantiles rather than equal intervals, because
+// these distributions have long tails: Hawaii at 42.86 cents would otherwise
+// flatten the other fifty states into the first two steps.
+function makeScale(values, ramp) {
+  const sorted = values.filter(v => v != null && Number.isFinite(v)).sort((a, b) => a - b);
+  if (!sorted.length) return { of: () => NO_DATA, breaks: [], ramp };
+  const breaks = [];
+  for (let i = 1; i < ramp.length; i++) breaks.push(sorted[Math.floor((sorted.length * i) / ramp.length)]);
+  return {
+    ramp,
+    breaks,
+    min: sorted[0],
+    max: sorted[sorted.length - 1],
+    of(v) {
+      if (v == null || !Number.isFinite(v)) return NO_DATA;
+      let i = 0;
+      while (i < breaks.length && v >= breaks[i]) i++;
+      return ramp[i];
+    },
+  };
+}
 
 const statesFC = feature(statesTopo, Object.values(statesTopo.objects)[0]);
 const rtosFC = feature(rtosTopo, Object.values(rtosTopo.objects)[0]);
@@ -611,6 +647,52 @@ zoomReset.addEventListener("click", () => {
   setHidden(zoomReset, true);
 });
 
+// ---- rules layer: shade by choice, or by what power costs ----
+// State-level on purpose. In a choice state the wires company does not bill for
+// energy, the retailer does, and retailers have no territory to draw, so an
+// honest price needs revenue from providers that are not on this map at all.
+let shadeBy = "bucket";
+let priceScales = {};
+if (statePrices) {
+  for (const m of statePrices.measures) {
+    if (m.kind !== "sequential") continue;
+    priceScales[m.id] = makeScale(Object.values(statePrices.states).map(s => s[m.id]),
+      RAMPS.price);
+  }
+}
+const shadeControls = document.getElementById("shade-controls");
+function renderShadeControls() {
+  if (!statePrices) return;
+  shadeControls.innerHTML = `<span class="sz-label">${copy.controls.shade_label}</span>` +
+    statePrices.measures.map(m =>
+      `<button class="sz-btn" data-shade="${m.id}" aria-pressed="${shadeBy === m.id}">${m.label}</button>`).join("");
+}
+shadeControls.addEventListener("click", e => {
+  const b = e.target.closest("[data-shade]");
+  if (b) setShadeBy(b.dataset.shade);
+});
+function stateFill(abbr) {
+  if (shadeBy === "bucket") {
+    const st = rules.states[abbr];
+    return st ? rules.buckets[st.bucket].color : NO_DATA;
+  }
+  return priceScales[shadeBy].of(statePrices.states[abbr]?.[shadeBy]);
+}
+function setShadeBy(key) {
+  shadeBy = key;
+  for (const p of gRules.children) p.setAttribute("fill", stateFill(p.dataset.state));
+  renderShadeControls();
+  renderLegend("rules");
+  if (typeof updateUrl === "function") updateUrl(current);
+  if (key === "bucket") showState("TX");
+  else {
+    const m = statePrices.measures.find(x => x.id === key);
+    card.innerHTML = `<h3>${copy.controls.price_intro_title}</h3>` +
+      `<p class="c-body">${copy.controls.price_intro_body}</p>` +
+      (m.note ? `<p class="c-body c-note">${m.note}</p>` : "");
+  }
+}
+
 // size controls: land vs each magnitude measure, inside the wires layer so the
 // four-step stack stays four steps.
 const sizeControls = document.getElementById("size-controls");
@@ -627,6 +709,104 @@ sizeControls.addEventListener("click", e => {
   const b = e.target.closest("[data-size]");
   if (b) setSizeBy(b.dataset.size || null);
 });
+
+// ---- wires layer: colour by ownership, by corporate parent, or by outages ----
+// All three are attributes of the same territories, so they share the colour
+// channel rather than each becoming a layer. The channel already answered "who
+// owns this" through the ownership types; parent company is a sharper answer to
+// the same question.
+let colourBy = "type";
+let parentGroups = null;   // holding company -> { color, meters, n }
+let saidiScale = null;
+let saidiVariant = "norm";
+
+// HIFLD repeats the utility's own name in HOLDING_CO for the ~2,700 municipals
+// and co-ops that have no parent, so a plain distinct count says 2,831 and
+// hides the story. Only a parent that genuinely differs from the utility name,
+// and covers more than one utility or a lot of meters, is a group.
+const PARENT_COLORS = [
+  "#3a6ea8", "#b4552d", "#1d8a6a", "#c99a2e", "#a05680", "#66801c", "#6b5aa0", "#8a94a8",
+  "#2e5c8a", "#8f4423", "#176e55", "#a17c25", "#804566", "#516319", "#554880", "#6e7686",
+  "#20496e", "#6d341b", "#115442", "#7a5d1c",
+];
+function buildParentGroups() {
+  if (parentGroups || !wiresFeatures) return;
+  const tally = new Map();
+  for (const f of wiresFeatures) {
+    const p = f.properties;
+    const parent = (p.HOLDING_CO || "").trim();
+    if (!parent || parent.toUpperCase() === (p.NAME || "").trim().toUpperCase()) continue;
+    const t = tally.get(parent) ?? { meters: 0, n: 0 };
+    t.meters += measureValue(p.ID, "cust") ?? 0;
+    t.n++;
+    tally.set(parent, t);
+  }
+  const ranked = [...tally.entries()].sort((a, b) => b[1].meters - a[1].meters).slice(0, PARENT_COLORS.length);
+  parentGroups = new Map(ranked.map(([name, t], i) => [name, { ...t, color: PARENT_COLORS[i], rank: i }]));
+}
+function buildSaidiScale() {
+  if (saidiScale || !wiresFeatures) return;
+  saidiScale = {};
+  for (const v of ["norm", "all"]) {
+    saidiScale[v] = makeScale(wiresFeatures.map(f => measures?.utilities?.[f.properties.ID]?.saidi?.[v]), RAMPS.outage);
+  }
+}
+function wireFill(f) {
+  const p = f.properties;
+  if (colourBy === "parent") {
+    const parent = (p.HOLDING_CO || "").trim();
+    if (!parent || parent.toUpperCase() === (p.NAME || "").trim().toUpperCase()) return NO_DATA;
+    return parentGroups?.get(parent)?.color ?? OTHER_PARENT;
+  }
+  if (colourBy === "saidi") {
+    return saidiScale[saidiVariant].of(measures?.utilities?.[p.ID]?.saidi?.[saidiVariant]);
+  }
+  return WIRE_GROUPS[wireGroup(p.TYPE)].color;
+}
+function repaintWires() {
+  if (!wiresFeatures) return;
+  wiresFeatures.forEach((f, i) => {
+    const fill = wireFill(f);
+    gWires.children[i]?.setAttribute("fill", fill);
+  });
+  for (const c of gCartogram.children) {
+    const f = wiresFeatures[+c.dataset.wire];
+    if (f) c.setAttribute("fill", wireFill(f));
+  }
+}
+const colourControls = document.getElementById("colour-controls");
+function renderColourControls() {
+  const opts = [["type", copy.controls.colour_type], ["parent", copy.controls.colour_parent]];
+  if (measures?.measures?.some(m => m.id === "saidi")) opts.push(["saidi", copy.controls.colour_saidi]);
+  colourControls.innerHTML = `<span class="sz-label">${copy.controls.colour_label}</span>` +
+    opts.map(([k, label]) => `<button class="sz-btn" data-colour="${k}" aria-pressed="${colourBy === k}">${label}</button>`).join("") +
+    (colourBy === "saidi"
+      ? `<span class="sz-sub">` + Object.entries(measures.measures.find(m => m.id === "saidi").variants)
+        .map(([k, label]) => `<button class="sz-btn sz-alt" data-variant="${k}" aria-pressed="${saidiVariant === k}">${label}</button>`).join("") + `</span>`
+      : "");
+}
+colourControls.addEventListener("click", e => {
+  const c = e.target.closest("[data-colour]");
+  if (c) return setColourBy(c.dataset.colour);
+  const v = e.target.closest("[data-variant]");
+  if (v) { saidiVariant = v.dataset.variant; setColourBy("saidi"); }
+});
+function setColourBy(key) {
+  colourBy = key;
+  if (key === "parent") buildParentGroups();
+  if (key === "saidi") buildSaidiScale();
+  repaintWires();
+  renderColourControls();
+  renderLegend("wires");
+  if (typeof updateUrl === "function") updateUrl(current);
+  const c = copy.controls;
+  if (key === "parent") {
+    card.innerHTML = `<h3>${c.parent_intro_title}</h3><p class="c-body">${c.parent_intro_body}</p>`;
+  } else if (key === "saidi") {
+    card.innerHTML = `<h3>${c.saidi_intro_title}</h3><p class="c-body">${c.saidi_intro_body}</p>` +
+      `<p class="c-body c-note">${c.saidi_storm_note}</p>`;
+  } else if (!sizeBy && wiresCounts) showWiresIntro();
+}
 
 // legend (content depends on layer)
 const legend = document.getElementById("legend");
@@ -665,17 +845,49 @@ function sizeLegend(key) {
   return `<span class="lg-size">${copy.cartogram.legend_note}` +
     (missing > 0 ? ` ${copy.cartogram.missing_note.replace("{n}", missing)}` : "") + `</span>`;
 }
+// A sequential scale gets a stepped bar with the break values under it, not a
+// list of swatches. The steps are quantiles, so the numbers are what separates
+// them and the bar alone would not tell you where you are.
+function rampLegend(scale, label, fmt = v => v.toFixed(1)) {
+  const cells = scale.ramp.map(c => `<span class="lg-step" style="background:${c}"></span>`).join("");
+  const marks = scale.breaks.map(b => `<span class="lg-tick">${fmt(b)}</span>`).join("");
+  return `<span class="lg-ramp"><span class="lg-ramp-label">${label}</span>` +
+    `<span class="lg-bar">${cells}</span><span class="lg-ticks">${marks}</span></span>` +
+    `<span class="lg-item"><span class="lg-swatch" style="background:${NO_DATA}"></span>${copy.controls.not_reported}</span>`;
+}
+
 function renderLegend(key) {
   if (key === "wholesale") {
     legend.innerHTML = `<span class="lg-item"><span class="lg-swatch" style="${TRANSITION_SWATCH}"></span>Changed grids in 2026</span>`;
   } else if (key === "rules") {
-    legend.innerHTML = Object.values(rules.buckets)
-      .map(b => `<span class="lg-item"><span class="lg-swatch" style="background:${b.color}"></span>${b.label}</span>`)
-      .join("");
+    if (shadeBy === "bucket" || !statePrices) {
+      legend.innerHTML = Object.values(rules.buckets)
+        .map(b => `<span class="lg-item"><span class="lg-swatch" style="background:${b.color}"></span>${b.label}</span>`)
+        .join("");
+    } else {
+      const m = statePrices.measures.find(x => x.id === shadeBy);
+      const pct = shadeBy === "shopped";
+      legend.innerHTML = rampLegend(priceScales[shadeBy], m.short ?? m.label,
+        v => (pct ? `${Math.round(v * 100)}%` : v.toFixed(1)));
+    }
   } else if (key === "wires") {
-    legend.innerHTML = Object.entries(WIRE_GROUPS)
-      .map(([g, w]) => `<span class="lg-item"><span class="lg-swatch" style="background:${w.color}"></span>${w.label}${wiresCounts ? ` · ${wiresCounts[g].toLocaleString()}` : ""}</span>`)
-      .join("") + (sizeBy ? sizeLegend(sizeBy) : "");
+    let base;
+    if (colourBy === "parent" && parentGroups) {
+      const shown = [...parentGroups.entries()].slice(0, 8);
+      const covered = [...parentGroups.values()].reduce((a, g) => a + g.meters, 0);
+      base = shown.map(([name, g]) =>
+        `<span class="lg-item"><span class="lg-swatch" style="background:${g.color}"></span>${titleCase(name)}</span>`).join("") +
+        `<span class="lg-item"><span class="lg-swatch" style="background:${OTHER_PARENT}"></span>Another parent company</span>` +
+        `<span class="lg-item"><span class="lg-swatch" style="background:${NO_DATA}"></span>Owned locally</span>` +
+        `<span class="lg-size">${parentGroups.size} parent companies cover ${Math.round(covered / 1e6)} million meters, about half the country.</span>`;
+    } else if (colourBy === "saidi" && saidiScale) {
+      base = rampLegend(saidiScale[saidiVariant], "min/yr", v => Math.round(v).toLocaleString());
+    } else {
+      base = Object.entries(WIRE_GROUPS)
+        .map(([g, w]) => `<span class="lg-item"><span class="lg-swatch" style="background:${w.color}"></span>${w.label}${wiresCounts ? ` · ${wiresCounts[g].toLocaleString()}` : ""}</span>`)
+        .join("");
+    }
+    legend.innerHTML = base + (sizeBy ? sizeLegend(sizeBy) : "");
   }
 }
 
@@ -811,6 +1023,8 @@ async function setLayer(key) {
   setHidden(gWires, key !== "wires");
   setHidden(gCartogram, key !== "wires" || !sizeBy);
   setHidden(sizeControls, key !== "wires");
+  setHidden(colourControls, key !== "wires");
+  setHidden(shadeControls, key !== "rules" || !statePrices);
   setHidden(gYou, key !== "you");
   setHidden(zipForm, key !== "you" && key !== "wires");
   setHidden(svg.querySelector("#g-zipoutline"), key !== "wires");
@@ -840,14 +1054,17 @@ async function setLayer(key) {
   setHidden(drawingNote, ready);
   if (key === "wires") {
     renderSizeControls();
+    renderColourControls();
     setHidden(gCartogram, !sizeBy);
     gWires.classList.toggle("faded", !!sizeBy);
   }
+  if (key === "rules") renderShadeControls();
   renderSizeKey(current === "wires" ? sizeBy : null);
   renderLegend(key);
   if (key === "wholesale") showRegion("ERCOT");
-  if (key === "rules") showState("TX");
-  if (key === "wires" && !sizeBy) showWiresIntro();
+  if (key === "rules" && shadeBy === "bucket") showState("TX");
+  if (key === "rules" && shadeBy !== "bucket") setShadeBy(shadeBy);
+  if (key === "wires" && !sizeBy && colourBy === "type") showWiresIntro();
   if (!ready) {
     drawingNote.querySelector("p").textContent = `The ${copy.layers[key].title} layer is being inked.`;
     drawingNote.querySelector(".sub").textContent = "It lands in the next update. Wholesale, Rules, and Wires are live now.";
@@ -880,11 +1097,20 @@ if (wantedZip && /^\d{5}$/.test(wantedZip)) {
       setHidden(zoomReset, false);
     }
   });
-} else if (wanted === "wires" && params.get("size")) {
-  // deep link straight into a sized map, e.g. ?layer=wires&size=cust
+} else if (wanted === "wires" && (params.get("size") || params.get("colour"))) {
+  // deep link straight into a sized or recoloured map,
+  // e.g. ?layer=wires&size=cust&colour=saidi
   setLayer("wires").then(() => {
     const k = params.get("size");
-    if (cartogram?.measures[k]) setSizeBy(k);
+    if (k && cartogram?.measures[k]) setSizeBy(k);
+    let c = params.get("colour");
+    if (c === "saidi-all") { saidiVariant = "all"; c = "saidi"; }
+    if (["parent", "saidi"].includes(c)) setColourBy(c);
+  });
+} else if (wanted === "rules" && params.get("shade")) {
+  setLayer("rules").then(() => {
+    const k = params.get("shade");
+    if (statePrices?.states && priceScales[k]) setShadeBy(k);
   });
 } else {
   setLayer(LAYERS.includes(wanted) ? wanted : "wholesale");
@@ -894,6 +1120,8 @@ function updateUrl(key) {
   const q = new URLSearchParams();
   if (key !== "wholesale") q.set("layer", key);
   if (key === "wires" && sizeBy) q.set("size", sizeBy);
+  if (key === "wires" && colourBy !== "type") q.set("colour", colourBy === "saidi" && saidiVariant === "all" ? "saidi-all" : colourBy);
+  if (key === "rules" && shadeBy !== "bucket") q.set("shade", shadeBy);
   const s = q.toString();
   history.replaceState(null, "", s ? `?${s}` : location.pathname);
 }

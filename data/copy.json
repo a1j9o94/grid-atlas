@@ -411,5 +411,20 @@
         "blurb": "What each company collects from customers in a year."
       }
     }
+  },
+  "controls": {
+    "shade_label": "Shade by",
+    "colour_label": "Colour by",
+    "colour_type": "Who owns it",
+    "colour_parent": "Parent company",
+    "colour_saidi": "Time without power",
+    "not_reported": "not reported",
+    "parent_intro_title": "Almost 3,000 companies, twenty owners",
+    "parent_intro_body": "Most of these companies belong to a bigger one. Twenty parent companies own the wires for about half the meters in America. Hundreds more own a piece of the rest. What is left in pale grey is towns and co-ops that answer to nobody but their own customers.",
+    "saidi_intro_title": "How long the lights stay off",
+    "saidi_intro_body": "Darker means more minutes without power in a year. This counts an ordinary year. Flip to storms and the map turns dark wherever a hurricane landed.",
+    "saidi_storm_note": "Big storms are counted separately because one hurricane can outweigh everything else a company does. CenterPoint in Houston went from 150 minutes to 4,316 in the year of Hurricane Beryl.",
+    "price_intro_title": "What power costs, and what it costs to deliver",
+    "price_intro_body": "Darker means more expensive. Switch between what households pay, what factories pay, and what the wires alone cost. The gap between them is not the same everywhere."
   }
 }
