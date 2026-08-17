@@ -31,9 +31,15 @@ const VIEWPORTS = [
   { name: "phone-small", w: 360, h: 740 },
   { name: "phone", w: 390, h: 844 },
   { name: "phone-landscape", w: 844, h: 390 },
+  // a current large phone laid on its side: short enough to trip every
+  // height-keyed rule, wide enough that stacking is the wrong answer
+  { name: "phone-landscape-tall", w: 915, h: 412 },
   { name: "tablet", w: 768, h: 1024 },
   { name: "laptop-short", w: 1280, h: 660 },
   { name: "desktop", w: 1500, h: 950 },
+  // the map is the product, and a fixed-width plate wasted two thirds of a
+  // large display before anyone measured it
+  { name: "desktop-wide", w: 2560, h: 1440 },
 ];
 
 const VIEWS = [
@@ -186,6 +192,14 @@ for (const vp of VIEWPORTS) {
         }
         out.mapCovered = area > 0 ? Math.round((covered / area) * 100) : 0;
         out.mapDrawn = `${Math.round(drawn.w)}x${Math.round(drawn.h)}`;
+        // How much of the screen the map actually occupies. The coverage check
+        // above asks whether chrome sits on top of the map; it says nothing
+        // about a map that has been squeezed to nothing, and a squeezed map
+        // scores a perfect 0% coverage. Both failures shipped: 88x55 on a
+        // landscape phone and 374x234 on a 1280x660 laptop, each passing every
+        // check in this file at the time.
+        out.mapShare = Math.round((area / (vw * vh)) * 100);
+        out.mapHeight = Math.round(drawn.h);
       }
 
       // tap targets a thumb can actually hit
@@ -209,6 +223,14 @@ for (const vp of VIEWPORTS) {
     // A little overlap is the design: the legend deliberately sits over ocean.
     // A quarter of the map is not.
     if (r.mapCovered > 22) add(tag, `chrome covers ${r.mapCovered}% of the drawn map (${r.mapDrawn})`);
+    // The map has to be worth looking at. The floor is 12%: the honest minimum
+    // across every layout here is the zoomed You layer on a tablet at 14%,
+    // because a zip-sized viewBox is square and letterboxes inside a wide panel.
+    // The two shipped failures were 1% and 10%.
+    if (r.mapShare !== undefined && r.mapShare < 12)
+      add(tag, `map is only ${r.mapShare}% of the viewport (${r.mapDrawn}); the layout is wasting the screen`);
+    if (r.mapHeight !== undefined && r.mapHeight < 150)
+      add(tag, `map is ${r.mapHeight}px tall (${r.mapDrawn}); squeezed to nothing`);
     if (r.scrollX > 1) add(tag, `horizontal scroll ${r.scrollX}px`);
     if (r.scrollY > 1) add(tag, `vertical scroll ${r.scrollY}px (the page must fit the viewport)`);
     for (const s of r.offscreen) add(tag, `offscreen ${s}`);
