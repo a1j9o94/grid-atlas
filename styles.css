@@ -58,6 +58,12 @@ h1 {
 .body {
   flex: 1; min-height: 0;
   display: grid; grid-template-columns: 195px minmax(0, 1fr) 280px;
+  /* The row has to be bounded or the card's own max-height: 100% resolves to
+     none, because a percentage max-height against an auto-height parent is
+     ignored. Without this the card grows through the footer instead of
+     scrolling inside itself, which is what the layout contract promises. It
+     went unseen until a card was tall enough to reach the bottom of the plate. */
+  grid-template-rows: minmax(0, 1fr);
   gap: 0; align-items: stretch; padding: 4px 4px 0;
 }
 
@@ -102,7 +108,10 @@ h1 {
   margin: 14px 16px 8px 2px; background: var(--card-bg);
   border: 1px solid var(--ink); box-shadow: 3px 3px 0 rgba(38, 48, 31, 0.16);
   padding: 12px 14px; align-self: start;
-  max-height: 100%; overflow-y: auto; min-height: 0;
+  /* Its own vertical margins, subtracted: max-height is measured against the
+     row, and the 14px above plus 8px below sit outside that box, so a plain
+     100% lands the card exactly 14px into the footer. */
+  max-height: calc(100% - 22px); overflow-y: auto; min-height: 0;
 }
 .card .c-swatch { display: inline-block; width: 10px; height: 10px; margin-right: 7px; }
 .card h3 { display: inline; font: 700 15px/1.2 var(--ui); margin: 0; }

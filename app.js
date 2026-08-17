@@ -1290,8 +1290,13 @@ function showEvent(id) {
   if (!e) return;
   const ev = [...(e.excerpt ? [`law:${e.excerpt}`] : [])];
   card.innerHTML =
-    `<div class="c-kicker">${e.date}${draftFlag(e)}</div><h3>${e.title}</h3>` +
+    // `when` carries a date the records do not pin to a day. Ames is the case:
+    // June 1891 is solid, the 19th is the day usually given, and one local
+    // account says the 21st. Printing a false precision would be the easy way
+    // out, so the card says what is actually known.
+    `<div class="c-kicker">${e.when ?? e.date}${draftFlag(e)}</div><h3>${e.title}</h3>` +
     `<p class="c-body">${e.body}</p>` +
+    (e.note ? `<p class="c-body c-note">${e.note}</p>` : "") +
     (ev.length ? `<div class="ev-chips">` + ev.map(k =>
       `<button class="ev-chip" data-excerpt="${k.slice(4)}">§ ${timeline.law_excerpts?.[k.slice(4)]?.label ?? "The law"}</button>`).join("") + `</div>` : "") +
     `<button class="c-back" data-back="1">← back to ${framesById.get(frameId)?.label ?? "the plate"}</button>`;
@@ -1440,7 +1445,9 @@ function showDot(i) {
     `<div class="c-kicker">1900${story ? " · a first worth knowing" : ""}</div>` +
     `<h3>${d.city}, ${d.state}</h3>` +
     (story ? `<p class="c-body">${story.body}</p>` : `<p class="c-body">A city with its own power station, lighting the blocks around it and no further.</p>`) +
+    (d.note ? `<p class="c-body c-note">${d.note}</p>` : "") +
     `<div class="c-stats"><span class="c-stat"><b>${(d.pop1900 ?? 0).toLocaleString()}</b>people in 1900</span>` +
+    (d.rank ? `<span class="c-stat"><b>#${d.rank}</b>largest in 1900</span>` : "") +
     (story ? `<span class="c-stat"><b>${story.date.slice(0, 4)}</b>${story.title.toLowerCase()}</span>` : "") +
     `</div>` +
     `<button class="c-back" data-back="1">← back to the plate</button>`;
