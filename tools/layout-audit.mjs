@@ -140,16 +140,39 @@ for (const vp of VIEWPORTS) {
       const vw = de.clientWidth, vh = de.clientHeight;
       const out = { scrollX: de.scrollWidth - vw, scrollY: de.scrollHeight - vh, offscreen: [], overlaps: [], tiny: [], clipped: [] };
 
+      // What the reader can actually see, which is the layout rect clipped by
+      // every scrolling or hidden ancestor above it. An element inside a scroll
+      // box keeps its full rect wherever the content puts it, even when that is
+      // three hundred pixels below the visible part of the box, so measuring
+      // the raw rect reports a legend that has scrolled out of view as
+      // overlapping the footer it is nowhere near. Returns null when the
+      // element is entirely clipped away: not visible is not a layout problem.
+      const visibleRect = el => {
+        let r = el.getBoundingClientRect();
+        let box = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+        for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+          const cs = getComputedStyle(p);
+          if (cs.overflow === "visible" && cs.overflowX === "visible" && cs.overflowY === "visible") continue;
+          const pr = p.getBoundingClientRect();
+          box.left = Math.max(box.left, pr.left);
+          box.top = Math.max(box.top, pr.top);
+          box.right = Math.min(box.right, pr.right);
+          box.bottom = Math.min(box.bottom, pr.bottom);
+        }
+        if (box.right - box.left < 1 || box.bottom - box.top < 1) return null;
+        return { x: box.left, y: box.top, w: box.right - box.left, h: box.bottom - box.top };
+      };
+
       const boxes = {};
       for (const [k, sel] of Object.entries(panels)) {
         const el = document.querySelector(sel);
         if (!el || el.hasAttribute("hidden")) continue;
         const cs = getComputedStyle(el);
         if (cs.display === "none" || cs.visibility === "hidden") continue;
-        const b = el.getBoundingClientRect();
-        if (!b.width || !b.height) continue;
-        boxes[k] = { x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.width), h: Math.round(b.height) };
-        if (b.right > vw + 1 || b.left < -1 || b.bottom > vh + 1 || b.top < -1)
+        const b = visibleRect(el);
+        if (!b || !b.w || !b.h) continue;
+        boxes[k] = { x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.w), h: Math.round(b.h) };
+        if (b.x + b.w > vw + 1 || b.x < -1 || b.y + b.h > vh + 1 || b.y < -1)
           out.offscreen.push(`${k} ${JSON.stringify(boxes[k])} in ${vw}x${vh}`);
       }
       const keys = Object.keys(boxes);

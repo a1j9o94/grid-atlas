@@ -548,6 +548,15 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .side { overflow: hidden; }
   .side .card { flex: 1 1 0; }
   .side .map-ui { flex: 0 1 auto; min-height: 0; max-height: 62%; overflow-y: auto; }
+  /* The legend goes last, under the controls, because it is the one part of
+     this column with no height limit: colouring by parent company lists ten
+     entries and runs 242px. Above the controls, on a 1500x950 window, it put
+     the size controls at y=840 inside a box that ends at 881, so reaching them
+     meant scrolling past a key nobody asked for. Nothing overflowed and nothing
+     was broken; it was just the wrong thing to make people scroll past. Buttons
+     first, then what the colours mean. */
+  .side .legend { order: 1; }
+  .side .size-controls { order: 0; }
   /* Wrap rather than scroll sideways. A column has the height for two or three
      rows of buttons, and a horizontal scroller hides half the options behind a
      gesture nobody performs on a control they have not seen yet. The buttons
@@ -682,11 +691,14 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
     order: 0; flex: 1 1 auto;
     width: 100%; height: 100%; aspect-ratio: auto; max-height: none; min-height: 0;
   }
-  /* positioned against .body, whose left column is the map */
+  /* Positioned against .body, whose left column is the map. The width cap is
+     the map column exactly, not a round fraction of the body: at 70% the strip
+     ran 5px under the card on every layer. */
   .map-ui {
     position: absolute; left: 8px; bottom: 6px; right: auto; z-index: 5;
     width: auto; flex-direction: row; flex-wrap: nowrap; align-items: flex-end; gap: 5px;
-    max-width: calc(70% - 16px); overflow-x: auto; scrollbar-width: none;
+    max-width: calc(100% - clamp(220px, 30vw, 330px) - 22px);
+    overflow-x: auto; scrollbar-width: none;
   }
   .map-ui::-webkit-scrollbar { display: none; }
   .zip-search {
