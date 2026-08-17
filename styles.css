@@ -248,7 +248,7 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 /* The nested-circle key lives on the plate, in map coordinates, so its circles
    are literally the same size as the map's. A key in the HTML legend strip
    would have to be rescaled to fit, which defeats the point of a size key. */
-.lg-size { font-size: 11px; color: var(--ink2); border-left: 1px solid var(--hair); padding-left: 12px; }
+.lg-size { font-size: 11px; color: var(--ink2); border-left: 1px solid var(--hair); padding-left: 12px; flex: 0 1 auto; min-width: 18ch; }
 #g-sizekey .sk-plate { fill: var(--card-bg); fill-opacity: 0.93; stroke: var(--hair); stroke-width: 0.6; vector-effect: non-scaling-stroke; }
 #g-sizekey circle { fill: none; stroke: var(--ink2); stroke-width: 0.8; vector-effect: non-scaling-stroke; }
 #g-sizekey .sk-unit { font-size: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -470,3 +470,68 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .sz-sub { display: inline-flex; gap: 4px; align-items: center; margin-left: 4px;
   padding-left: 8px; border-left: 1px solid var(--hair); }
 .sz-btn.sz-alt { font-size: 10.5px; padding: 7px 8px; min-height: 28px; }
+
+/* ---- keep the chrome off the map ----
+   Three control groups stacked in a corner is ~140px tall. Overlaid on a short
+   panel that buried up to 47% of the drawn map, which the old audit could not
+   see because it only compared chrome against chrome. Two treatments:
+
+   Wide screens lay the groups out in one row, so the stack is one control tall
+   and overlaying it costs almost nothing.
+
+   Narrow or short screens take the chrome out of the overlay entirely and put
+   it in flow under the map. The map gets smaller, which is honest, instead of
+   getting covered, which is not. */
+@media (min-width: 981px) {
+  .map-ui { flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 6px; }
+}
+
+@media (max-width: 980px), (max-height: 800px) {
+  .map-panel { flex-direction: column; justify-content: flex-start; flex: 0 1 auto; }
+  /* Everything in this panel is in flow now, top to bottom: search, map,
+     legend, controls. The zip box used to float over Maine once the map moved
+     to the top of the panel. */
+  .zip-search, .zoom-reset {
+    position: static; order: 0; align-self: flex-start; transform: none;
+    left: auto; right: auto; top: auto; bottom: auto; margin-bottom: 4px;
+  }
+  .map-panel svg { order: 1; }
+  .map-ui { order: 2; }
+  /* the slack lands under the card, where it reads as margin rather than as a
+     hole between the controls and the text */
+  .card { flex: 0 1 auto; }
+  /* Hold the plate's aspect so the map is exactly as tall as it is wide over
+     1.6, and the legend sits right under it instead of across a gap of paper. */
+  .map-panel svg { flex: 0 1 auto; width: 100%; height: auto; aspect-ratio: 975 / 610; max-height: 100%; min-height: 0; }
+  .map-ui {
+    position: static; flex: none; order: 2; max-width: 100%;
+    flex-direction: column; gap: 4px; padding-top: 4px;
+    /* stretch, not flex-start: with flex-start the legend sizes to max-content
+       and so never wraps, it just gets cut off mid-word at the panel edge */
+    align-items: stretch;
+  }
+  .map-ui > * { max-width: 100%; }
+  /* One line each, scrolled sideways rather than wrapped into a tall block.
+     min-width:0 is load-bearing: a flex item with overflow:auto still refuses
+     to shrink below its content without it, and the whole panel grew to 661px
+     inside a 390px viewport. */
+  .legend, .size-controls {
+    flex-wrap: nowrap; overflow-x: auto; max-width: 100%; min-width: 0;
+    scrollbar-width: none; justify-content: flex-start;
+  }
+  /* min-width:0 has to run the whole chain. body is a flex row, so without it
+     the shade control's 660px of buttons sized the plate and pushed the card
+     and footer 300px past a 390px viewport. */
+  .plate, .plate-inner, .body, .map-panel, .map-panel > * { min-width: 0; }
+  .plate { max-width: 100%; }
+  .map-panel { overflow: hidden; }
+  .legend::-webkit-scrollbar, .size-controls::-webkit-scrollbar { display: none; }
+  .lg-item, .sz-btn, .sz-label { flex: none; white-space: nowrap; }
+  /* The legend's prose is the only shrinkable item in a nowrap row, so it
+     collapsed to 60px wide and wrapped its text into a 314px ribbon that ate
+     the map. It is duplicated in the methodology modal, so drop it here. */
+  .lg-size { display: none; }
+  /* the on-plate size key would sit under the shrunken map; the legend text
+     already carries the same information */
+  #g-sizekey { display: none; }
+}

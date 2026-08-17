@@ -148,6 +148,40 @@ for (const vp of VIEWPORTS) {
         if (ox > 4 && oy > 4) out.overlaps.push(`${keys[i]} x ${keys[j]} by ${ox}x${oy}px`);
       }
 
+      // Chrome must not bury the map. The overlap checks above only compare
+      // chrome to chrome, so a control stack sitting on top of the map passed
+      // clean while covering two thirds of it on a real phone.
+      const svg = document.getElementById("map");
+      if (svg && !svg.hasAttribute("hidden")) {
+        const panel = document.querySelector(".map-panel").getBoundingClientRect();
+        const sb = svg.getBoundingClientRect();
+        // the svg itself has to fit its panel, or the map is clipped
+        if (sb.height > panel.height + 2 || sb.width > panel.width + 2)
+          out.mapClipped = `svg ${Math.round(sb.width)}x${Math.round(sb.height)} exceeds panel ${Math.round(panel.width)}x${Math.round(panel.height)}`;
+        // the drawn map letterboxes inside the svg; compare against that, not
+        // the element, or the empty margins forgive real coverage
+        const vb = svg.viewBox.baseVal;
+        const scale = Math.min(sb.width / vb.width, sb.height / vb.height);
+        const drawn = {
+          x: sb.x + (sb.width - vb.width * scale) / 2,
+          y: sb.y + (sb.height - vb.height * scale) / 2,
+          w: vb.width * scale,
+          h: vb.height * scale,
+        };
+        const area = drawn.w * drawn.h;
+        let covered = 0;
+        for (const sel of [".map-ui", "#zip-search", "#zoom-reset"]) {
+          const el = document.querySelector(sel);
+          if (!el || el.hasAttribute("hidden") || getComputedStyle(el).display === "none") continue;
+          const b = el.getBoundingClientRect();
+          const ox = Math.min(b.right, drawn.x + drawn.w) - Math.max(b.x, drawn.x);
+          const oy = Math.min(b.bottom, drawn.y + drawn.h) - Math.max(b.y, drawn.y);
+          if (ox > 0 && oy > 0) covered += ox * oy;
+        }
+        out.mapCovered = area > 0 ? Math.round((covered / area) * 100) : 0;
+        out.mapDrawn = `${Math.round(drawn.w)}x${Math.round(drawn.h)}`;
+      }
+
       // tap targets a thumb can actually hit
       for (const el of document.querySelectorAll("button, .step, input")) {
         const b = el.getBoundingClientRect();
@@ -165,6 +199,10 @@ for (const vp of VIEWPORTS) {
       return out;
     }, PANELS);
 
+    if (r.mapClipped) add(tag, `map clipped: ${r.mapClipped}`);
+    // A little overlap is the design: the legend deliberately sits over ocean.
+    // A quarter of the map is not.
+    if (r.mapCovered > 22) add(tag, `chrome covers ${r.mapCovered}% of the drawn map (${r.mapDrawn})`);
     if (r.scrollX > 1) add(tag, `horizontal scroll ${r.scrollX}px`);
     if (r.scrollY > 1) add(tag, `vertical scroll ${r.scrollY}px (the page must fit the viewport)`);
     for (const s of r.offscreen) add(tag, `offscreen ${s}`);

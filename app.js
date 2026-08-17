@@ -24,12 +24,9 @@ const TRANSITION_SWATCH = "background: repeating-linear-gradient(-45deg, #b4552d
 // citizen-owned (dark). Any two contrasting hues at this area coverage reads
 // as an election map, so the encoding is ordered "how public is your power
 // company" instead of team colors. Ramp validated on the sage surface.
-const WIRE_GROUPS = {
-  iou: { label: "Owned by investors", color: "#a98cc4" },
-  coop: { label: "Owned by its members", color: "#7c5fae" },
-  public: { label: "Owned by the public", color: "#4b3178" },
-  other: { label: "Unknown", color: "#c8c3ae" },
-};
+// Colours here, labels in the copy deck. The legend wants one word; the hover
+// card carries the full explanation from copy.wires_types.
+const WIRE_COLORS = { iou: "#a98cc4", coop: "#7c5fae", public: "#4b3178", other: "#c8c3ae" };
 function wireGroup(type) {
   if (type === "INVESTOR OWNED") return "iou";
   if (type === "COOPERATIVE") return "coop";
@@ -86,6 +83,9 @@ function makeScale(values, ramp) {
     },
   };
 }
+
+const WIRE_GROUPS = Object.fromEntries(Object.entries(WIRE_COLORS).map(([g, color]) =>
+  [g, { color, label: copy.wires_groups?.[g]?.label ?? g, phrase: copy.wires_groups?.[g]?.phrase ?? "" }]));
 
 const statesFC = feature(statesTopo, Object.values(statesTopo.objects)[0]);
 const rtosFC = feature(rtosTopo, Object.values(rtosTopo.objects)[0]);
@@ -631,7 +631,7 @@ async function showYouCard(zip, utils) {
   }
   card.innerHTML =
     `<h3>Zip ${zip} in the stack</h3>` +
-    `<p class="c-body"><b>Your wires:</b> ${rows.map(r => `${r.name} (${WIRE_GROUPS[r.group].label.toLowerCase()})`).join(", ")}${utils.length > 3 ? " and others" : ""}.</p>` +
+    `<p class="c-body"><b>Your wires:</b> ${rows.map(r => `${r.name} (${WIRE_GROUPS[r.group].phrase})`).join(", ")}${utils.length > 3 ? " and others" : ""}.</p>` +
     choiceLine +
     (rtoName ? `<p class="c-body c-note"><b>Your market:</b> ${rtoName}</p>` : "") +
     `<p class="c-body c-fine">Zip shapes are the Census version of zip codes. Utility match comes from a 2020 federal lookup.</p>`;

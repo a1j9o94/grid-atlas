@@ -426,5 +426,23 @@
     "saidi_storm_note": "Big storms are counted separately because one hurricane can outweigh everything else a company does. CenterPoint in Houston went from 150 minutes to 4,316 in the year of Hurricane Beryl.",
     "price_intro_title": "What power costs, and what it costs to deliver",
     "price_intro_body": "Darker means more expensive. Switch between what households pay, what factories pay, and what the wires alone cost. The gap between them is not the same everywhere."
+  },
+  "wires_groups": {
+    "iou": {
+      "label": "Investors",
+      "phrase": "owned by investors"
+    },
+    "coop": {
+      "label": "Residents",
+      "phrase": "owned by its members"
+    },
+    "public": {
+      "label": "Public",
+      "phrase": "owned by the public"
+    },
+    "other": {
+      "label": "Unknown",
+      "phrase": "owner not recorded"
+    }
   }
 }
