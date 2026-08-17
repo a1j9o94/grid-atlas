@@ -44,7 +44,7 @@ body::after {
    frozen at 1280px on a 2560px display gave the map 767x480 and left 750px of
    vertical paper empty: 10% of the screen showing the thing people came for.
    Width is the binding constraint, so derive it from the height instead.
-     rail + card + panel padding  = 497px, measured, stable across sizes
+     rail + side column + padding = 497px, measured, stable across sizes
      head + foot + plate padding  = 203px, likewise
    Whatever height is left over becomes map height, and the plate is exactly
    1.598 times that plus the side columns, so the map fills the panel on both
@@ -72,6 +72,10 @@ h1 {
 
 .body {
   flex: 1; min-height: 0;
+  /* The right column carries the card and the map's controls now. It stays at
+     280px: on most screens the plate is clamped at 96vw, so every pixel this
+     column gains comes straight off the map's width. The buttons wrap as whole
+     labels instead, which fits them in the same space the card always had. */
   display: grid; grid-template-columns: 195px minmax(0, 1fr) 280px;
   gap: 0; align-items: stretch; padding: 4px 4px 0;
 }
@@ -171,7 +175,10 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 @media (max-width: 980px) {
   .body { grid-template-columns: 170px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
   .rail { grid-row: 1 / -1; }
-  .card { grid-column: 2; margin: 0 12px 8px 8px; max-height: 34dvh; }
+  /* the side column stops being a column here and becomes the strip under the
+     map, carrying the card and the controls in reading order */
+  .side { grid-column: 2; padding: 0 12px 8px 8px; gap: 6px; }
+  .card { max-height: 34dvh; }
   .explainer { display: none; }
 }
 
@@ -197,7 +204,12 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .step .s-gloss { display: none; }
   .step br { display: none; }
   .map-panel { flex: 1; min-height: 0; padding: 2px 4px; }
-  .card { flex: none; margin: 4px 6px 6px; max-height: 34dvh; }
+  .side { flex: none; padding: 4px 6px 6px; gap: 6px; }
+  .card { max-height: 34dvh; }
+  /* Controls above the card on a phone, which is the order the map already
+     taught: map, then the thing you press, then the thing you read. */
+  .side .map-ui { order: 0; }
+  .side .card { order: 1; }
   .foot .note { display: none; }
   .about-toggle { display: inline-block; }
   .rlabel { font-size: 20px; }
@@ -213,12 +225,23 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 /* Bottom-left stack: legend on top, size controls under it. One flow container
    rather than two absolutely-positioned boxes, so they cannot collide when the
    legend wraps on a narrow screen. */
+/* The controls are in flow beside the card now, not floating over the map.
+   Overlaying cost map area on every screen and buried the map outright on short
+   ones: at 1280x660 three stacked groups covered 54% of it. In a column of
+   their own they cost nothing, and the map panel is nothing but map. */
 .map-ui {
-  position: absolute; left: 14px; bottom: 10px; z-index: 5;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-  max-width: calc(100% - 28px); pointer-events: none;
+  display: flex; flex-direction: column; align-items: stretch; gap: 6px;
+  min-width: 0;
 }
-.map-ui > * { pointer-events: auto; }
+
+/* card and controls share a column. The card takes the slack and scrolls; the
+   controls keep their natural height and sit below it, so the thing you click
+   is always on screen no matter how long the current card's copy runs. */
+.side {
+  display: flex; flex-direction: column; min-height: 0; min-width: 0;
+  padding: 14px 16px 8px 8px; gap: 10px;
+}
+.side .card { align-self: stretch; margin: 0; min-height: 0; }
 
 /* rules-layer legend */
 .legend {
@@ -405,7 +428,8 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .step .dot { margin-top: 0; width: 8px; height: 8px; }
   .step .s-gloss, .step br { display: none; }
   .map-panel { flex: 1; min-height: 0; }
-  .card { flex: none; margin: 4px 6px 6px; max-height: 34dvh; }
+  .side { flex: none; padding: 4px 6px 6px; }
+  .card { max-height: 34dvh; }
 }
 /* A short landscape phone leaves the map panel about 130px tall, which is less
    than the stacked chrome needs. Everything gets its compact form: the zip
@@ -497,39 +521,49 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
    Narrow or short screens take the chrome out of the overlay entirely and put
    it in flow under the map. The map gets smaller, which is honest, instead of
    getting covered, which is not. */
-/* Wide screens put the chrome in flow under the map too, which is what the
-   principle above always implied and what only the narrow layouts did.
-   Overlaying was fine while the controls were one short row over ocean. They
-   are not: three groups run 1,150px wide, so on a 943px panel they wrap to two
-   or three rows and 239px of chrome sits over a 447px map, burying 54% of it.
-   Forcing one row with a sideways scroll only traded that for controls parked
-   off the edge of the screen.
+/* Wide screens give the controls a column instead of a strip.
 
-   In flow the map gets smaller instead of getting covered, and mostly it does
-   not even get smaller: at 1500x950 the map is width-bound, so the chrome costs
-   it nothing at all. On a 2560px display it costs about four points. */
+   Overlaying them was the first answer and it buried the map: three groups run
+   1,150px wide, so on a 943px panel they wrapped to three rows and 239px of
+   chrome sat over a 447px map, covering 54% of it. Putting them in flow under
+   the map fixed the covering and moved the cost rather than removing it, since
+   every pixel of chrome height came straight off a map that is height-bound on
+   a wide screen.
+
+   Beside the card they cost nothing at all. The controls are a vertical list in
+   a column that already exists for text, the map panel is nothing but map, and
+   the two things that were competing for the same pixels stop competing. */
 @media (min-width: 981px) {
-  .map-panel { flex-direction: column; justify-content: flex-start; }
-  .map-panel svg {
-    order: 0; flex: 0 1 auto; width: 100%; height: auto;
-    aspect-ratio: 975 / 610; max-height: 100%; min-height: 0;
-  }
-  .map-ui {
-    position: static; order: 1; flex: none; max-width: 100%;
-    flex-direction: row; flex-wrap: wrap; align-items: flex-end;
-    gap: 6px; padding-top: 6px;
-  }
-  /* Each group scrolls inside itself rather than overflowing, the same rule the
-     narrow layouts have always had. Without it a single group wider than the
-     panel simply ran off the plate: the size controls sat at x=2034 in a 1500px
-     window. min-width:0 is the load-bearing half, because a flex item with
-     overflow:auto still refuses to shrink below its content without it. */
-  .legend, .size-controls {
-    flex-wrap: nowrap; overflow-x: auto; max-width: 100%; min-width: 0;
-    scrollbar-width: none; justify-content: flex-start;
-  }
-  .legend::-webkit-scrollbar, .size-controls::-webkit-scrollbar { display: none; }
-  .lg-item, .sz-btn, .sz-label { flex: none; white-space: nowrap; }
+  .map-panel svg { width: 100%; height: 100%; }
+  .map-ui { flex-direction: column; align-items: stretch; gap: 8px; }
+  /* Both halves of the column are bounded, because on a short window they do
+     not both fit: at 1280x660 the three control groups want 450px of a 457px
+     column. Left unbounded the controls kept their full height, crushed the
+     card to a clipped headline, and pushed their own last row through the
+     footer. The controls take at most three fifths and scroll inside that; the
+     card grows into what is left and scrolls too. Prose degrades gracefully
+     when it is cut off at the bottom. A button that is off screen does not
+     exist. Scoped to the wide layout: in the stacked one the side column sizes
+     to its content, and a zero flex-basis there collapses the card to a stub. */
+  .side { overflow: hidden; }
+  .side .card { flex: 1 1 0; }
+  .side .map-ui { flex: 0 1 auto; min-height: 0; max-height: 62%; overflow-y: auto; }
+  /* Wrap rather than scroll sideways. A column has the height for two or three
+     rows of buttons, and a horizontal scroller hides half the options behind a
+     gesture nobody performs on a control they have not seen yet. The buttons
+     wrap as whole labels: without nowrap "Electricity delivered" breaks across
+     two lines inside its own box and the row heights stop matching. */
+  .legend, .size-controls { flex-wrap: wrap; overflow: visible; }
+  .sz-btn, .sz-label, .lg-item { white-space: nowrap; }
+  /* The group label takes a line of its own rather than the first button slot.
+     In a 256px column that slot was costing a whole extra row per group: with
+     the label inline the five colour buttons wrapped to five rows, with it
+     above them they wrap to three. */
+  .sz-label { display: block; width: 100%; margin: 0 0 2px; }
+  /* The size key's prose runs four lines in a 256px column, about 65px, which
+     is a fifth of the control budget on a short window. The same sentences are
+     in the methodology modal and the circles themselves are keyed on the plate. */
+  .side .lg-size { display: none; }
   /* Off the centre line. The zip box sat top-centre because the map used to
      letterbox and leave a band of empty paper above it. Now that the map fills
      its panel there is no band, and centred means straight over the Dakotas.
@@ -555,22 +589,21 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
     left: auto; right: auto; top: auto; bottom: auto; margin-bottom: 4px;
   }
   .map-panel svg { order: 1; }
-  .map-ui { order: 2; }
   /* the slack lands under the card, where it reads as margin rather than as a
      hole between the controls and the text */
-  .card { flex: 0 1 auto; }
-  /* and it is capped, because the card grows with whatever copy the current
+  .side { flex: 0 1 auto; }
+  /* and the card is capped, because it grows with whatever copy the current
      view carries and it grows at the map's expense. The rooftop solar
      introduction is four sentences longer than the ownership one, which was
      enough to take the map on a 360px phone from 307x192 down to 166x104. The
      card scrolls; the map cannot. */
   .card { max-height: 40dvh; }
   /* Hold the plate's aspect so the map is exactly as tall as it is wide over
-     1.6, and the legend sits right under it instead of across a gap of paper. */
+     1.6, and the controls sit right under it instead of across a gap of paper. */
   .map-panel svg { flex: 0 1 auto; width: 100%; height: auto; aspect-ratio: 975 / 610; max-height: 100%; min-height: 0; }
   .map-ui {
-    position: static; flex: none; order: 2; max-width: 100%;
-    flex-direction: column; gap: 4px; padding-top: 4px;
+    flex: none; max-width: 100%;
+    flex-direction: column; gap: 4px;
     /* stretch, not flex-start: with flex-start the legend sizes to max-content
        and so never wraps, it just gets cut off mid-word at the panel edge */
     align-items: stretch;
@@ -587,7 +620,7 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   /* min-width:0 has to run the whole chain. body is a flex row, so without it
      the shade control's 660px of buttons sized the plate and pushed the card
      and footer 300px past a 390px viewport. */
-  .plate, .plate-inner, .body, .map-panel, .map-panel > * { min-width: 0; }
+  .plate, .plate-inner, .body, .map-panel, .map-panel > *, .side, .side > * { min-width: 0; }
   .plate { max-width: 100%; }
   .map-panel { overflow: hidden; }
   .legend::-webkit-scrollbar, .size-controls::-webkit-scrollbar { display: none; }
@@ -616,23 +649,28 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
    chips into the side column and letting them wrap two-by-two buys the map its
    full height and takes it from a quarter of the screen to a third.
 
-   The controls float over the map again, in one row, because a panel this short
-   cannot spare the 70px that putting them in flow would cost, and one row of
-   buttons over a 300px map covers about a tenth of it.
+   The controls are the exception to the side-column rule the wider layouts
+   follow. The side column here is about 220px tall and the three groups need
+   280px of it, so putting them there would leave the card nothing and make both
+   scroll. They float over the map instead, in one row: a 44px strip over a
+   300px map costs about a tenth of it, which is the cheapest of the options.
+   Since they no longer live inside the map panel, `.body` is the positioning
+   context and the map is its left column, so bottom-left of one is bottom-left
+   of the other.
 
    Keyed at 561px so it cannot catch a short laptop, which has the height for
    the ordinary layout. */
 @media (max-height: 560px) and (min-width: 701px) {
   .body {
-    display: grid;
+    display: grid; position: relative;
     grid-template-columns: minmax(0, 1fr) clamp(220px, 30vw, 330px);
     grid-template-rows: auto minmax(0, 1fr);
-    grid-template-areas: "map rail" "map card";
+    grid-template-areas: "map rail" "map side";
     gap: 0 6px; padding: 2px;
   }
   .rail { grid-area: rail; padding: 2px 0 4px; overflow: visible; }
   .map-panel { grid-area: map; }
-  .card { grid-area: card; }
+  .side { grid-area: side; padding: 0 0 2px; gap: 0; }
   /* wrap two by two in the side column instead of scrolling sideways: these
      four are the primary navigation and all of them should be visible */
   .rail .steps { flex-wrap: wrap; width: auto; gap: 4px; }
@@ -644,10 +682,11 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
     order: 0; flex: 1 1 auto;
     width: 100%; height: 100%; aspect-ratio: auto; max-height: none; min-height: 0;
   }
+  /* positioned against .body, whose left column is the map */
   .map-ui {
-    position: absolute; left: 6px; bottom: 5px; right: auto; order: 0;
-    flex-direction: row; flex-wrap: nowrap; align-items: flex-end; gap: 5px;
-    max-width: calc(100% - 12px); overflow-x: auto; scrollbar-width: none;
+    position: absolute; left: 8px; bottom: 6px; right: auto; z-index: 5;
+    width: auto; flex-direction: row; flex-wrap: nowrap; align-items: flex-end; gap: 5px;
+    max-width: calc(70% - 16px); overflow-x: auto; scrollbar-width: none;
   }
   .map-ui::-webkit-scrollbar { display: none; }
   .zip-search {
@@ -665,7 +704,7 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
      link. Stretch bounds it to the row, and overflow-y does the rest. */
   .card {
     max-height: none; min-height: 0; overflow-y: auto; margin: 0;
-    align-self: stretch;
+    align-self: stretch; flex: 1 1 auto;
   }
 }
 
@@ -688,4 +727,17 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .method-toggle, .tour-start { font-size: 11px; padding: 7px 9px; white-space: nowrap; }
   /* the card scrolls, the map cannot */
   .card { max-height: 24dvh; }
+}
+
+/* ---- short wide windows: the controls trade padding for a scrollbar ----
+   Three control groups run 392px in a 256px column. A 1440x900 window has room
+   for that beside the card; a 1280x660 window has 457px of column for both, so
+   something has to give. Padding gives first. Buttons keep a 30px tap target,
+   which is the floor the audit enforces, and the group loses the whitespace
+   instead of the reader losing a row. */
+@media (min-width: 981px) and (max-height: 820px) {
+  .side .sz-btn { min-height: 30px; padding: 6px 8px; font-size: 11px; }
+  .side .sz-btn.sz-alt { min-height: 28px; padding: 5px 7px; }
+  .side .size-controls { padding: 6px 8px; gap: 4px; }
+  .side .legend { padding: 5px 8px; gap: 8px; }
 }

@@ -34,6 +34,7 @@ The map should show current reality, so we keep a small, documented corrections 
 
 ## Honest limits
 
+- **The map's controls sit beside the card, not on the map.** They were an overlay at first, which cost map area everywhere and buried it on short windows: three control groups over a 1280x660 laptop covered 54% of the drawn map. Putting them in flow under the map stopped the covering but moved the cost rather than removing it, since a wide screen's map is height-bound and every pixel of chrome came off it. In a column of their own they cost nothing. On a short window the controls take at most three fifths of that column and scroll inside it, and the card takes the rest, because a button that is off screen does not exist and prose survives being cut off at the bottom.
 - Region borders come from utility shapes, so they are honest but not smooth.
 - Blank white gaps are areas where no utility is mapped. Much of that is wilderness.
 - People counts on region cards are rough, marked with `~`.
