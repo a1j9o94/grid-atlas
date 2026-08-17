@@ -3,8 +3,8 @@
 import { geoAlbersUsa, geoPath, feature, mesh } from "./vendor.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const LAYERS = ["wholesale", "rules", "wires", "you"];
-const READY = new Set(["wholesale", "rules", "wires", "you"]);
+const LAYERS = ["wholesale", "rules", "wires", "you", "history"];
+const READY = new Set(["wholesale", "rules", "wires", "you", "history"]);
 const FILL = {
   PJM: "var(--r-pjm)", ERCOT: "var(--r-ercot)", MISO: "var(--r-miso)",
   SPP: "var(--r-spp)", CAISO: "var(--r-caiso)", NYISO: "var(--r-nyiso)",
@@ -122,6 +122,14 @@ svg.innerHTML = `
       <rect width="0.18" height="0.18" fill="var(--r-ercot)"/>
       <line x1="0" y1="0" x2="0" y2="0.18" stroke="rgba(246,238,224,0.95)" stroke-width="0.045"/>
     </pattern>
+    <!-- lamplight for the 1900 plate: a city with its own station, and nothing
+         between the dots. Gradient rather than a blur filter, because a filter
+         in user space would displace at a fixed size the way #wobble does. -->
+    <radialGradient id="lampglow">
+      <stop offset="0%" stop-color="#f2d68a" stop-opacity="0.95"/>
+      <stop offset="40%" stop-color="#e0a838" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#e0a838" stop-opacity="0"/>
+    </radialGradient>
   </defs>
   <g id="g-rto" filter="url(#wobble)"></g>
   <g id="g-transitions" filter="url(#wobble)"></g>
@@ -133,10 +141,17 @@ svg.innerHTML = `
   <g id="g-cartogram" hidden></g>
   <g id="g-sizekey" hidden></g>
   <g id="g-you" hidden></g>
+  <!-- history: the ground for a past plate. Under the state lines, so the
+       borders you know still sit on top of a map you do not. -->
+  <g id="g-time-base" filter="url(#wobble)" hidden></g>
   <g id="g-zipoutline"></g>
   <g id="g-statelines"></g>
   <g id="g-labels"></g>
   <g id="g-trivia"></g>
+  <!-- history marks ride above everything, and never through #wobble: it
+       displaces by an absolute 6.5px, which would throw a 2px city dot several
+       times its own width off the city it stands for. -->
+  <g id="g-time-marks" hidden></g>
 `;
 const gRto = svg.querySelector("#g-rto");
 const gTransitions = svg.querySelector("#g-transitions");
@@ -145,6 +160,8 @@ const gWires = svg.querySelector("#g-wires");
 const gCartogram = svg.querySelector("#g-cartogram");
 const gSizeKey = svg.querySelector("#g-sizekey");
 const gYou = svg.querySelector("#g-you");
+const gTimeBase = svg.querySelector("#g-time-base");
+const gTimeMarks = svg.querySelector("#g-time-marks");
 const gLines = svg.querySelector("#g-statelines");
 const gLabels = svg.querySelector("#g-labels");
 const gTrivia = svg.querySelector("#g-trivia");
@@ -918,9 +935,22 @@ function rampLegend(scale, label, fmt = v => v.toFixed(1)) {
     `<span class="lg-item"><span class="lg-swatch" style="background:${NO_DATA}"></span>${copy.controls.not_reported}</span>`;
 }
 
+const changedGridsItem = `<span class="lg-item"><span class="lg-swatch" style="${TRANSITION_SWATCH}"></span>Changed grids in 2026</span>`;
+
 function renderLegend(key) {
   if (key === "wholesale") {
-    legend.innerHTML = `<span class="lg-item"><span class="lg-swatch" style="${TRANSITION_SWATCH}"></span>Changed grids in 2026</span>`;
+    legend.innerHTML = changedGridsItem;
+  } else if (key === "history") {
+    const f = framesById.get(frameId);
+    // The last plate IS the wholesale layer, so it borrows that legend rather
+    // than describing the same marks in different words.
+    if (f?.geometry?.kind === "current") { legend.innerHTML = changedGridsItem; return; }
+    const swatch = s => s === "dot" ? `<span class="lg-swatch lg-dot"></span>`
+      : s === "dot-story" ? `<span class="lg-swatch lg-dot lg-dot-story"></span>`
+      : `<span class="lg-swatch" style="background:${s}"></span>`;
+    legend.innerHTML = (f?.legend ?? []).map(it =>
+      `<span class="lg-item">${swatch(it.swatch)}${it.label}</span>`).join("") +
+      (f?.ship === false ? `<span class="lg-size">This plate is still being inked.</span>` : "");
   } else if (key === "rules") {
     if (shadeBy === "bucket" || !statePrices) {
       legend.innerHTML = Object.values(rules.buckets)
@@ -1058,6 +1088,364 @@ function setHover(group, match) {
   for (const p of group.children) p.classList.toggle("hov", match(p));
 }
 
+// ---- the history layer: how the map got this way ----
+// Dated plates, not a continuous scrub. The archives support moments and
+// membership changes; they do not support annual geometry, and a slider that
+// glided through years where nothing happened would be inventing data. Every
+// frame, event and excerpt carries sources, and anything that has not been
+// through a fact-check pass says so on its own card.
+const timelineBar = document.getElementById("timeline-bar");
+const tlTrack = document.getElementById("tl-track");
+const tlPlayBtn = document.getElementById("tl-play");
+let timeline = null;
+let frames = [];
+let framesById = new Map();
+let frameId = null;
+let playTimer = null;
+
+async function ensureTimeline() {
+  if (timeline) return;
+  timeline = await fetch("data/timeline.json").then(r => r.json());
+  frames = timeline.frames ?? [];
+  framesById = new Map(frames.map(f => [f.id, f]));
+  buildTimeBase();
+  buildDots();
+  renderScrubber();
+}
+
+// The ground: every state in the pale unlit paper of the You layer. Tint frames
+// repaint these same paths, so recolouring a frame is a fill change and the
+// cross-fade comes free from CSS.
+function buildTimeBase() {
+  if (gTimeBase.dataset.built) return;
+  gTimeBase.dataset.built = "1";
+  for (const f of statesFC.features) {
+    // Albers USA cannot place PR, GU, VI, AS or MP, and path() returns null
+    // rather than a d string. Writing that out gives you d="null".
+    const d = path(f);
+    if (!d) continue;
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("class", "tl-state");
+    p.dataset.state = f.properties.STUSPS;
+    gTimeBase.appendChild(p);
+  }
+}
+
+// City dots for the pre-grid plates. Area carries population, not radius:
+// New York's 3.4 million against Telluride's 2,446 is a 1,400-to-1 range, and
+// on radius the Northeast would be one blot.
+function buildDots() {
+  if (gTimeMarks.dataset.built) return;
+  gTimeMarks.dataset.built = "1";
+  const dots = timeline.dots ?? [];
+  const maxPop = Math.max(1, ...dots.map(d => d.pop1900 ?? 0));
+  const [rMin, rMax] = [1.7, 7.5];
+  // Biggest first, so small cities stay on top and stay findable. Same reason
+  // the wires layer sorts by area. The hit circle is sized to the dot rather
+  // than given a generous floor: a flat 7px floor let Newark, eight miles away
+  // and a fourteenth the size, cover New York's target completely, so the
+  // largest city in the country could not be hovered at all.
+  const order = dots.map((d, i) => ({ d, i, pop: d.pop1900 ?? 0 })).sort((a, b) => b.pop - a.pop);
+  for (const { d, i, pop } of order) {
+    const pt = projection(d.lonlat);
+    if (!pt) continue;
+    const r = rMin + (rMax - rMin) * Math.sqrt(pop / maxPop);
+    const g = document.createElementNS(SVG_NS, "g");
+    g.setAttribute("class", "tl-dot" + (d.story ? " tl-dot-story" : ""));
+    g.setAttribute("transform", `translate(${pt[0].toFixed(1)},${pt[1].toFixed(1)})`);
+    g.dataset.dot = i;
+    g.innerHTML =
+      `<circle class="tl-glow" r="${(r * 3.4).toFixed(1)}"/>` +
+      `<circle class="tl-core" r="${r.toFixed(2)}"/>` +
+      `<circle class="tl-hit" r="${Math.max(3.5, r).toFixed(1)}"/>`;
+    gTimeMarks.appendChild(g);
+  }
+}
+
+// Grow the dots in from nothing when the plate opens. Same cubic ease and the
+// same first-frame clock seeding as morphCircles: rAF hands back its own frame
+// timestamp, which can predate a performance.now() captured just before, and a
+// negative t through a cubic ease overshoots hard.
+let dotAnim = null;
+function animateDots(ms = 700) {
+  if (dotAnim) cancelAnimationFrame(dotAnim);
+  const cores = [...gTimeMarks.querySelectorAll(".tl-dot")].map(g => ({
+    glow: g.querySelector(".tl-glow"), core: g.querySelector(".tl-core"),
+    gr: +g.querySelector(".tl-glow").getAttribute("r"),
+    cr: +g.querySelector(".tl-core").getAttribute("r"),
+  }));
+  if (reduceMotion()) return;
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  let t0 = null;
+  const tick = now => {
+    if (t0 === null) t0 = now;
+    const k = ease(Math.min(1, (now - t0) / ms));
+    for (const c of cores) {
+      c.glow.setAttribute("r", (c.gr * k).toFixed(1));
+      c.core.setAttribute("r", (c.cr * k).toFixed(2));
+    }
+    if (k < 1) dotAnim = requestAnimationFrame(tick);
+  };
+  dotAnim = requestAnimationFrame(tick);
+}
+const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// A frame id is its year, so ?frame= and ?year= resolve the same way: an exact
+// id, or the latest plate at or before the year asked for.
+function resolveFrame(v) {
+  if (v == null) return null;
+  if (framesById.has(String(v))) return String(v);
+  const y = parseInt(v, 10);
+  if (!Number.isFinite(y)) return null;
+  let best = null;
+  for (const f of frames) if (f.year <= y && (!best || f.year > best.year)) best = f;
+  return (best ?? frames[0])?.id ?? null;
+}
+
+function setFrame(id) {
+  const f = framesById.get(id) ?? frames[frames.length - 1];
+  if (!f) return;
+  frameId = f.id;
+  const kind = f.ship === false ? "pending" : (f.geometry?.kind ?? "pending");
+  const showDots = kind === "dots" || kind === "dots+tints";
+  const showGround = kind !== "current";
+  const showToday = kind === "current";
+
+  setHidden(gTimeBase, !showGround);
+  setHidden(gTimeMarks, !showDots);
+  // Frame "today" is the wholesale layer, exactly. Nothing is redrawn for it:
+  // the marks that already exist are unhidden, so the last plate of the
+  // timeline and the first layer of the stack can never drift apart.
+  setHidden(gRto, !showToday);
+  setHidden(gTransitions, !showToday);
+  setHidden(gLabels, !showToday);
+  if (showDots) animateDots();
+  animateViewBox(HOME_VIEW, reduceMotion() ? 0 : 500);
+
+  renderScrubber();
+  renderLegend("history");
+  showFrame(f);
+  updateUrl("history");
+}
+
+function stepFrame(delta) {
+  const i = frames.findIndex(f => f.id === frameId);
+  const next = frames[Math.min(frames.length - 1, Math.max(0, i + delta))];
+  if (next && next.id !== frameId) setFrame(next.id);
+}
+
+function renderScrubber() {
+  tlTrack.innerHTML = frames.map(f =>
+    `<button class="tl-stop" data-frame="${f.id}" aria-pressed="${f.id === frameId}"` +
+    (f.ship === false ? ` data-pending="1" title="${f.title} · still being inked"` : ` title="${f.title}"`) +
+    `><span class="tl-notch"></span><span class="tl-year">${f.label}</span></button>`).join("");
+  const i = frames.findIndex(f => f.id === frameId);
+  document.getElementById("tl-prev").disabled = i <= 0;
+  document.getElementById("tl-next").disabled = i >= frames.length - 1;
+  // Nine stops do not fit a phone, so the track scrolls. Keep the plate you are
+  // on inside the window, or pressing "later" moves a notch you cannot see.
+  tlTrack.children[i]?.scrollIntoView({ block: "nearest", inline: "center" });
+  tlPlayBtn.textContent = playTimer ? "❚❚" : "▶";
+  tlPlayBtn.setAttribute("aria-label", playTimer ? "Stop" : "Play through the history");
+}
+
+// ---- the frame card, its events, and the evidence behind them ----
+function evidenceChips(ids) {
+  const chips = (ids ?? []).map(id => {
+    const e = timeline.evidence?.[id];
+    if (!e) return "";
+    const law = e.kind === "law";
+    const label = law ? (timeline.law_excerpts?.[e.excerpt]?.label ?? "The law") : e.title;
+    // ⌖ for something we looked at, § for something somebody wrote down.
+    return `<button class="ev-chip" data-evidence="${id}">${law ? "§" : "⌖"} ${label}</button>`;
+  }).join("");
+  return chips ? `<div class="ev-chips">${chips}</div>` : "";
+}
+
+function draftFlag(o) { return o?.verified === false ? " · draft, still being checked" : ""; }
+
+function showFrame(f) {
+  const kicker = `<div class="c-kicker">${f.label}${f.kicker ? ` · ${f.kicker}` : ""}${draftFlag(f)}</div>`;
+  if (f.ship === false) {
+    card.innerHTML = kicker + `<h3>${f.title}</h3><p class="c-body">${f.body}</p>` +
+      `<p class="c-body c-note">This plate is still being inked. The words are here. The map for this moment lands in the next update.</p>`;
+    return;
+  }
+  const events = (f.events ?? []).map(id => {
+    const e = timeline.events?.[id];
+    if (!e) return "";
+    return `<button class="c-event" data-event="${id}">` +
+      `<b>${(e.date ?? "").slice(0, 4)}</b><span>${e.title}</span></button>`;
+  }).join("");
+  card.innerHTML = kicker + `<h3>${f.title}</h3>` +
+    `<p class="c-body">${f.body}</p>` +
+    (f.note ? `<p class="c-body c-note">${f.note}</p>` : "") +
+    (events ? `<div class="c-events">${events}</div>` : "") +
+    evidenceChips(f.evidence);
+}
+
+function showEvent(id) {
+  const e = timeline.events?.[id];
+  if (!e) return;
+  const ev = [...(e.excerpt ? [`law:${e.excerpt}`] : [])];
+  card.innerHTML =
+    `<div class="c-kicker">${e.date}${draftFlag(e)}</div><h3>${e.title}</h3>` +
+    `<p class="c-body">${e.body}</p>` +
+    (ev.length ? `<div class="ev-chips">` + ev.map(k =>
+      `<button class="ev-chip" data-excerpt="${k.slice(4)}">§ ${timeline.law_excerpts?.[k.slice(4)]?.label ?? "The law"}</button>`).join("") + `</div>` : "") +
+    `<button class="c-back" data-back="1">← back to ${framesById.get(frameId)?.label ?? "the plate"}</button>`;
+}
+
+card.addEventListener("click", e => {
+  const back = e.target.closest("[data-back]");
+  if (back) return showFrame(framesById.get(frameId));
+  const evt = e.target.closest("[data-event]");
+  if (evt) return showEvent(evt.dataset.event);
+  const chip = e.target.closest("[data-evidence]");
+  if (chip) return openEvidence(chip.dataset.evidence);
+  const ex = e.target.closest("[data-excerpt]");
+  if (ex) return openExcerpt(ex.dataset.excerpt);
+});
+
+// ---- the evidence lightbox: the scan, or the words ----
+const evidenceModal = document.getElementById("evidence-modal");
+const evTitle = document.getElementById("evidence-title");
+const evQuote = document.getElementById("evidence-quote");
+const evGloss = document.getElementById("evidence-gloss");
+const evScan = document.getElementById("evidence-scan");
+const evImg = document.getElementById("evidence-img");
+const evCite = document.getElementById("evidence-cite");
+
+function citeLine(o) {
+  const link = o.source_url
+    ? ` <a href="${o.source_url}" target="_blank" rel="noopener">View at source ↗</a>` : "";
+  // The rights note is dropped when the citation already says the same thing,
+  // which is most of them: these are all federal publications.
+  const rights = o.rights && !(o.citation ?? "").toLowerCase().includes("public domain")
+    ? ` ${o.rights}` : "";
+  return `${o.citation ?? ""}${rights}${link}`;
+}
+
+function openExcerpt(key) {
+  const x = timeline.law_excerpts?.[key];
+  if (!x) return;
+  evTitle.textContent = x.label;
+  evQuote.textContent = `“${x.quote}”`;
+  setHidden(evQuote, false);
+  evGloss.textContent = x.gloss ?? "";
+  setHidden(evGloss, !x.gloss);
+  setHidden(evScan, true);
+  evImg.removeAttribute("src");
+  evCite.innerHTML = citeLine(x) + (x.verified === false ? " <i>Quotation still being checked against the printed text.</i>" : "");
+  setHidden(evidenceModal, false);
+}
+
+function openEvidence(id) {
+  const e = timeline.evidence?.[id];
+  if (!e) return;
+  if (e.kind === "law") return openExcerpt(e.excerpt);
+  evTitle.textContent = e.title ?? "";
+  setHidden(evQuote, true);
+  evGloss.textContent = e.note ?? "";
+  setHidden(evGloss, !e.note);
+  // The full scan is fetched here and not with the frame, so scrubbing never
+  // pays for an image nobody opened.
+  const full = e.files?.full;
+  if (full) {
+    evImg.src = full;
+    evImg.alt = e.title ?? "";
+  } else {
+    evImg.removeAttribute("src");
+  }
+  setHidden(evScan, !full);
+  // Only a map promises a picture, so only a map owes an explanation when the
+  // picture is not here yet. A written source is complete as a citation.
+  evCite.innerHTML = citeLine(e) +
+    (e.kind === "map" && !full ? " <i>The plate itself is not committed yet; the link goes to the archive.</i>" : "");
+  setHidden(evidenceModal, false);
+}
+function closeEvidence() {
+  setHidden(evidenceModal, true);
+  evImg.removeAttribute("src");
+}
+document.getElementById("evidence-close").addEventListener("click", closeEvidence);
+evidenceModal.addEventListener("click", e => { if (e.target === evidenceModal) closeEvidence(); });
+
+// A thumbnail on hover, so "show me the original" costs no click on a desktop.
+// Guarded on a thumb existing: entries whose scans are not committed yet fall
+// through to the chip's own tooltip rather than opening an empty frame.
+let evPop = null;
+document.addEventListener("mouseover", e => {
+  const chip = e.target.closest?.(".ev-chip[data-evidence]");
+  if (!chip) return;
+  const thumb = timeline?.evidence?.[chip.dataset.evidence]?.files?.thumb;
+  if (!thumb) return;
+  evPop?.remove();
+  evPop = document.createElement("div");
+  evPop.className = "ev-pop";
+  evPop.innerHTML = `<img src="${thumb}" alt=""><span>Click to read it</span>`;
+  document.body.appendChild(evPop);
+  const b = chip.getBoundingClientRect();
+  evPop.style.left = `${Math.min(b.left, innerWidth - 190)}px`;
+  evPop.style.top = `${Math.max(6, b.top - evPop.offsetHeight - 8)}px`;
+});
+document.addEventListener("mouseout", e => {
+  if (e.target.closest?.(".ev-chip")) { evPop?.remove(); evPop = null; }
+});
+
+// ---- scrubber controls ----
+tlTrack.addEventListener("click", e => {
+  const b = e.target.closest("[data-frame]");
+  if (b) { stopPlay(); setFrame(b.dataset.frame); }
+});
+document.getElementById("tl-prev").addEventListener("click", () => { stopPlay(); stepFrame(-1); });
+document.getElementById("tl-next").addEventListener("click", () => { stopPlay(); stepFrame(1); });
+tlPlayBtn.addEventListener("click", () => (playTimer ? stopPlay() : startPlay()));
+
+// Auto-advance is a nicety, so it yields immediately: any tap on the map, any
+// scrubber click, any layer change stops it. Reduced motion turns it off.
+function startPlay() {
+  if (reduceMotion()) return;
+  if (frames.findIndex(f => f.id === frameId) >= frames.length - 1) setFrame(frames[0].id);
+  playTimer = setInterval(() => {
+    const i = frames.findIndex(f => f.id === frameId);
+    if (i >= frames.length - 1) return stopPlay();
+    setFrame(frames[i + 1].id);
+  }, 7000);
+  renderScrubber();
+}
+function stopPlay() {
+  if (!playTimer) return;
+  clearInterval(playTimer);
+  playTimer = null;
+  renderScrubber();
+}
+svg.addEventListener("pointerdown", () => stopPlay());
+
+// ---- hovering a city on the 1900 plate ----
+gTimeMarks.addEventListener("mouseover", e => {
+  const g = e.target.closest(".tl-dot");
+  if (g) showDot(+g.dataset.dot);
+});
+gTimeMarks.addEventListener("click", e => {
+  const g = e.target.closest(".tl-dot");
+  if (g) showDot(+g.dataset.dot);
+});
+function showDot(i) {
+  const d = timeline?.dots?.[i];
+  if (!d) return;
+  const story = d.story ? timeline.events?.[d.story] : null;
+  card.innerHTML =
+    `<div class="c-kicker">1900${story ? " · a first worth knowing" : ""}</div>` +
+    `<h3>${d.city}, ${d.state}</h3>` +
+    (story ? `<p class="c-body">${story.body}</p>` : `<p class="c-body">A city with its own power station, lighting the blocks around it and no further.</p>`) +
+    `<div class="c-stats"><span class="c-stat"><b>${(d.pop1900 ?? 0).toLocaleString()}</b>people in 1900</span>` +
+    (story ? `<span class="c-stat"><b>${story.date.slice(0, 4)}</b>${story.title.toLowerCase()}</span>` : "") +
+    `</div>` +
+    `<button class="c-back" data-back="1">← back to the plate</button>`;
+}
+
 // ---- stack rail & layer switching ----
 const rail = document.getElementById("rail");
 const explainer = document.getElementById("explainer");
@@ -1102,7 +1490,13 @@ async function setLayer(key) {
   setHidden(gYou, key !== "you");
   setHidden(zipForm, key !== "you" && key !== "wires");
   setHidden(svg.querySelector("#g-zipoutline"), key !== "wires");
-  setHidden(legend, key !== "wholesale" && key !== "rules" && key !== "wires");
+  setHidden(legend, key === "you");
+  setHidden(timelineBar, key !== "history");
+  if (key !== "history") {
+    stopPlay();
+    setHidden(gTimeBase, true);
+    setHidden(gTimeMarks, true);
+  }
   svg.classList.remove("has-hover");
   if (key !== "you") {
     animateViewBox(HOME_VIEW, 500);
@@ -1124,6 +1518,10 @@ async function setLayer(key) {
     if (current !== "wires") return;
     setHidden(gWires, false);
   }
+  if (key === "history" && !timeline) {
+    await ensureTimeline();
+    if (current !== "history") return;
+  }
   setHidden(svg, !ready);
   setHidden(drawingNote, ready);
   if (key === "wires") {
@@ -1139,6 +1537,9 @@ async function setLayer(key) {
   if (key === "rules" && shadeBy === "bucket") showState("TX");
   if (key === "rules" && shadeBy !== "bucket") setShadeBy(shadeBy);
   if (key === "wires" && !sizeBy && colourBy === "type") showWiresIntro();
+  // Opens on the first plate, not on today. "In 1900 there was no grid" is the
+  // hook, and today is one click away at the other end of the scrubber.
+  if (key === "history") setFrame(frameId ?? frames[0]?.id);
   if (!ready) {
     drawingNote.querySelector("p").textContent = `The ${copy.layers[key].title} layer is being inked.`;
     drawingNote.querySelector(".sub").textContent = "It lands in the next update. Wholesale, Rules, and Wires are live now.";
@@ -1188,6 +1589,15 @@ if (wantedZip && /^\d{5}$/.test(wantedZip)) {
       if (c === "parent" || isColourMeasure(c)) setColourBy(c);
     }
   });
+} else if (wanted === "history" || params.get("year")) {
+  // ?layer=history&frame=1967, and a bare ?year=1970 that snaps to the plate at
+  // or before the year asked for. &evidence= opens a scan or an excerpt.
+  setLayer("history").then(() => {
+    const id = resolveFrame(params.get("frame") ?? params.get("year"));
+    if (id) setFrame(id);
+    const ev = params.get("evidence");
+    if (ev && timeline.evidence?.[ev]) openEvidence(ev);
+  });
 } else if (wanted === "rules" && params.get("shade")) {
   setLayer("rules").then(() => {
     const k = params.get("shade");
@@ -1209,6 +1619,9 @@ function updateUrl(key) {
     q.set("colour", v && v !== Object.keys(spec.variants)[0] ? `${colourBy}-${v}` : colourBy);
   }
   if (key === "rules" && shadeBy !== "bucket") q.set("shade", shadeBy);
+  // The plate the layer opens on is left off, so the plain rail link stays short
+  // the way ?layer=wires does.
+  if (key === "history" && frameId && frameId !== frames[0]?.id) q.set("frame", frameId);
   const s = q.toString();
   history.replaceState(null, "", s ? `?${s}` : location.pathname);
 }
@@ -1218,7 +1631,13 @@ const methodModal = document.getElementById("method-modal");
 document.getElementById("method-toggle").addEventListener("click", () => setHidden(methodModal, false));
 document.getElementById("method-close").addEventListener("click", () => setHidden(methodModal, true));
 methodModal.addEventListener("click", e => { if (e.target === methodModal) setHidden(methodModal, true); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") setHidden(methodModal, true); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { setHidden(methodModal, true); closeEvidence(); }
+  // Arrow keys walk the plates, unless the reader is typing a zip code.
+  if (current !== "history" || e.target.tagName === "INPUT") return;
+  if (e.key === "ArrowLeft") { stopPlay(); stepFrame(-1); }
+  if (e.key === "ArrowRight") { stopPlay(); stepFrame(1); }
+});
 
 // ---- the 30-second tour ----
 const tourPanel = document.getElementById("tour-panel");

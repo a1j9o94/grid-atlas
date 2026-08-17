@@ -29,6 +29,11 @@
       "title": "You",
       "gloss": "your zip code",
       "explainer": "Type your zip code and see your place in the stack: your utility, your state's rules, and your grid."
+    },
+    "history": {
+      "title": "Then",
+      "gloss": "how it got this way",
+      "explainer": "None of this was planned. It was built city by city, then stitched together, then broken up by law, then stitched again. Scrub back to 1900 and watch the country go dark."
     }
   },
   "tour": [

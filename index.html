@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How your electricity works — an explorable map</title>
-<meta name="description" content="Who runs the grid where you live, in four layers. An explorable map of America's electricity system.">
+<meta name="description" content="Who runs the grid where you live, in five layers, back to 1900. An explorable map of America's electricity system.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -14,7 +14,7 @@
     <header class="head">
       <p class="kicker">Plate 1 · An explorable map</p>
       <h1>How your electricity works</h1>
-      <p class="dek">Who runs the grid where you live, in four layers. Start wide. Zoom to your zip code.</p>
+      <p class="dek">Who runs the grid where you live, in five layers. Start wide. Zoom to your zip code. Then scrub back to 1900 and watch it get built.</p>
     </header>
 
     <div class="body">
@@ -35,6 +35,15 @@
           <div class="size-controls" id="shade-controls" hidden></div>
           <div class="size-controls" id="colour-controls" hidden></div>
           <div class="size-controls" id="size-controls" hidden></div>
+        </div>
+        <!-- The scrubber. Stops are evenly spaced rather than proportional to
+             years: 1998, 2005, 2014 and 2026 would collide at true scale and no
+             stop would clear a thumb. The year labels carry the real spacing. -->
+        <div class="timeline-bar" id="timeline-bar" hidden>
+          <button class="tl-play" id="tl-play" aria-label="Play through the history">▶</button>
+          <button class="tl-step-btn" id="tl-prev" aria-label="Earlier">‹</button>
+          <div class="tl-track" id="tl-track" role="group" aria-label="Choose a moment in history"></div>
+          <button class="tl-step-btn" id="tl-next" aria-label="Later">›</button>
         </div>
         <form class="zip-search" id="zip-search" hidden>
           <label for="zip-input">Type your zip code</label>
@@ -74,6 +83,18 @@
         <button id="tour-next" class="primary">Next</button>
       </div>
     </div>
+    <!-- Evidence lightbox: the original scan, or the words of the law. Shares
+         the methodology modal's backdrop and close behaviour. -->
+    <div class="modal-backdrop" id="evidence-modal" hidden>
+      <figure class="modal evidence" role="dialog" aria-modal="true" aria-labelledby="evidence-title">
+        <button class="modal-close" id="evidence-close" aria-label="Close">✕</button>
+        <h2 id="evidence-title"></h2>
+        <blockquote class="ev-quote" id="evidence-quote" hidden></blockquote>
+        <p class="ev-gloss" id="evidence-gloss" hidden></p>
+        <div class="ev-scan" id="evidence-scan" hidden><img id="evidence-img" alt=""></div>
+        <figcaption class="ev-cite" id="evidence-cite"></figcaption>
+      </figure>
+    </div>
     <div class="modal-backdrop" id="method-modal" hidden>
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="method-title">
         <button class="modal-close" id="method-close" aria-label="Close">✕</button>
@@ -84,6 +105,7 @@
         <p class="note"><b>Drawing the map by size.</b> On the wires layer you can swap land for size. Every company becomes a circle, and the area of the circle is the amount: meters, electricity, or money. Circles start where the company really is, then push each other apart until none overlap, so crowded corners like the Northeast drift furthest from home. The area is honest; the position is close. Companies too small to see are drawn at a smallest size so they do not vanish, and a few that report nothing are left out. One company, Central Coast Community Energy, was removed from the map entirely: it sells power but owns no wires, and its shape sat entirely on top of PG&amp;E's.</p>
         <p class="note"><b>Shading the map.</b> The wires layer can also be coloured by time without power, by rooftop solar, and by smart meters. All three come from the same annual report, and each has a gap worth knowing. Reliability is filed by companies covering about four fifths of the country's meters; the rest report nothing and stay grey. Rooftop solar needed two separate files. Texas has no net metering rule, so no Texas wires company files a net metering form, and the obvious single source would have drawn the second-sunniest large state almost empty. The other file, covering solar outside a net metering tariff, is where Texas keeps its 2,900 megawatts of household panels. Only panels behind a customer's meter are counted here. Solar farms are generation and belong on a different map.</p>
         <p class="note"><b>Two things the shading cannot tell you.</b> Companies report solar capacity on one of two bases, alternating or direct current, and the report does not convert between them. The same array rates about a fifth higher on the direct current basis, and there is no way to correct for it from outside. Smart meters are close to all or nothing: a company has either swapped its meters or it has not. That map has five steps and most of the country sits in the top one or the bottom one, which is the finding rather than a flaw in the colours.</p>
+        <p class="note"><b>The history layer.</b> The last plate on the scrubber is today, and it is drawn from exactly the same data as the Wholesale layer, so the two can never disagree. Everything earlier is a dated snapshot rather than a smooth slide through the years, because the records support moments and not annual maps. Three things about the old plates are worth knowing. Past market footprints are drawn with today's utility shapes, since distribution boundaries move far less than market membership. Tints for the old holding companies show where a company had subsidiaries, which is reach and not exclusive territory. The line between the Eastern and Western grids is traced from today's boundaries; it settled roughly there by the mid-1970s. Anything still being fact-checked says so on its own card, and every claim carries its sources in the data files.</p>
         <p class="note"><b>What the marks mean.</b> Every claim on a trivia marker carries sources in the data files. Anything still being checked says so on its card. People counts are rough and marked with ~.</p>
         <p class="note"><b>Who made this.</b> Part of a series on how electricity markets work. I work at Light, which only exists because Texas structured its market a particular way. Judge my arguments accordingly.</p>
         <p class="note"><a href="https://github.com/a1j9o94/grid-atlas" target="_blank" rel="noopener">All code, data, and corrections are public on GitHub ↗</a></p>

@@ -54,6 +54,13 @@ const VIEWS = [
   { name: "rules-price", q: "?layer=rules&shade=res" },
   { name: "rules-delivery", q: "?layer=rules&shade=delivery" },
   { name: "you", q: "?zip=78701" },
+  // The scrubber is permanent chrome on the history layer, and nine stops is
+  // the widest that bar ever gets, so every frame kind is worth a pass: dots,
+  // a plate that is not drawn yet, and today (which is the wholesale layer).
+  { name: "history-1900", q: "?layer=history" },
+  { name: "history-pending", q: "?layer=history&frame=1967" },
+  { name: "history-today", q: "?layer=history&frame=2026" },
+  { name: "history-evidence", q: "?layer=history&evidence=census-1902-stations" },
 ];
 
 // Boxes that must never overlap each other. All of them are chrome floating
@@ -63,11 +70,17 @@ const PANELS = {
   sizeControls: "#size-controls",
   card: "#card",
   zip: "#zip-search",
-  rail: "#rail",
+  // The nav, not the #rail steps ribbon inside it. On a phone the rail is a
+  // horizontal scroller and the ribbon is deliberately wider than the screen;
+  // what has to fit is the box doing the scrolling. Measuring the ribbon read
+  // clean at four chips and failed at five, which is a measurement bug rather
+  // than a layout one. Assert against the box that must fit.
+  rail: ".rail",
   foot: ".foot",
   zoomReset: "#zoom-reset",
   colourControls: "#colour-controls",
   shadeControls: "#shade-controls",
+  timelineBar: "#timeline-bar",
 };
 
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
@@ -176,7 +189,7 @@ for (const vp of VIEWPORTS) {
         };
         const area = drawn.w * drawn.h;
         let covered = 0;
-        for (const sel of [".map-ui", "#zip-search", "#zoom-reset"]) {
+        for (const sel of [".map-ui", "#zip-search", "#zoom-reset", "#timeline-bar"]) {
           const el = document.querySelector(sel);
           if (!el || el.hasAttribute("hidden") || getComputedStyle(el).display === "none") continue;
           const b = el.getBoundingClientRect();

@@ -1,0 +1,511 @@
+{
+  "meta": {
+    "version": "2026-08-17",
+    "reading_level": "5th-6th grade",
+    "notes": "Source of truth for the history layer. Frames are snapshots, not a continuous scrub: the archives support dated moments, not annual geometry. Dot anchors are [lon, lat] EPSG:4326 and the site projects them, same as trivia. verified:false frames render a draft flag on the card until the fact-check pass clears them. ship:false frames appear on the scrubber and say they are still being inked.",
+    "honesty_footnotes": [
+      "Past market footprints are drawn with today's utility shapes. Distribution boundaries move far less than market membership, but this is an approximation.",
+      "Empire tints show where a holding company had subsidiaries. That is reach, not exclusive territory, and the empires overlapped.",
+      "The line between the Eastern and Western grids is drawn from today's utility boundaries. It settled roughly here by the mid-1970s."
+    ]
+  },
+  "frames": [
+    {
+      "id": "1900",
+      "year": 1900,
+      "label": "1900",
+      "span": [1882, 1926],
+      "kicker": "islands of light",
+      "title": "Islands of light",
+      "body": "In 1900 there was no grid. There were thousands of small ones. A power station lit the blocks around it and stopped. If you lived past the last wire, you had no electricity at all. Every glowing dot here is a city with its own station.",
+      "note": "The first stations ran on direct current, which could only travel about a mile before it faded. That one limit is why the map is dots instead of country.",
+      "geometry": {
+        "kind": "dots",
+        "scale": { "field": "pop1900", "min_r": 1.6, "max_r": 7.5 }
+      },
+      "legend": [
+        { "swatch": "dot", "label": "A city with its own power station" },
+        { "swatch": "dot-story", "label": "A first worth knowing" }
+      ],
+      "events": ["pearl-street-1882", "appleton-1882", "great-barrington-1886", "niagara-buffalo-1896"],
+      "evidence": ["census-1902-stations"],
+      "ship": true,
+      "verified": false,
+      "verify_notes": "Dot set is provisional and hand-entered. 11-build-timeline-era1.mjs replaces it from the 1900 Census population table, cross-checked against the 1902 central-stations report. Story-dot dates need the fact-check pass.",
+      "sources": [
+        "https://www.census.gov/library/publications/1902/dec/vol-01-population.html",
+        "https://babel.hathitrust.org/cgi/pt?id=uc1.c2735633"
+      ]
+    },
+    {
+      "id": "1930",
+      "year": 1930,
+      "label": "1930",
+      "span": [1927, 1934],
+      "kicker": "the empires",
+      "title": "A handful of men own the lights",
+      "body": "Small companies got bought, then the buyers got bought. By 1930 a few holding companies controlled electricity across dozens of states. Samuel Insull's system alone reached into more than twenty. The first power pool also starts here: in 1927 three Pennsylvania and New Jersey companies agreed to share their plants, and that agreement is the ancestor of PJM.",
+      "geometry": { "kind": "dots+tints" },
+      "events": ["pjm-pool-1927", "insull-collapse-1932", "puhca-1935"],
+      "evidence": ["ftc-utility-corporations"],
+      "ship": false,
+      "verified": false,
+      "verify_notes": "Needs holdings-1930.json: which states each empire reached, cited per state pair. Riskiest sourcing item in the timeline.",
+      "sources": []
+    },
+    {
+      "id": "1941",
+      "year": 1941,
+      "label": "1941",
+      "span": [1935, 1960],
+      "kicker": "war, and a choice",
+      "title": "Texas wires itself together and stops at the border",
+      "body": "The war needed aluminum, steel and ships, and all of it needed power. Utilities strung lines to each other to share load. Texas companies connected to each other and deliberately not to anyone else. Staying inside one state kept them out of reach of federal regulators, and that choice still shapes the map today.",
+      "geometry": { "kind": "seam" },
+      "events": ["tis-1941", "federal-power-act-1935"],
+      "evidence": [],
+      "ship": false,
+      "verified": false,
+      "verify_notes": "Needs the derived interconnection seam from ba-interconnections.json, plus verification of the Texas Interconnected System formation dates.",
+      "sources": []
+    },
+    {
+      "id": "1967",
+      "year": 1967,
+      "label": "1967",
+      "span": [1961, 1974],
+      "kicker": "one machine, briefly",
+      "title": "The country becomes one machine",
+      "body": "In February 1967 federal engineers closed the last ties between East and West. For the first time the whole country ran as a single synchronized machine. It did not work. The link tripped apart as often as a dozen times a day. After about eight years the ties came out.",
+      "geometry": { "kind": "seam" },
+      "events": ["northeast-blackout-1965", "golden-spike-1967", "nerc-1968"],
+      "evidence": ["fpc-1964-survey"],
+      "ship": false,
+      "verified": false,
+      "verify_notes": "Tie locations, closure date and the trip frequency all need sourcing. Frame ships without tie dots if they cannot be pinned.",
+      "sources": []
+    },
+    {
+      "id": "1975",
+      "year": 1975,
+      "label": "1975",
+      "span": [1975, 1995],
+      "kicker": "three machines",
+      "title": "The country settles for three",
+      "body": "The AC ties came out and went back as direct current, which lets power cross without the two sides having to stay in step. America chose to be three machines instead of one: East, West, and Texas. Power still crosses between them, but only through a few converter stations.",
+      "geometry": { "kind": "seam" },
+      "events": ["ac-ties-removed", "purpa-1978", "epact-1992"],
+      "evidence": ["fpc-1970-facilities"],
+      "ship": false,
+      "verified": false,
+      "verify_notes": "Tie removal date and Pacific Intertie in-service date need sourcing.",
+      "sources": []
+    },
+    {
+      "id": "1998",
+      "year": 1998,
+      "label": "1998",
+      "span": [1996, 2003],
+      "kicker": "markets open",
+      "title": "The referees arrive",
+      "body": "A federal order in 1996 said that a company owning transmission had to let competitors use it on the same terms. Somebody neutral had to run the traffic. Within a few years California, New England, New York, Texas and the Pennsylvania pool all had one. Most of the country did not, and still does not.",
+      "geometry": { "kind": "membership", "frame_key": "f1998" },
+      "events": ["order-888-1996", "caiso-1998", "ercot-iso-1996", "nyiso-1999"],
+      "evidence": ["order-888-text"],
+      "ship": false,
+      "verified": false,
+      "verify_notes": "Needs membership-events.json and regions.topo.json. Founding dates for CAISO, ISO-NE, NYISO and PJM's ISO transition are all flagged in the sourcing memo.",
+      "sources": []
+    },
+    {
+      "id": "2005",
+      "year": 2005,
+      "label": "2005",
+      "span": [2004, 2012],
+      "kicker": "the buildout",
+      "title": "The markets get big",
+      "body": "PJM swallowed the Midwest one utility at a time. Chicago joined in 2004, then Ohio, then Virginia. MISO started its own energy market in 2005. This is when the map stops being a few coastal experiments and becomes most of the eastern half of the country.",
+      "geometry": { "kind": "membership", "frame_key": "f2005" },
+      "events": ["order-2000-1999", "comed-2004", "aep-dayton-2004", "dominion-2005", "miso-market-2005"],
+      "evidence": ["order-2000-text"],
+      "ship": false,
+      "verified": false,
+      "verify_notes": "PJM zone integration dates come from Monitoring Analytics State of the Market Appendix A. Four flagged dates should clear in one pass.",
+      "sources": []
+    },
+    {
+      "id": "2014",
+      "year": 2014,
+      "label": "2014",
+      "span": [2013, 2025],
+      "kicker": "the big reshuffle",
+      "title": "The largest single day on the map",
+      "body": "On one day in December 2013, Entergy and its neighbours moved into MISO. A market that ran from Minnesota to Indiana suddenly reached the Gulf of Mexico, in a piece that does not touch the rest of it. Nothing else in the modern era moved this much ground at once.",
+      "geometry": { "kind": "membership", "frame_key": "f2014" },
+      "events": ["miso-south-2013", "spp-nebraska-2009", "integrated-system-2015"],
+      "evidence": [],
+      "ship": false,
+      "verified": false,
+      "verify_notes": "Needs the MISO South roster resolved to HIFLD ids and reviewed.",
+      "sources": []
+    },
+    {
+      "id": "2026",
+      "year": 2026,
+      "label": "Today",
+      "span": [2026, 2026],
+      "kicker": "2026",
+      "title": "Where it landed",
+      "body": "Seven market operators, and about a third of the country with none at all. Texas still runs its own grid on purpose, which is the 1941 decision still holding. The newest change is on the other side: in April 2026 a group of western utilities switched on a second SPP market, so one referee now runs markets on both sides of the great seam.",
+      "note": "This is the same picture as the Wholesale layer. Step back through the scrubber and watch it come apart.",
+      "geometry": { "kind": "current" },
+      "events": ["spp-west-2026", "caldwell-2026"],
+      "evidence": [],
+      "ship": true,
+      "verified": true,
+      "sources": [
+        "https://spp.org/news-list/spp-and-member-utilities-successfully-complete-historic-western-expansion/",
+        "https://www.ercot.com/news/release/03122026-ercot-welcomes-the"
+      ]
+    }
+  ],
+  "dots": [
+    { "city": "New York", "state": "NY", "lonlat": [-74.006, 40.713], "pop1900": 3437202, "story": "pearl-street-1882" },
+    { "city": "Chicago", "state": "IL", "lonlat": [-87.632, 41.884], "pop1900": 1698575 },
+    { "city": "Philadelphia", "state": "PA", "lonlat": [-75.165, 39.953], "pop1900": 1293697 },
+    { "city": "St. Louis", "state": "MO", "lonlat": [-90.199, 38.627], "pop1900": 575238 },
+    { "city": "Boston", "state": "MA", "lonlat": [-71.058, 42.360], "pop1900": 560892 },
+    { "city": "Baltimore", "state": "MD", "lonlat": [-76.612, 39.290], "pop1900": 508957 },
+    { "city": "Cleveland", "state": "OH", "lonlat": [-81.694, 41.499], "pop1900": 381768 },
+    { "city": "Buffalo", "state": "NY", "lonlat": [-78.878, 42.886], "pop1900": 352387 },
+    { "city": "San Francisco", "state": "CA", "lonlat": [-122.419, 37.775], "pop1900": 342782 },
+    { "city": "Cincinnati", "state": "OH", "lonlat": [-84.512, 39.103], "pop1900": 325902 },
+    { "city": "Pittsburgh", "state": "PA", "lonlat": [-79.996, 40.441], "pop1900": 321616 },
+    { "city": "New Orleans", "state": "LA", "lonlat": [-90.071, 29.951], "pop1900": 287104 },
+    { "city": "Detroit", "state": "MI", "lonlat": [-83.046, 42.331], "pop1900": 285704 },
+    { "city": "Milwaukee", "state": "WI", "lonlat": [-87.906, 43.039], "pop1900": 285315 },
+    { "city": "Washington", "state": "DC", "lonlat": [-77.037, 38.907], "pop1900": 278718 },
+    { "city": "Newark", "state": "NJ", "lonlat": [-74.172, 40.736], "pop1900": 246070 },
+    { "city": "Louisville", "state": "KY", "lonlat": [-85.759, 38.253], "pop1900": 204731 },
+    { "city": "Minneapolis", "state": "MN", "lonlat": [-93.265, 44.978], "pop1900": 202718 },
+    { "city": "Providence", "state": "RI", "lonlat": [-71.413, 41.824], "pop1900": 175597 },
+    { "city": "Indianapolis", "state": "IN", "lonlat": [-86.158, 39.769], "pop1900": 169164 },
+    { "city": "Kansas City", "state": "MO", "lonlat": [-94.579, 39.100], "pop1900": 163752 },
+    { "city": "St. Paul", "state": "MN", "lonlat": [-93.090, 44.954], "pop1900": 163065 },
+    { "city": "Rochester", "state": "NY", "lonlat": [-77.611, 43.161], "pop1900": 162608 },
+    { "city": "Denver", "state": "CO", "lonlat": [-104.990, 39.739], "pop1900": 133859 },
+    { "city": "Toledo", "state": "OH", "lonlat": [-83.555, 41.654], "pop1900": 131822 },
+    { "city": "Columbus", "state": "OH", "lonlat": [-82.999, 39.961], "pop1900": 125560 },
+    { "city": "Omaha", "state": "NE", "lonlat": [-95.934, 41.257], "pop1900": 102555 },
+    { "city": "Los Angeles", "state": "CA", "lonlat": [-118.243, 34.052], "pop1900": 102479 },
+    { "city": "Memphis", "state": "TN", "lonlat": [-90.049, 35.150], "pop1900": 102320 },
+    { "city": "Atlanta", "state": "GA", "lonlat": [-84.388, 33.749], "pop1900": 89872 },
+    { "city": "Portland", "state": "OR", "lonlat": [-122.676, 45.523], "pop1900": 90426 },
+    { "city": "Richmond", "state": "VA", "lonlat": [-77.436, 37.541], "pop1900": 85050 },
+    { "city": "Nashville", "state": "TN", "lonlat": [-86.784, 36.163], "pop1900": 80865 },
+    { "city": "Seattle", "state": "WA", "lonlat": [-122.332, 47.606], "pop1900": 80671 },
+    { "city": "Hartford", "state": "CT", "lonlat": [-72.685, 41.764], "pop1900": 79850 },
+    { "city": "Salt Lake City", "state": "UT", "lonlat": [-111.891, 40.761], "pop1900": 53531 },
+    { "city": "Appleton", "state": "WI", "lonlat": [-88.417, 44.262], "pop1900": 15085, "story": "appleton-1882" },
+    { "city": "Great Barrington", "state": "MA", "lonlat": [-73.362, 42.196], "pop1900": 5854, "story": "great-barrington-1886" },
+    { "city": "Niagara Falls", "state": "NY", "lonlat": [-79.041, 43.094], "pop1900": 19457, "story": "niagara-buffalo-1896" },
+    { "city": "Telluride", "state": "CO", "lonlat": [-107.812, 37.937], "pop1900": 2446, "story": "telluride-1891" }
+  ],
+  "events": {
+    "pearl-street-1882": {
+      "date": "1882-09-04",
+      "title": "Pearl Street switches on",
+      "body": "Edison's station in lower Manhattan lit a few dozen customers within about a square mile. Direct current could not go further than that.",
+      "verified": false,
+      "sources": []
+    },
+    "appleton-1882": {
+      "date": "1882-09-30",
+      "title": "A water wheel in Wisconsin",
+      "body": "Appleton put a generator on the Fox River and sold the power. Moving water has been the cheapest electricity ever since.",
+      "verified": false,
+      "sources": []
+    },
+    "great-barrington-1886": {
+      "date": "1886-03-20",
+      "title": "Alternating current works",
+      "body": "William Stanley lit a Massachusetts main street with alternating current and a transformer. AC can be pushed up to a high voltage, sent a long way, and brought back down. That is what makes a grid possible.",
+      "verified": false,
+      "sources": []
+    },
+    "telluride-1891": {
+      "date": "1891-06-01",
+      "title": "Power sent over a mountain",
+      "body": "A Colorado mine needed power it could not make on site, so it took delivery over about three miles of line. The distance problem was starting to give.",
+      "verified": false,
+      "sources": []
+    },
+    "niagara-buffalo-1896": {
+      "date": "1896-11-16",
+      "title": "Niagara reaches Buffalo",
+      "body": "Power from the falls travelled 20 miles to Buffalo. After this, a power station no longer had to sit inside the city it served.",
+      "verified": false,
+      "sources": []
+    },
+    "pjm-pool-1927": {
+      "date": "1927-09-01",
+      "title": "The first power pool",
+      "body": "Three companies in Pennsylvania and New Jersey agreed to run their plants as one and share the savings. PJM still carries their initials.",
+      "verified": false,
+      "sources": []
+    },
+    "insull-collapse-1932": {
+      "date": "1932-06-01",
+      "title": "The biggest empire falls over",
+      "body": "Samuel Insull's pyramid of holding companies collapsed in the Depression and wiped out small investors. Congress went looking for a fix.",
+      "verified": false,
+      "sources": []
+    },
+    "puhca-1935": {
+      "date": "1935-08-26",
+      "title": "Congress breaks up the empires",
+      "body": "The Public Utility Holding Company Act forced the pyramids apart and mostly confined a utility to one region. It also set up the split that still runs the map: states regulate the wires to your house, Washington regulates power crossing state lines.",
+      "verified": false,
+      "excerpt": "puhca-1935",
+      "sources": []
+    },
+    "federal-power-act-1935": {
+      "date": "1935-08-26",
+      "title": "Federal power over interstate lines",
+      "body": "The same 1935 law gave a federal commission authority over electricity sold across state lines. Texas took note.",
+      "verified": false,
+      "sources": []
+    },
+    "tis-1941": {
+      "date": "1941-01-01",
+      "title": "Texas ties itself together",
+      "body": "Texas utilities linked their systems to move wartime power, and kept every line inside the state. What crosses no state line is not interstate commerce.",
+      "verified": false,
+      "sources": []
+    },
+    "northeast-blackout-1965": {
+      "date": "1965-11-09",
+      "title": "The lights go out in the Northeast",
+      "body": "One relay in Ontario tripped and 30 million people lost power. Connecting grids together had made a new kind of failure possible.",
+      "verified": false,
+      "sources": []
+    },
+    "golden-spike-1967": {
+      "date": "1967-02-07",
+      "title": "East meets West",
+      "body": "Federal engineers closed the last alternating-current ties between the Eastern and Western grids. The country ran as one machine for the first time.",
+      "verified": false,
+      "verify_notes": "Exact date and the number and location of ties both need sourcing.",
+      "sources": []
+    },
+    "nerc-1968": {
+      "date": "1968-06-01",
+      "title": "The utilities write themselves rules",
+      "body": "After the blackout the industry set up a council to write reliability rules for itself. Those rules only became legally binding decades later.",
+      "verified": false,
+      "sources": []
+    },
+    "ac-ties-removed": {
+      "date": "1975-01-01",
+      "title": "The country goes back to being three",
+      "body": "The alternating-current ties came out. Direct-current converter stations replaced them, which let power cross without the two grids having to stay in step.",
+      "verified": false,
+      "verify_notes": "Removal date approximate; needs sourcing.",
+      "sources": []
+    },
+    "purpa-1978": {
+      "date": "1978-11-09",
+      "title": "Somebody else is allowed to build a power plant",
+      "body": "PURPA made utilities buy power from independent generators. It is the first crack in one company owning the whole chain.",
+      "verified": false,
+      "excerpt": "purpa-1978",
+      "sources": []
+    },
+    "epact-1992": {
+      "date": "1992-10-24",
+      "title": "Wholesale competition, on paper",
+      "body": "The Energy Policy Act let independent generators sell wholesale and let them ask for transmission access. Asking was still not the same as getting.",
+      "verified": false,
+      "sources": []
+    },
+    "order-888-1996": {
+      "date": "1996-04-24",
+      "title": "Open the wires",
+      "body": "FERC ordered every transmission owner to offer competitors the same access it gave itself. A neutral operator was the obvious way to prove it was doing so.",
+      "verified": false,
+      "excerpt": "order-888-1996",
+      "sources": []
+    },
+    "ercot-iso-1996": {
+      "date": "1996-08-21",
+      "title": "ERCOT becomes a referee",
+      "body": "Texas turned its reliability council into an independent system operator, the first in the country.",
+      "verified": false,
+      "sources": []
+    },
+    "caiso-1998": {
+      "date": "1998-03-31",
+      "title": "California opens a market",
+      "body": "California split its utilities apart and opened a power exchange. Two years later the market failed badly enough to end retail choice in the state.",
+      "verified": false,
+      "sources": []
+    },
+    "nyiso-1999": {
+      "date": "1999-12-01",
+      "title": "New York's pool becomes an operator",
+      "body": "The New York Power Pool, formed after the 1965 blackout, turned into NYISO.",
+      "verified": false,
+      "sources": []
+    },
+    "order-2000-1999": {
+      "date": "1999-12-20",
+      "title": "FERC asks everyone to join one",
+      "body": "Order 2000 invited every transmission owner into a regional operator. It invited rather than required, which is why a third of the map still has none.",
+      "verified": false,
+      "excerpt": "order-2000-1999",
+      "sources": []
+    },
+    "comed-2004": {
+      "date": "2004-05-01",
+      "title": "Chicago joins PJM",
+      "body": "Commonwealth Edison moved into PJM, which put a piece of PJM 300 miles west of the rest of it.",
+      "verified": false,
+      "sources": []
+    },
+    "aep-dayton-2004": {
+      "date": "2004-10-01",
+      "title": "AEP and Dayton join PJM",
+      "body": "The gap between Chicago and the east filled in, and PJM became the biggest market in the country.",
+      "verified": false,
+      "sources": []
+    },
+    "dominion-2005": {
+      "date": "2005-05-01",
+      "title": "Virginia joins PJM",
+      "body": "Dominion brought PJM to the Atlantic south of Washington.",
+      "verified": false,
+      "sources": []
+    },
+    "miso-market-2005": {
+      "date": "2005-04-01",
+      "title": "MISO starts trading",
+      "body": "MISO had been keeping the grid balanced since 2002. In 2005 it opened a market where power is bought and sold every five minutes.",
+      "verified": false,
+      "sources": []
+    },
+    "spp-nebraska-2009": {
+      "date": "2009-04-01",
+      "title": "Nebraska joins SPP",
+      "body": "The only state where every utility is publicly owned put its power into a market run from Arkansas.",
+      "verified": false,
+      "sources": []
+    },
+    "miso-south-2013": {
+      "date": "2013-12-19",
+      "title": "MISO reaches the Gulf",
+      "body": "Entergy, Cleco, Cooperative Energy and the East Texas co-ops joined MISO on one day. The market gained a southern half that does not touch its northern one.",
+      "verified": false,
+      "sources": []
+    },
+    "integrated-system-2015": {
+      "date": "2015-10-01",
+      "title": "The federal dams join a market",
+      "body": "Western Area Power Administration's upper plains system, Basin Electric and Heartland joined SPP. It was the first time a federal power agency traded inside a market.",
+      "verified": true,
+      "sources": [
+        "https://www.wapa.gov/about-wapa/regions/ugp/ugp-power-marketing/spp-membership/",
+        "https://www.basinelectric.com/about-us/transmission/SPP-Upper-Missouri-Zone"
+      ]
+    },
+    "spp-west-2026": {
+      "date": "2026-04-01",
+      "title": "One referee, both grids",
+      "body": "A group of western utilities switched on a second SPP market on the Western grid. The same operator now runs markets on both sides of the seam, though power still cannot flow freely across it.",
+      "verified": true,
+      "sources": ["https://spp.org/news-list/spp-and-member-utilities-successfully-complete-historic-western-expansion/"]
+    },
+    "caldwell-2026": {
+      "date": "2026-03-12",
+      "title": "A town changes grids",
+      "body": "Caldwell, Texas had been an Eastern-grid island inside Texas. New lines were built and it joined ERCOT.",
+      "verified": true,
+      "sources": ["https://www.ercot.com/news/release/03122026-ercot-welcomes-the"]
+    }
+  },
+  "law_excerpts": {
+    "puhca-1935": {
+      "label": "PUHCA, 1935",
+      "citation": "Public Utility Holding Company Act of 1935, Pub. L. 74-333, 49 Stat. 803.",
+      "quote": "Upon the expiration of one year after the beginning of the first registration period... it shall be unlawful for any registered holding company... to acquire, directly or indirectly, any security or utility asset...",
+      "gloss": "In plain words: stop building pyramids of companies on top of each other. Congress had just watched one collapse.",
+      "source_url": "https://www.govinfo.gov/app/collection/statute",
+      "verified": false
+    },
+    "purpa-1978": {
+      "label": "PURPA, 1978",
+      "citation": "Public Utility Regulatory Policies Act of 1978, Pub. L. 95-617, section 210.",
+      "quote": "The Commission shall prescribe... such rules as it determines necessary to encourage cogeneration and small power production... requiring electric utilities to offer to purchase electric energy from such facilities.",
+      "gloss": "In plain words: if somebody else makes power, the utility has to buy it. Before this, a utility could simply refuse.",
+      "source_url": "https://www.govinfo.gov/app/collection/statute",
+      "verified": false
+    },
+    "order-888-1996": {
+      "label": "FERC Order 888, 1996",
+      "citation": "FERC Order No. 888, Promoting Wholesale Competition Through Open Access, Docket Nos. RM95-8-000 and RM94-7-001.",
+      "quote": "All public utilities that own, control or operate facilities used for transmitting electric energy in interstate commerce [must] file open access non-discriminatory transmission tariffs... offering others the same transmission service they provide themselves.",
+      "gloss": "In plain words: you cannot own the only road and refuse to let competitors drive on it.",
+      "source_url": "https://www.ferc.gov/industries-data/electric/industry-activities/open-access-transmission-tariff-oatt-reform",
+      "verified": false
+    },
+    "order-2000-1999": {
+      "label": "FERC Order 2000, 1999",
+      "citation": "FERC Order No. 2000, Regional Transmission Organizations, Docket No. RM99-2-000.",
+      "quote": "The Commission is... requiring that all public utilities that own, operate or control interstate transmission file a proposal to participate in a Regional Transmission Organization... or, alternatively, a description of efforts and plans to participate.",
+      "gloss": "In plain words: join a regional operator, or write us a letter about why you have not. A third of the country wrote the letter.",
+      "source_url": "https://www.ferc.gov/industries-data/electric/electric-power-markets",
+      "verified": false
+    }
+  },
+  "evidence": {
+    "census-1902-stations": {
+      "kind": "note",
+      "title": "Central Electric Light and Power Stations, 1902",
+      "archive": "U.S. Census Bureau",
+      "citation": "U.S. Bureau of the Census, Central Electric Light and Power Stations: 1902. Public domain.",
+      "note": "The first national count of power stations found 3,620 of them. That number is why this frame is drawn as dots: there was no network to draw, only stations and the blocks around them.",
+      "source_url": "https://babel.hathitrust.org/cgi/pt?id=uc1.c2735633",
+      "rights": "U.S. government publication; public domain.",
+      "verified": false
+    },
+    "ftc-utility-corporations": {
+      "kind": "note",
+      "title": "FTC investigation of utility corporations, 1928 to 1935",
+      "archive": "Federal Trade Commission",
+      "citation": "Federal Trade Commission, Utility Corporations, Sen. Doc. No. 92, 70th Cong., 1st Sess. (roughly 100 volumes).",
+      "note": "Congress ordered the FTC to take the holding companies apart on paper. The result runs to about a hundred printed volumes and is where the empire maps in this frame come from.",
+      "source_url": "https://www.ftc.gov/",
+      "rights": "U.S. government publication; public domain.",
+      "verified": false
+    },
+    "fpc-1964-survey": {
+      "kind": "map",
+      "title": "National Power Survey, 1964",
+      "archive": "HathiTrust",
+      "citation": "Federal Power Commission, National Power Survey (1964).",
+      "source_url": "https://catalog.hathitrust.org/Record/001613825",
+      "rights": "U.S. government publication; public domain.",
+      "verified": false
+    },
+    "fpc-1970-facilities": {
+      "kind": "map",
+      "title": "Principal Electric Facilities, 1970",
+      "archive": "Library of Congress",
+      "citation": "Federal Power Commission, The 1970 National Power Survey. Information to June 30, 1970.",
+      "source_url": "https://catalog.hathitrust.org/Record/000966774",
+      "rights": "U.S. government publication; public domain.",
+      "verified": false
+    },
+    "order-888-text": { "kind": "law", "excerpt": "order-888-1996" },
+    "order-2000-text": { "kind": "law", "excerpt": "order-2000-1999" }
+  }
+}
