@@ -135,6 +135,13 @@ async function serve() {
 const problems = [];
 const add = (tag, msg) => problems.push(`${tag}: ${msg}`);
 
+// Vercel preview deployments sit behind deployment protection. Pass the
+// project's bypass pair to audit one anyway, appended to every visited URL:
+//   --bypass-query "x-vercel-protection-bypass=SECRET"   (automation secret)
+//   --bypass-query "_vercel_share=TOKEN"                 (share link token)
+const bypassQ = opt("bypass-query", null);
+const withBypass = u => (bypassQ ? u + (u.includes("?") ? "&" : "?") + bypassQ : u);
+
 const external = opt("url", null);
 const host = external ? { url: external, server: null } : await serve();
 
@@ -164,13 +171,16 @@ if (flag("shots")) mkdirSync(join(here, "shots"), { recursive: true });
 {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   for (const [from, to] of REDIRECTS) {
-    await page.goto(host.url + from, { waitUntil: "commit" });
+    await page.goto(withBypass(host.url + from), { waitUntil: "commit" });
     const landed = new URL(page.url());
-    if (landed.pathname + landed.search !== to)
-      add("redirects", `${from} landed on ${landed.pathname}${landed.search}, wanted ${to}`);
+    // the bypass pair rides along and is dropped by the redirect; ignore it
+    if (bypassQ) landed.searchParams.delete(bypassQ.split("=")[0]);
+    const search = landed.searchParams.size ? `?${landed.searchParams.toString()}` : "";
+    if (landed.pathname + search !== to)
+      add("redirects", `${from} landed on ${landed.pathname}${search}, wanted ${to}`);
   }
   for (const path of NOT_FOUND) {
-    const resp = await page.goto(host.url + path, { waitUntil: "commit" });
+    const resp = await page.goto(withBypass(host.url + path), { waitUntil: "commit" });
     if (resp && resp.status() !== 404) add("404s", `${path} answered ${resp.status()}, wanted 404`);
   }
   await page.close();
@@ -184,7 +194,7 @@ for (const vp of VIEWPORTS) {
 
   for (const view of VIEWS) {
     const tag = `${vp.name}/${view.name}`;
-    await page.goto(host.url + view.q, { waitUntil: "networkidle" });
+    await page.goto(withBypass(host.url + view.q), { waitUntil: "networkidle" });
     // the wires layer lazy-loads 5.5MB of geometry and then tweens
     await page.waitForTimeout(view.name.startsWith("wires") ? 2600 : 1200);
 
