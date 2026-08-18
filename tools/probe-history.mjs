@@ -94,6 +94,47 @@ const y1935 = await open("1935");
 want("1935 does not emphasise the East-West seam",
   Number.parseFloat(y1935.ewWidth) < Number.parseFloat(y1975.ewWidth), true);
 
+// The membership plates. Their argument is that a reader can follow one colour
+// across four plates, so the check is that a market keeps its fill and that the
+// footprints grow in the direction history went.
+const msRead = (frame) => page.goto(`${url}/then/${frame}`, { waitUntil: "networkidle" })
+  .then(() => page.waitForSelector("#g-membership .ms-region", { state: "attached", timeout: 30000 }))
+  .then(() => page.evaluate(() => {
+    const paths = [...document.querySelectorAll("#g-membership .ms-region")];
+    const fill = (m) => {
+      const el = paths.find((p) => p.dataset.market === m);
+      return el ? getComputedStyle(el).fill : null;
+    };
+    return {
+      markets: [...new Set(paths.map((p) => p.dataset.market))].sort(),
+      pjm: fill("PJM"),
+      seamHidden: document.getElementById("g-seam")?.hasAttribute("hidden"),
+    };
+  }));
+
+const y1999 = await msRead("1999");
+want("1999 draws the five referees and nothing else", y1999.markets,
+  ["CAISO", "ERCOT", "ISONE", "NYISO", "PJM"]);
+want("1999 hides the seam", y1999.seamHidden, true);
+const y2005 = await msRead("2005");
+want("2005 draws all seven", y2005.markets,
+  ["CAISO", "ERCOT", "ISONE", "MISO", "NYISO", "PJM", "SPP"]);
+const y2014 = await msRead("2014");
+want("2014 draws all seven", y2014.markets,
+  ["CAISO", "ERCOT", "ISONE", "MISO", "NYISO", "PJM", "SPP"]);
+want("PJM keeps one colour across the three plates",
+  new Set([y1999.pjm, y2005.pjm, y2014.pjm]).size, 1);
+// Today reuses the wholesale layer's own marks, so its PJM has to be that same
+// colour or the whole continuity argument breaks at the last plate.
+await page.goto(`${url}/then/2026`, { waitUntil: "networkidle" });
+await page.waitForSelector("#g-rto .region", { state: "attached", timeout: 30000 });
+want("Today's PJM is the same colour", await page.evaluate(() => {
+  const el = [...document.querySelectorAll("#g-rto .region")].find((p) => p.dataset.rto === "PJM");
+  return el ? getComputedStyle(el).fill : null;
+}), y2014.pjm);
+want("membership is hidden on Today", await page.evaluate(
+  () => document.getElementById("g-membership")?.hasAttribute("hidden")), true);
+
 // A retired year still has to land somewhere honest. The scrubber only exists
 // once timeline.json has arrived, so wait for a pressed stop rather than for
 // the network to go quiet: networkidle can land before React has rendered it.

@@ -73,6 +73,9 @@ const VIEWS = [
   // so one of them stands for the geometry and 1975 is the one whose legend is
   // longest.
   { name: "history-seam", q: "/then/1975" },
+  // Seven markets plus a nobody swatch is the longest legend the history layer
+  // ever renders, which makes 2005 the plate worth measuring.
+  { name: "history-membership", q: "/then/2005" },
   { name: "history-today", q: "/then/2026" },
   { name: "history-evidence", q: "/then/1900/evidence/census-1902-stations" },
   // A committed archival plate is the widest thing the lightbox ever holds: a

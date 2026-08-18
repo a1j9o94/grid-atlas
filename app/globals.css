@@ -872,6 +872,14 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .sm-region, .sm-line { transition: none; }
 }
 
+/* market footprints on a past plate. Same fill values the wholesale layer uses,
+   set as an attribute by the layer, so only the stroke and the hover live here. */
+.ms-region {
+  stroke: rgba(38, 48, 31, 0.22); stroke-width: 0.4;
+  vector-effect: non-scaling-stroke; cursor: pointer;
+}
+.ms-region:hover { filter: brightness(0.94) saturate(1.2); }
+
 /* a city with its own station, and darkness between */
 .tl-dot { cursor: pointer; }
 .tl-glow { fill: url(#lampglow); pointer-events: none; }

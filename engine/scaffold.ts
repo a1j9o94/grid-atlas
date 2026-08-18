@@ -44,6 +44,10 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
   <!-- The three machines, for the mid-century plates. Same wobble as the
        wholesale regions, so a 1967 map is inked like a 2026 one. -->
   <g id="g-seam" filter="url(#wobble)" hidden></g>
+  <!-- Market footprints at a past frame. Its own group rather than reusing
+       #g-rto, so the wholesale layer's marks are never mutated by a plate and
+       Today can never drift from the top of the stack. -->
+  <g id="g-membership" filter="url(#wobble)" hidden></g>
   <g id="g-zipoutline"></g>
   <g id="g-statelines"></g>
   <!-- The seam itself, above the state lines, because on these three plates it
@@ -75,6 +79,7 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
       timeBase: pick("#g-time-base"),
       timeMarks: pick("#g-time-marks"),
       seam: pick("#g-seam"),
+      membership: pick("#g-membership"),
       seamLines: pick("#g-seam-lines"),
     },
     wobbleDisp: req(svg.querySelector<SVGElement>("#wobble feDisplacementMap"), "#wobble feDisplacementMap"),

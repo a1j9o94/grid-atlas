@@ -355,6 +355,35 @@ export function showMachine(ic: string): void {
   });
 }
 
+// A market on a membership plate. The name and the one-line description come
+// from the copy deck the wholesale layer already uses, so the same region reads
+// the same way whether the reader met it on Today or on 1999. What this card
+// adds is the date, because on a past plate the question is when it started.
+export function showMarket(market: string): void {
+  const c = ctx();
+  const t = c.timeline;
+  const region = copy.regions[market];
+  if (!t || !region) return;
+  const started = t.events[FOUNDING_EVENT[market] ?? ""];
+  setAtlasState({
+    card: {
+      kind: "machine",
+      kicker: started ? `running since ${started.when ?? started.date}` : "a market operator",
+      name: region.name,
+      body: region.body,
+      stats: [],
+      backLabel: "← back to the plate",
+    },
+  });
+}
+// The event on this timeline that starts each market. Named rather than derived
+// so a market with no founding card on the plate says nothing instead of
+// guessing a date.
+const FOUNDING_EVENT: Record<string, string> = {
+  PJM: "pjm-iso-1997", ERCOT: "ercot-iso-1996", MISO: "miso-market-2005",
+  CAISO: "caiso-1998", NYISO: "nyiso-1999", ISONE: "iso-ne-1997",
+};
+
 // ---- the evidence lightbox ----
 
 function citeText(o: { citation?: string; rights?: string }): string {

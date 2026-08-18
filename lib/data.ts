@@ -155,6 +155,11 @@ export interface SeamProps {
 export interface SeamLineProps {
   seam: "ew" | "ercot";
 }
+// A market footprint at one frame. `m` is the market key, the same key the
+// wholesale layer colours by, so a 2005 PJM is the same blue as today's.
+export interface MembershipProps {
+  m: string;
+}
 export interface TransitionProps {
   ID: string;
   NAME: string;

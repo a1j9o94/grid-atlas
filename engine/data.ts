@@ -8,7 +8,8 @@ import { req } from "../lib/assert";
 import {
   fetchJson, fetchJsonOrNull,
   type CartogramFile, type MeasureBlock, type MeasureSpec, type MeasuresFile,
-  type RtoProps, type RtosFC, type SeamLineProps, type SeamProps, type StateProps, type StatesFC,
+  type MembershipProps, type RtoProps, type RtosFC, type SeamLineProps, type SeamProps,
+  type StateProps, type StatesFC,
   type TransitionProps, type TransitionsFC, type Utility, type ZctaFC, type ZctaProps, type ZipLookup,
 } from "../lib/data";
 import { makeScale, type Scale } from "./scales";
@@ -97,6 +98,21 @@ export function loadSeam(): Promise<SeamData> {
     };
   })();
   return seamPromise;
+}
+
+// Market footprints at the three membership frames, built by
+// pipeline/15-build-membership.mjs. One file, three objects, because the three
+// dissolves share arcs and have to stay coincident where a boundary did not move.
+export type MembershipFrames = Record<string, FeatureCollection<Geometry, MembershipProps>>;
+let membershipPromise: Promise<MembershipFrames> | null = null;
+export function loadMembership(): Promise<MembershipFrames> {
+  membershipPromise ??= (async () => {
+    const topo = await fetchJson<Topology>("/data/timeline/regions.topo.json");
+    const out: MembershipFrames = {};
+    for (const k of Object.keys(topo.objects)) out[k] = namedFC<MembershipProps>(topo, k);
+    return out;
+  })();
+  return membershipPromise;
 }
 
 export interface ZctaShard {

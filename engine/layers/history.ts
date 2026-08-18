@@ -8,12 +8,12 @@
 // Ported from the retired static shell. The geometry work is the same; the
 // cards and the scrubber are models now, computed here and rendered by React.
 import { fetchJson, type TimelineFile, type TimelineFrame } from "../../lib/data";
-import { loadSeam } from "../data";
+import { loadMembership, loadSeam } from "../data";
 import { setAtlasState, type TimelineStop } from "../../lib/store";
-import { HOME_VIEW, SVG_NS } from "../constants";
+import { FILL, HOME_VIEW, SVG_NS } from "../constants";
 import { ctx, setHidden } from "../ctx";
 import { animateViewBox } from "../viewbox";
-import { showDot, showFrame, showMachine } from "../ui/cards";
+import { showDot, showFrame, showMachine, showMarket } from "../ui/cards";
 import { renderLegend } from "../ui/legend";
 import { updateUrl, type UrlMode } from "../urlstate";
 
@@ -40,6 +40,7 @@ export async function ensureTimeline(): Promise<void> {
   c.timeline = file;
   buildTimeBase();
   buildDots();
+  bindMembershipPicks();
 }
 
 // The ground: every state in the pale unlit paper the You layer uses. Tint
@@ -185,6 +186,20 @@ function buildSeam(): void {
   c.g.seam.addEventListener("click", onPick, { signal: c.ac.signal });
 }
 
+// Hovering a market on a past plate names it and says when it started running,
+// which is the question a reader has when a shape appears between two plates.
+export function bindMembershipPicks(): void {
+  const c = ctx();
+  if (c.g.membership.dataset.bound === "1") return;
+  c.g.membership.dataset.bound = "1";
+  const onPick = (e: Event): void => {
+    const p = (e.target as Element).closest<SVGPathElement>(".ms-region");
+    if (p?.dataset.market !== undefined) showMarket(p.dataset.market);
+  };
+  c.g.membership.addEventListener("mouseover", onPick, { signal: c.ac.signal });
+  c.g.membership.addEventListener("click", onPick, { signal: c.ac.signal });
+}
+
 // Two flags, read by CSS rather than by more code: `unified` repaints the
 // Western grid in the Eastern colour and ghosts the line between them, and
 // `emphasis` thickens the boundary the plate is about.
@@ -193,6 +208,42 @@ function applySeamState(f: TimelineFrame): void {
   for (const g of [c.g.seam, c.g.seamLines]) {
     g.dataset.unified = f.geometry.unified === true ? "1" : "0";
     g.dataset.emphasis = f.geometry.emphasis ?? "";
+  }
+}
+
+// ---- membership: market footprints at 1999, 2005 and 2014 ----
+//
+// One file holds all three dissolves, and each plate draws the object its
+// frame_key names. The fills come from the wholesale layer's own palette, so a
+// 2005 PJM is the same blue as today's PJM and the reader can follow one colour
+// across four plates. That continuity is the argument these plates make.
+async function ensureMembership(): Promise<void> {
+  const c = ctx();
+  if (c.membership) return;
+  const m = await loadMembership();
+  if (c.dead) return;
+  c.membership = m;
+}
+
+function drawMembership(frameKey: string): void {
+  const c = ctx();
+  const fcm = c.membership?.[frameKey];
+  if (!fcm) return;
+  if (c.g.membership.dataset.frame === frameKey) return;
+  c.g.membership.dataset.frame = frameKey;
+  c.g.membership.replaceChildren();
+  // Biggest last is wrong here and biggest first is wrong too: these are a
+  // partition, not a stack, so painting order does not matter and the only
+  // thing that does is that every market gets the palette's own fill.
+  for (const f of fcm.features) {
+    const d = c.path(f);
+    if (d === null) continue;
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("fill", FILL[f.properties.m] ?? "#ccc");
+    p.setAttribute("class", "region ms-region");
+    p.dataset.market = f.properties.m;
+    c.g.membership.appendChild(p);
   }
 }
 
@@ -220,11 +271,27 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
   const showGround = kind !== "current";
   const showToday = kind === "current";
   const showSeam = kind === "seam";
+  const showMembership = kind === "membership";
 
   setHidden(c.g.timeBase, !showGround);
   setHidden(c.g.timeMarks, !showDots);
   setHidden(c.g.seam, !showSeam);
   setHidden(c.g.seamLines, !showSeam);
+  setHidden(c.g.membership, !showMembership);
+  if (showMembership) {
+    const fk = f.geometry.frame_key;
+    if (fk !== undefined) {
+      if (c.membership) drawMembership(fk);
+      else {
+        const want = f.id;
+        void ensureMembership().then(() => {
+          const now = ctx();
+          if (now.dead || now.frameId !== want) return;
+          drawMembership(fk);
+        });
+      }
+    }
+  }
   if (showSeam) {
     applySeamState(f);
     // The 380KB of seam geometry loads on the first plate that needs it, not
@@ -323,5 +390,6 @@ export function hideHistory(): void {
   setHidden(c.g.timeMarks, true);
   setHidden(c.g.seam, true);
   setHidden(c.g.seamLines, true);
+  setHidden(c.g.membership, true);
   setAtlasState({ timeline: null, evidence: null });
 }
