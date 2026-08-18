@@ -5,9 +5,13 @@
 // This exists because eyeballing a screenshot does not catch a 12px overlap or
 // an input clipping its last character, and both shipped at least once.
 //
-// Usage: npm run audit            (serves ./ on a free port, runs headless)
+// Usage: npm run build && npm run audit   (starts the production build on a
+//                                          free port, runs headless)
 //        npm run audit -- --url https://grid-atlas-coral.vercel.app
 //        npm run audit -- --shots  (also write PNGs to tools/shots/)
+//
+// The audit drives the production build, never `next dev`: dev mode double-
+// invokes effects and its overlay logs would trip the console-error check.
 //
 // Auditing a remote --url needs the browser to reach the internet. Behind a
 // proxy, set HTTPS_PROXY or pass --proxy; some sandboxes block browser egress
@@ -15,9 +19,9 @@
 // files by checksum instead.
 
 import { createServer } from "http";
-import { readFile } from "fs/promises";
-import { mkdirSync } from "fs";
-import { extname, join, normalize, dirname } from "path";
+import { spawn } from "child_process";
+import { existsSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { chromium } from "playwright";
 
@@ -31,37 +35,58 @@ const VIEWPORTS = [
   { name: "phone-small", w: 360, h: 740 },
   { name: "phone", w: 390, h: 844 },
   { name: "phone-landscape", w: 844, h: 390 },
+  // a current large phone laid on its side: short enough to trip every
+  // height-keyed rule, wide enough that stacking is the wrong answer
+  { name: "phone-landscape-tall", w: 915, h: 412 },
   { name: "tablet", w: 768, h: 1024 },
   { name: "laptop-short", w: 1280, h: 660 },
   { name: "desktop", w: 1500, h: 950 },
+  // the map is the product, and a fixed-width plate wasted two thirds of a
+  // large display before anyone measured it
+  { name: "desktop-wide", w: 2560, h: 1440 },
 ];
 
 const VIEWS = [
-  { name: "wholesale", q: "?layer=wholesale" },
-  { name: "rules", q: "?layer=rules" },
-  { name: "wires-land", q: "?layer=wires" },
-  { name: "wires-meters", q: "?layer=wires&size=cust" },
-  { name: "wires-energy", q: "?layer=wires&size=mwh" },
-  { name: "wires-parent", q: "?layer=wires&colour=parent" },
-  { name: "wires-outages", q: "?layer=wires&colour=saidi" },
-  { name: "wires-solar", q: "?layer=wires&colour=solarw" },
-  { name: "wires-smart", q: "?layer=wires&colour=amishare" },
-  { name: "wires-solar-size", q: "?layer=wires&size=solarmw" },
-  { name: "wires-size-colour", q: "?layer=wires&size=cust&colour=saidi" },
+  { name: "wholesale", q: "/" },
+  { name: "rules", q: "/rules" },
+  { name: "wires-land", q: "/wires" },
+  { name: "wires-meters", q: "/wires/by-cust" },
+  { name: "wires-energy", q: "/wires/by-mwh" },
+  { name: "wires-parent", q: "/wires/parent" },
+  { name: "wires-outages", q: "/wires/saidi" },
+  { name: "wires-solar", q: "/wires/solarw" },
+  { name: "wires-smart", q: "/wires/amishare" },
+  { name: "wires-solar-size", q: "/wires/by-solarmw" },
+  { name: "wires-size-colour", q: "/wires/saidi/by-cust" },
   // Three stats plus a long legend label is the widest the card and the legend
   // ever get, so the combination is worth a viewport of its own.
-  { name: "wires-solar-both", q: "?layer=wires&size=solarmw&colour=solarw" },
-  { name: "rules-price", q: "?layer=rules&shade=res" },
-  { name: "rules-delivery", q: "?layer=rules&shade=delivery" },
-  { name: "you", q: "?zip=78701" },
+  { name: "wires-solar-both", q: "/wires/solarw/by-solarmw" },
+  { name: "rules-price", q: "/rules/res" },
+  { name: "rules-delivery", q: "/rules/delivery" },
+  { name: "you", q: "/you/78701" },
   // The scrubber is permanent chrome on the history layer, and nine stops is
-  // the widest that bar ever gets, so every frame kind is worth a pass: dots,
-  // a plate that is not drawn yet, and today (which is the wholesale layer).
-  { name: "history-1900", q: "?layer=history" },
-  { name: "history-pending", q: "?layer=history&frame=1967" },
-  { name: "history-today", q: "?layer=history&frame=2026" },
-  { name: "history-evidence", q: "?layer=history&evidence=census-1902-stations" },
+  // the widest that bar ever gets, so every plate kind is worth a pass: dots,
+  // a plate not drawn yet, and today (which is the wholesale layer redrawn).
+  { name: "history-1900", q: "/then" },
+  { name: "history-pending", q: "/then/1967" },
+  { name: "history-today", q: "/then/2026" },
+  { name: "history-evidence", q: "/then/1900/evidence/census-1902-stations" },
 ];
+
+// The query links this site shipped with. Each must answer with a redirect to
+// its canonical path before any JavaScript runs, and junk must 404 rather
+// than quietly render the default map.
+const REDIRECTS = [
+  ["/?layer=wires&size=cust&colour=saidi", "/wires/saidi/by-cust"],
+  ["/?layer=wires&colour=saidi-all", "/wires/saidi-all"],
+  ["/?layer=wires&size=mwh", "/wires/by-mwh"],
+  ["/?layer=rules&shade=res", "/rules/res"],
+  ["/?zip=78701", "/you/78701"],
+  ["/?trivia=caldwell-switched-grids", "/trivia/caldwell-switched-grids"],
+  ["/?layer=you", "/you"],
+  ["/?layer=wholesale", "/"],
+];
+const NOT_FOUND = ["/nonsense", "/wires/notameasure", "/wires/by-nothing", "/rules/blue", "/you/1234"];
 
 // Boxes that must never overlap each other. All of them are chrome floating
 // over or beside the map, which is exactly where collisions hide.
@@ -83,27 +108,52 @@ const PANELS = {
   timelineBar: "#timeline-bar",
 };
 
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
+function freePort() {
+  return new Promise(resolve => {
+    const s = createServer();
+    s.listen(0, () => {
+      const p = s.address().port;
+      s.close(() => resolve(p));
+    });
+  });
+}
 
 async function serve() {
-  const server = createServer(async (req, res) => {
+  if (!existsSync(join(root, ".next"))) {
+    console.error("no production build found: run `npm run build` first");
+    process.exit(2);
+  }
+  const port = await freePort();
+  const child = spawn(
+    process.execPath,
+    [join(root, "node_modules", "next", "dist", "bin", "next"), "start", "-p", String(port)],
+    { cwd: root, stdio: "ignore" },
+  );
+  const url = `http://localhost:${port}`;
+  for (let i = 0; ; i++) {
     try {
-      let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
-      if (p === "/") p = "/index.html";
-      const file = join(root, normalize(p).replace(/^(\.\.[/\\])+/, ""));
-      const body = await readFile(file);
-      res.writeHead(200, { "content-type": MIME[extname(file)] ?? "application/octet-stream" });
-      res.end(body);
-    } catch {
-      res.writeHead(404).end("not found");
+      const r = await fetch(url + "/");
+      if (r.ok) break;
+    } catch { /* not up yet */ }
+    if (i >= 150) {
+      child.kill();
+      console.error("next start did not come up on " + url);
+      process.exit(2);
     }
-  });
-  await new Promise(r => server.listen(0, r));
-  return { server, url: `http://localhost:${server.address().port}` };
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return { server: { close: () => child.kill() }, url };
 }
 
 const problems = [];
 const add = (tag, msg) => problems.push(`${tag}: ${msg}`);
+
+// Vercel preview deployments sit behind deployment protection. Pass the
+// project's bypass pair to audit one anyway, appended to every visited URL:
+//   --bypass-query "x-vercel-protection-bypass=SECRET"   (automation secret)
+//   --bypass-query "_vercel_share=TOKEN"                 (share link token)
+const bypassQ = opt("bypass-query", null);
+const withBypass = u => (bypassQ ? u + (u.includes("?") ? "&" : "?") + bypassQ : u);
 
 const external = opt("url", null);
 const host = external ? { url: external, server: null } : await serve();
@@ -130,6 +180,25 @@ try {
 }
 if (flag("shots")) mkdirSync(join(here, "shots"), { recursive: true });
 
+// redirect + 404 matrix, once, before the layout sweep
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  for (const [from, to] of REDIRECTS) {
+    await page.goto(withBypass(host.url + from), { waitUntil: "commit" });
+    const landed = new URL(page.url());
+    // the bypass pair rides along and is dropped by the redirect; ignore it
+    if (bypassQ) landed.searchParams.delete(bypassQ.split("=")[0]);
+    const search = landed.searchParams.size ? `?${landed.searchParams.toString()}` : "";
+    if (landed.pathname + search !== to)
+      add("redirects", `${from} landed on ${landed.pathname}${search}, wanted ${to}`);
+  }
+  for (const path of NOT_FOUND) {
+    const resp = await page.goto(withBypass(host.url + path), { waitUntil: "commit" });
+    if (resp && resp.status() !== 404) add("404s", `${path} answered ${resp.status()}, wanted 404`);
+  }
+  await page.close();
+}
+
 for (const vp of VIEWPORTS) {
   const page = await browser.newPage({ viewport: { width: vp.w, height: vp.h } });
   const errs = [];
@@ -138,7 +207,7 @@ for (const vp of VIEWPORTS) {
 
   for (const view of VIEWS) {
     const tag = `${vp.name}/${view.name}`;
-    await page.goto(host.url + "/" + view.q, { waitUntil: "networkidle" });
+    await page.goto(withBypass(host.url + view.q), { waitUntil: "networkidle" });
     // the wires layer lazy-loads 5.5MB of geometry and then tweens
     await page.waitForTimeout(view.name.startsWith("wires") ? 2600 : 1200);
 
@@ -147,16 +216,39 @@ for (const vp of VIEWPORTS) {
       const vw = de.clientWidth, vh = de.clientHeight;
       const out = { scrollX: de.scrollWidth - vw, scrollY: de.scrollHeight - vh, offscreen: [], overlaps: [], tiny: [], clipped: [] };
 
+      // What the reader can actually see, which is the layout rect clipped by
+      // every scrolling or hidden ancestor above it. An element inside a scroll
+      // box keeps its full rect wherever the content puts it, even when that is
+      // three hundred pixels below the visible part of the box, so measuring
+      // the raw rect reports a legend that has scrolled out of view as
+      // overlapping the footer it is nowhere near. Returns null when the
+      // element is entirely clipped away: not visible is not a layout problem.
+      const visibleRect = el => {
+        let r = el.getBoundingClientRect();
+        let box = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+        for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+          const cs = getComputedStyle(p);
+          if (cs.overflow === "visible" && cs.overflowX === "visible" && cs.overflowY === "visible") continue;
+          const pr = p.getBoundingClientRect();
+          box.left = Math.max(box.left, pr.left);
+          box.top = Math.max(box.top, pr.top);
+          box.right = Math.min(box.right, pr.right);
+          box.bottom = Math.min(box.bottom, pr.bottom);
+        }
+        if (box.right - box.left < 1 || box.bottom - box.top < 1) return null;
+        return { x: box.left, y: box.top, w: box.right - box.left, h: box.bottom - box.top };
+      };
+
       const boxes = {};
       for (const [k, sel] of Object.entries(panels)) {
         const el = document.querySelector(sel);
         if (!el || el.hasAttribute("hidden")) continue;
         const cs = getComputedStyle(el);
         if (cs.display === "none" || cs.visibility === "hidden") continue;
-        const b = el.getBoundingClientRect();
-        if (!b.width || !b.height) continue;
-        boxes[k] = { x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.width), h: Math.round(b.height) };
-        if (b.right > vw + 1 || b.left < -1 || b.bottom > vh + 1 || b.top < -1)
+        const b = visibleRect(el);
+        if (!b || !b.w || !b.h) continue;
+        boxes[k] = { x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.w), h: Math.round(b.h) };
+        if (b.x + b.w > vw + 1 || b.x < -1 || b.y + b.h > vh + 1 || b.y < -1)
           out.offscreen.push(`${k} ${JSON.stringify(boxes[k])} in ${vw}x${vh}`);
       }
       const keys = Object.keys(boxes);
@@ -199,6 +291,14 @@ for (const vp of VIEWPORTS) {
         }
         out.mapCovered = area > 0 ? Math.round((covered / area) * 100) : 0;
         out.mapDrawn = `${Math.round(drawn.w)}x${Math.round(drawn.h)}`;
+        // How much of the screen the map actually occupies. The coverage check
+        // above asks whether chrome sits on top of the map; it says nothing
+        // about a map that has been squeezed to nothing, and a squeezed map
+        // scores a perfect 0% coverage. Both failures shipped: 88x55 on a
+        // landscape phone and 374x234 on a 1280x660 laptop, each passing every
+        // check in this file at the time.
+        out.mapShare = Math.round((area / (vw * vh)) * 100);
+        out.mapHeight = Math.round(drawn.h);
       }
 
       // tap targets a thumb can actually hit
@@ -222,6 +322,14 @@ for (const vp of VIEWPORTS) {
     // A little overlap is the design: the legend deliberately sits over ocean.
     // A quarter of the map is not.
     if (r.mapCovered > 22) add(tag, `chrome covers ${r.mapCovered}% of the drawn map (${r.mapDrawn})`);
+    // The map has to be worth looking at. The floor is 12%: the honest minimum
+    // across every layout here is the zoomed You layer on a tablet at 14%,
+    // because a zip-sized viewBox is square and letterboxes inside a wide panel.
+    // The two shipped failures were 1% and 10%.
+    if (r.mapShare !== undefined && r.mapShare < 12)
+      add(tag, `map is only ${r.mapShare}% of the viewport (${r.mapDrawn}); the layout is wasting the screen`);
+    if (r.mapHeight !== undefined && r.mapHeight < 150)
+      add(tag, `map is ${r.mapHeight}px tall (${r.mapDrawn}); squeezed to nothing`);
     if (r.scrollX > 1) add(tag, `horizontal scroll ${r.scrollX}px`);
     if (r.scrollY > 1) add(tag, `vertical scroll ${r.scrollY}px (the page must fit the viewport)`);
     for (const s of r.offscreen) add(tag, `offscreen ${s}`);

@@ -6,6 +6,8 @@ The map teaches the system as a stack of layers. Wholesale: who runs each power 
 
 The history layer is a scrubber of dated plates, not a continuous slide through the years. The archives support moments and membership changes; they do not support annual geometry, and a slider gliding through years where nothing happened would be inventing data. The last plate is today, drawn from the same data as the Wholesale layer, so the end of the timeline and the top of the stack cannot drift apart. Every frame, event and law excerpt carries sources and a `verified` flag; anything that has not been through a fact-check pass says so on its own card. Frames whose geometry is not built yet appear on the scrubber marked as still being inked, so the shape of the whole story is visible before every plate is drawn.
 
+Every view is a link. `/rules/res` shades states by what households pay. `/wires/saidi/by-cust` colours utilities by minutes without power and sizes them by meters; the `by-` prefix marks the size channel, so any measure id can be a colour segment without ambiguity. `/you/78701` finds a zip. `/trivia/caldwell-switched-grids` flies to a story. Defaults stay off the URL, junk paths return 404, and the query links this site shipped with redirect to their canonical paths forever.
+
 The Wires layer can also be drawn by size instead of by land. Every utility becomes a circle whose area is its meters, the electricity it delivers, the money it collects, or the rooftop solar on its system, relaxed apart so they do not overlap. Drawn by land, the map suggests empty country matters most. Drawn by meters, the top 100 utilities hold 76% of the country and the median utility serves about 4,500.
 
 The same layer can be recoloured instead of resized: by ownership type, by parent company, by time without power, by rooftop solar per home, or by smart meter share. Adding one is a registry entry in the pipeline plus a label in the copy deck. The client reads `measures.json` and renders whatever it finds marked `colourOnly`, so it never learns what any particular measure means.
@@ -17,7 +19,7 @@ The same layer can be recoloured instead of resized: by ownership type, by paren
 - **State boundaries and zip shapes:** Census cartographic boundary files (`cb_2020_us_state_500k`, `cb_2020_us_zcta520_500k`). Zip shapes are ZCTAs, the Census approximation of zip codes.
 - **Zip-to-utility lookup:** OpenEI utility rate crosswalk (2020 edition), 80,206 rows covering 39,146 zips.
 - **Cartogram layouts:** derived, not fetched. `data/cartogram.json` holds a Dorling layout per measure, precomputed by the pipeline so the browser never runs a force simulation. Circle area is proportional to the value, seeded at each utility's true centroid and relaxed apart. Positions are in the map's projected coordinates, so the file records the projection it was built for and the site checks that they still agree.
-- **Timeline (history layer):** `data/timeline.json` holds the plates, the dated events, the law excerpts and the evidence manifest. The 1900 dot set is provisional and hand-entered from the 1900 Census city ranks, flagged `verified: false` until the pipeline rebuilds it from the source table and cross-checks it against the Census Bureau's *Central Electric Light and Power Stations: 1902*, which counted 3,620 stations nationally. That count is why the era is drawn as dots: there was no network to draw.
+- **Timeline (history layer):** `public/data/timeline.json` holds the plates, the dated events, the law excerpts and the evidence manifest. The 1900 dot set is provisional and hand-entered from the 1900 Census city ranks, flagged `verified: false` until the pipeline rebuilds it from the source table and cross-checks it against the Census Bureau's *Central Electric Light and Power Stations: 1902*, which counted 3,620 stations nationally. That count is why the era is drawn as dots: there was no network to draw.
 - **Per-utility measures:** EIA-861 Annual Electric Power Industry Report, 2024 edition. HIFLD's `ID` field is the EIA utility number, so one join brings in meters, electricity delivered and revenue, each split by customer class. 2,889 of 2,901 territories match, covering 99.96% of meters. Lives in `data/measures.json`, separate from the geometry so the 5.5MB shape file stays cached when the numbers change.
 - **Reliability:** the same report's `Reliability` sheet. 695 utilities carry a value, 77.9% of meters. 223 more file the form and answer nothing, Oncor and ConEd among them, so they stay grey rather than reading as zero. Utilities serving several states file one row per state and the rows are averaged, not summed: Appalachian Power runs 342 storm-free minutes in Virginia and 576 in West Virginia.
 - **Rooftop solar:** `Net_Metering` plus `Non_Net_Metering_Distributed`, added together, photovoltaic columns only. Both files are needed. Texas has no statewide net metering rule, so no Texas wires company appears in the first file at all, and using it alone reports 1,080MW for a state that actually has 2,931MW of household panels. Covers 95.0% of meters. Utility-scale solar is not here: only capacity behind a customer's meter counts, and the non-net-metering file's direct-connected column is dropped for that reason.
@@ -37,6 +39,7 @@ The map should show current reality, so we keep a small, documented corrections 
 
 ## Honest limits
 
+- **The map's controls sit beside the card, not on the map.** They were an overlay at first, which cost map area everywhere and buried it on short windows: three control groups over a 1280x660 laptop covered 54% of the drawn map. Putting them in flow under the map stopped the covering but moved the cost rather than removing it, since a wide screen's map is height-bound and every pixel of chrome came off it. In a column of their own they cost nothing. On a short window the controls take at most three fifths of that column and scroll inside it, and the card takes the rest, because a button that is off screen does not exist and prose survives being cut off at the bottom.
 - Region borders come from utility shapes, so they are honest but not smooth.
 - Blank white gaps are areas where no utility is mapped. Much of that is wilderness.
 - People counts on region cards are rough, marked with `~`.
@@ -51,7 +54,13 @@ The map should show current reality, so we keep a small, documented corrections 
 
 ## Stack
 
-Static site: vanilla JS, d3-geo for the Albers USA projection, TopoJSON for geometry. No framework, no tracking. The data pipeline (fetch, simplify, shard, corrections) runs in a companion workspace; its outputs are the files in `data/`.
+Next.js (App Router) in strict TypeScript, deployed on Vercel. The page chrome is React. The map is not: an imperative engine owns everything inside the SVG, because 2,900 hover-tracked paths and per-frame tweens have no business going through a reconciler. The engine computes plain-data models for the cards, legend, and controls and hands them to React through a small store. d3-geo draws the Albers USA projection; TopoJSON carries the geometry. No tracking.
+
+`vercel.json` pins the framework to `nextjs` rather than leaving it to a dashboard toggle. That is not decoration: this project was created as a static site, and a project whose preset is still "Other" runs `npm run build` anyway and then publishes `public/` as flat files, throwing the Next build away. The symptom is every route 404ing while `/data/*.json` serves happily, which is a confusing thing to debug from the outside. Pinning it in the repo means the deploy is reproducible from a clone.
+
+This site shipped its first year with no framework and no build step, and that stance is retired on purpose. More measures and features are coming, and the build step buys real routes with per-link previews, strict types over every data file, and code splitting. The registry property survives the move: adding a measure is still an entry in `measures.json` plus a label in the copy deck, and the routes, controls, cards, and page titles pick it up by existing. `lib/route.ts` owns the URL grammar; the proxy answers legacy query links with a 308 before any JavaScript runs.
+
+The data pipeline (fetch, simplify, shard, corrections) runs in a companion workspace; its outputs are the files in `public/data/`. The big files stay lazily fetched: the wires geometry loads on first open of that layer, and zip shapes load in two-digit shards.
 
 ## License
 
@@ -64,7 +73,14 @@ The layout contract is that the page fits the viewport at every size: no scrolli
 ```
 npm install
 npx playwright install chromium   # or set CHROME_PATH to one you have
+npm run build
 npm run audit                     # add -- --shots to also write PNGs
 ```
 
-It drives the real site across six viewports and fifteen views, 90 combinations, and fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, chrome covering more than 22% of the drawn map, a map clipped by its own panel, a tap target under 28px, text clipped by its own box, or any console error. The first run found 29 problems. The map-coverage check was added later, after the audit reported 66 combinations clean on a build where the controls buried the map on a real phone: it had only ever compared chrome against chrome. The tooling is dev-only and is kept out of the deploy by `.vercelignore`, so the site stays a zero-config static build.
+The audit starts the production build itself with `next start` and drives that, never the dev server: dev mode double-invokes effects and its overlay logs would trip the console-error check. It first asserts the legacy-link redirect matrix and that junk paths 404, then drives eight viewports across fifteen views, 120 combinations, and fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, chrome covering more than 22% of the drawn map, a map smaller than 12% of the viewport or under 150px tall, a map clipped by its own panel, a tap target under 28px, text clipped by its own box, or any console error.
+
+Every one of those checks was added after a real failure, and the same mistake keeps recurring in a new costume. The audit first reported 66 combinations clean on a build where the controls buried the map on a phone: it had only ever compared chrome against chrome, never chrome against the map. So a coverage check went in. Then it reported 90 combinations clean on a build where a landscape phone showed 88x55 pixels of map, because **a map squeezed to nothing scores a perfect 0% coverage**. Hence the minimum-size check. Then it reported overlaps that were not there, because it measured raw layout rects and an element scrolled out of view inside a clipping box keeps its rect wherever the content put it. Hence measuring the visible rect, intersected with every ancestor that clips.
+
+Assert the property you want, not the absence of the bug you just fixed. And measure what the reader experiences, not what the layout tree says.
+
+Typing and linting are part of the same contract. `npm run typecheck` runs strict TypeScript with `noUncheckedIndexedAccess`, because this codebase is full of keyed registry lookups that would otherwise produce a silent `undefined`. `npm run lint` runs typescript-eslint's type-checked strict presets at zero warnings. Both gate every commit.
