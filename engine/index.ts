@@ -4,65 +4,21 @@
 import { geoAlbersUsa, geoPath } from "d3-geo";
 import { req } from "../lib/assert";
 import { buildPath, DEFAULT_ROUTE, parseLegacyQuery, parseRoute } from "../lib/route";
-import { applyRoute, setColourBy, setShadeBy, setSizeBy } from "./actions";
-import { FIT_EXTENT, HOME_VIEW } from "./constants";
-import { ctx, setCtx, setHidden, type EngineCtx } from "./ctx";
+import { resetAtlasState, setAtlasState } from "../lib/store";
+import { applyRoute } from "./actions";
+import { FIT_EXTENT } from "./constants";
+import { ctx, setCtx, type EngineCtx } from "./ctx";
 import { loadBase } from "./data";
 import { bindHover } from "./hover";
 import { buildRules, initPriceScales } from "./layers/rules";
 import { buildWholesale } from "./layers/wholesale";
-import { findZip } from "./layers/you";
 import { buildScaffold } from "./scaffold";
-import { bindModal } from "./ui/modal";
-import { bindTour, maybeAutoStartTour } from "./ui/tour";
+import { maybeAutoStartTour } from "./ui/tour";
 import { updateUrl } from "./urlstate";
-import { animateViewBox, bindZoomPan } from "./viewbox";
-
-function byId(id: string): HTMLElement {
-  return req(document.getElementById(id), `#${id}`);
-}
-
-function bindControls(): void {
-  const c = ctx();
-  const signal = c.ac.signal;
-  c.shadeControls.addEventListener("click", (e) => {
-    const b = (e.target as Element).closest<HTMLElement>("[data-shade]");
-    if (b) setShadeBy(b.dataset.shade ?? "bucket");
-  }, { signal });
-  c.sizeControls.addEventListener("click", (e) => {
-    const b = (e.target as Element).closest<HTMLElement>("[data-size]");
-    if (!b) return;
-    // the land button carries data-size="", which means "no measure"
-    const size = b.dataset.size;
-    setSizeBy(size === undefined || size === "" ? null : size);
-  }, { signal });
-  c.colourControls.addEventListener("click", (e) => {
-    const t = e.target as Element;
-    const cb = t.closest<HTMLElement>("[data-colour]");
-    if (cb) {
-      setColourBy(cb.dataset.colour ?? "type");
-      return;
-    }
-    const v = t.closest<HTMLElement>("[data-variant]");
-    if (v) {
-      c.variantOf[c.colourBy] = v.dataset.variant ?? "";
-      setColourBy(c.colourBy);
-    }
-  }, { signal });
-  c.zipForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const zip = c.zipInput.value.trim();
-    // a search the reader typed is a navigation: it earns a history entry
-    if (/^\d{5}$/.test(zip)) void findZip(zip, "push");
-  }, { signal });
-  c.zoomReset.addEventListener("click", () => {
-    animateViewBox(HOME_VIEW);
-    setHidden(c.zoomReset, true);
-  }, { signal });
-}
+import { bindZoomPan } from "./viewbox";
 
 // Deep-link boot. Legacy query params still resolve here as a client-side
-// canonicalizer (the middleware answers them with a real redirect first);
+// canonicalizer (the proxy answers them with a real redirect first);
 // otherwise the pathname is the state. Returns whether a deep link was
 // followed, which is what decides if the tour may offer itself.
 function bootRoute(): boolean {
@@ -104,18 +60,7 @@ export function createEngine(): Engine {
         svg,
         g,
         wobbleDisp,
-        card: byId("card"),
-        legend: byId("legend"),
-        shadeControls: byId("shade-controls"),
-        colourControls: byId("colour-controls"),
-        sizeControls: byId("size-controls"),
-        rail: byId("rail"),
-        explainer: byId("explainer"),
-        drawingNote: byId("drawing-note"),
-        zipForm: byId("zip-search") as HTMLFormElement,
-        zipInput: byId("zip-input") as HTMLInputElement,
-        zipMsg: byId("zip-msg"),
-        zoomReset: byId("zoom-reset"),
+        zipInput: req(document.getElementById("zip-input"), "#zip-input") as HTMLInputElement,
         statesFC: base.statesFC,
         rtosFC: base.rtosFC,
         transitionsFC: base.transitionsFC,
@@ -142,7 +87,6 @@ export function createEngine(): Engine {
         drag: null,
         pinch: null,
         hoveredWire: null,
-        tourIdx: -1,
       };
       mine = c;
       setCtx(c);
@@ -151,11 +95,9 @@ export function createEngine(): Engine {
       initPriceScales();
       bindZoomPan();
       bindHover();
-      bindControls();
-      bindTour();
-      bindModal();
       const deepLinked = bootRoute();
       ready = true;
+      setAtlasState({ ready: true });
       maybeAutoStartTour(deepLinked);
     },
     route(pathname: string): void {
@@ -174,6 +116,7 @@ export function createEngine(): Engine {
       mine.svg.innerHTML = "";
       setCtx(null);
       mine = null;
+      resetAtlasState();
     },
   };
 }

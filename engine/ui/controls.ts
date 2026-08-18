@@ -1,14 +1,17 @@
-// The three control groups. Rendering only; the click handlers are delegated
-// once in boot, so re-rendering the buttons never re-binds anything.
+// The three control groups as data. Option lists exist only once the lazy
+// registries load, which is why the engine computes them rather than React.
 import { copy, statePrices } from "../../lib/data";
+import { setAtlasState, type ColourControlsModel, type ControlsModel } from "../../lib/store";
 import { ctx } from "../ctx";
 import { colourMeasures, isColourMeasure, measureSpec } from "../data";
 
 export function renderShadeControls(): void {
   const c = ctx();
-  c.shadeControls.innerHTML = `<span class="sz-label">${copy.controls.shade_label}</span>` +
-    statePrices.measures.map((m) =>
-      `<button class="sz-btn" data-shade="${m.id}" aria-pressed="${String(c.shadeBy === m.id)}">${m.label}</button>`).join("");
+  const model: ControlsModel = {
+    label: copy.controls.shade_label,
+    options: statePrices.measures.map((m) => ({ key: m.id, label: m.label, pressed: c.shadeBy === m.id })),
+  };
+  setAtlasState({ shadeControls: model });
 }
 
 // size controls: land vs each magnitude measure, inside the wires layer so the
@@ -17,14 +20,18 @@ export function renderSizeControls(): void {
   const c = ctx();
   if (!c.cartogram) return;
   const deck = copy.cartogram;
-  const opts: [string | null, string][] = [
-    [null, deck.toggle_land],
-    ...Object.keys(c.cartogram.measures).map((k): [string, string] => [k, deck.measures[k]?.label ?? k]),
-  ];
-  c.sizeControls.innerHTML = `<span class="sz-label">${deck.toggle_label}</span>` + opts
-    .map(([k, label]) =>
-      `<button class="sz-btn" data-size="${k ?? ""}" aria-pressed="${String(c.sizeBy === k)}">${label}</button>`)
-    .join("");
+  const model: ControlsModel = {
+    label: deck.toggle_label,
+    options: [
+      { key: "", label: deck.toggle_land, pressed: c.sizeBy === null },
+      ...Object.keys(c.cartogram.measures).map((k) => ({
+        key: k,
+        label: deck.measures[k]?.label ?? k,
+        pressed: c.sizeBy === k,
+      })),
+    ],
+  };
+  setAtlasState({ sizeControls: model });
 }
 
 // colour controls: ownership, parent, or any colour measure. These are all
@@ -37,16 +44,26 @@ export function renderSizeControls(): void {
 // registry, and it is why rooftop solar and smart meters needed no new branches.
 export function renderColourControls(): void {
   const c = ctx();
-  const opts: [string, string][] = [
-    ["type", copy.controls.colour_type],
-    ["parent", copy.controls.colour_parent],
+  const options = [
+    { key: "type", label: copy.controls.colour_type, pressed: c.colourBy === "type" },
+    { key: "parent", label: copy.controls.colour_parent, pressed: c.colourBy === "parent" },
+    ...colourMeasures().map((m) => ({
+      key: m.id,
+      label: copy.controls[`colour_${m.id}`] ?? m.label,
+      pressed: c.colourBy === m.id,
+    })),
   ];
-  for (const m of colourMeasures()) opts.push([m.id, copy.controls[`colour_${m.id}`] ?? m.label]);
   const active = isColourMeasure(c.colourBy) ? measureSpec(c.colourBy) : undefined;
-  c.colourControls.innerHTML = `<span class="sz-label">${copy.controls.colour_label}</span>` +
-    opts.map(([k, label]) => `<button class="sz-btn" data-colour="${k}" aria-pressed="${String(c.colourBy === k)}">${label}</button>`).join("") +
-    (active?.variants
-      ? `<span class="sz-sub">` + Object.entries(active.variants)
-        .map(([k, label]) => `<button class="sz-btn sz-alt" data-variant="${k}" aria-pressed="${String(c.variantOf[c.colourBy] === k)}">${label}</button>`).join("") + `</span>`
-      : "");
+  const model: ColourControlsModel = {
+    label: copy.controls.colour_label,
+    options,
+    variants: active?.variants
+      ? Object.entries(active.variants).map(([k, label]) => ({
+          key: k,
+          label,
+          pressed: c.variantOf[c.colourBy] === k,
+        }))
+      : null,
+  };
+  setAtlasState({ colourControls: model });
 }

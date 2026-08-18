@@ -12,14 +12,15 @@ export const FILL: Record<string, string> = {
   // sits on the other side of the East-West interconnection seam.
   SPPWEST: "url(#hatch-sppwest)",
 };
-// HTML swatches can't reference SVG patterns; mirror the hatch in CSS.
-export function swatchStyle(rto: string): string {
+// HTML swatches can't reference SVG patterns; mirror the hatch in CSS. These
+// are CSS background values, handed to React style props.
+export function swatchBackground(rto: string): string {
   if (rto === "SPPWEST")
-    return "background: repeating-linear-gradient(45deg, #c99a2e 0 4px, #7a621f 4px 5.5px)";
-  return `background:${FILL[rto] ?? "#ccc"}`;
+    return "repeating-linear-gradient(45deg, #c99a2e 0 4px, #7a621f 4px 5.5px)";
+  return FILL[rto] ?? "#ccc";
 }
 export const TRANSITION_SWATCH =
-  "background: repeating-linear-gradient(-45deg, #b4552d 0 4px, #f0d8ca 4px 5.5px)";
+  "repeating-linear-gradient(-45deg, #b4552d 0 4px, #f0d8ca 4px 5.5px)";
 
 // wires layer: ownership as ONE hue, stepped from investor-owned (light) to
 // citizen-owned (dark). Any two contrasting hues at this area coverage reads

@@ -1,7 +1,8 @@
 // You layer: zip search, fly-to, your place in the stack.
 import { req } from "../../lib/assert";
+import { setAtlasState } from "../../lib/store";
 import { HOME_VIEW, SVG_NS, type ViewBox } from "../constants";
-import { ctx, setHidden } from "../ctx";
+import { ctx } from "../ctx";
 import { zctaShard, zctaToFC } from "../data";
 import { animateViewBox } from "../viewbox";
 import { showYouCard, showZipWiresCard } from "../ui/cards";
@@ -30,7 +31,7 @@ export function youBase(): void {
 
 export async function findZip(zip: string, urlMode: UrlMode = "replace"): Promise<void> {
   const c = ctx();
-  c.zipMsg.textContent = "Looking…";
+  setAtlasState({ zipMsg: "Looking…" });
   const shard = await zctaShard(zip.substring(0, 2));
   if (c.dead) return;
   const topo = shard.geo;
@@ -38,10 +39,10 @@ export async function findZip(zip: string, urlMode: UrlMode = "replace"): Promis
   const target = fc.features.find((f) => f.properties.GEOID20 === zip);
   const utils = shard.lookup?.[zip] ?? [];
   if (!target && !utils.length) {
-    c.zipMsg.textContent = "We can't find that zip. Try another?";
+    setAtlasState({ zipMsg: "We can't find that zip. Try another?" });
     return;
   }
-  c.zipMsg.textContent = "";
+  setAtlasState({ zipMsg: "" });
 
   // on the Wires layer the search flies to your area and outlines your zip
   // over the utility pieces, then hands you back to hover.
@@ -94,6 +95,6 @@ export async function findZip(zip: string, urlMode: UrlMode = "replace"): Promis
     view = [x0 - pad, y0 - pad, w + 2 * pad, h + 2 * pad];
   }
   animateViewBox(view);
-  setHidden(c.zoomReset, false);
+  setAtlasState({ zoomResetVisible: true });
   await showYouCard(zip, utils);
 }

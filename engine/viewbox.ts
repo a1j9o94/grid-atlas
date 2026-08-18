@@ -1,6 +1,7 @@
 import { req } from "../lib/assert";
+import { setAtlasState } from "../lib/store";
 import { HOME_VIEW, type ViewBox } from "./constants";
-import { ctx, setHidden } from "./ctx";
+import { ctx } from "./ctx";
 
 export function getVb(): ViewBox {
   const p = (ctx().svg.getAttribute("viewBox") ?? HOME_VIEW.join(" ")).split(" ").map(Number);
@@ -20,7 +21,8 @@ export function setVb(v: ViewBox): void {
     const el = m as SVGGElement;
     el.setAttribute("transform", `translate(${el.dataset.x ?? "0"},${el.dataset.y ?? "0"}) scale(${mk.toFixed(3)})`);
   }
-  if (c.current === "wires" || c.current === "you") setHidden(c.zoomReset, k < 1.05);
+  // the store short-circuits identical writes, so per-frame calls are free
+  if (c.current === "wires" || c.current === "you") setAtlasState({ zoomResetVisible: k >= 1.05 });
 }
 
 export function animateViewBox(to: ViewBox, ms = 900): void {

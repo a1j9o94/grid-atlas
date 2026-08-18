@@ -1,8 +1,11 @@
-// The four state-changing actions. Everything a control or the router does
-// funnels through here, so the card, legend, controls, and URL stay in step.
+// The state-changing actions. Everything a control or the router does funnels
+// through here, so the map, the card, the legend, the controls, and the URL
+// stay in step. React components call these directly; the engine's SVG work
+// happens in place and everything HTML-shaped goes out through the store.
 import { req } from "../lib/assert";
 import { copy, type LayerKey } from "../lib/data";
 import type { RouteState } from "../lib/route";
+import { setAtlasState } from "../lib/store";
 import { HOME_VIEW, READY } from "./constants";
 import { ctx, setHidden } from "./ctx";
 import { isColourMeasure, measureSpec } from "./data";
@@ -17,16 +20,15 @@ import {
 } from "./ui/cards";
 import { renderLegend } from "./ui/legend";
 import { renderColourControls, renderShadeControls, renderSizeControls } from "./ui/controls";
-import { renderRail } from "./ui/rail";
 import { currentRoute, updateUrl, type UrlMode } from "./urlstate";
 
 export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promise<void> {
   const c = ctx();
   const token = ++c.routeToken;
   c.current = key;
-  renderRail((k) => { void setLayer(k); });
+  setAtlasState({ layer: key });
   const ready = READY.has(key);
-  setHidden(c.card, !ready);
+  if (!ready) setAtlasState({ card: null });
   setHidden(c.g.rto, key !== "wholesale");
   setHidden(c.g.transitions, key !== "wholesale");
   setHidden(c.g.labels, key !== "wholesale");
@@ -34,35 +36,33 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   setHidden(c.g.rules, key !== "rules");
   setHidden(c.g.wires, key !== "wires");
   setHidden(c.g.cartogram, key !== "wires" || c.sizeBy === null);
-  setHidden(c.sizeControls, key !== "wires");
-  setHidden(c.colourControls, key !== "wires");
-  setHidden(c.shadeControls, key !== "rules");
   setHidden(c.g.you, key !== "you");
-  setHidden(c.zipForm, key !== "you" && key !== "wires");
   setHidden(c.g.zipoutline, key !== "wires");
-  setHidden(c.legend, key !== "wholesale" && key !== "rules" && key !== "wires");
   c.svg.classList.remove("has-hover");
   if (key !== "you") {
     animateViewBox(HOME_VIEW, 500);
-    setHidden(c.zoomReset, true);
+    setAtlasState({ zoomResetVisible: false });
   }
   if (key === "you") {
     youBase();
     if (!c.g.you.querySelector("#g-zips")?.children.length) showFindYourself();
-    setHidden(c.zoomReset, c.svg.getAttribute("viewBox") === HOME_VIEW.join(" "));
+    setAtlasState({ zoomResetVisible: c.svg.getAttribute("viewBox") !== HOME_VIEW.join(" ") });
   }
   if (key === "wires" && !c.wiresFeatures) {
     setHidden(c.svg, true);
-    setHidden(c.drawingNote, false);
-    req(c.drawingNote.querySelector("p")).textContent = "Inking 2,907 utilities.";
-    req(c.drawingNote.querySelector(".sub")).textContent = "One moment.";
+    setAtlasState({ drawingNote: { title: "Inking 2,907 utilities.", sub: "One moment." } });
     await ensureWires();
     // the reader may have moved on while 5.7MB of geometry inked
     if (c.dead || c.routeToken !== token) return;
     setHidden(c.g.wires, false);
   }
   setHidden(c.svg, !ready);
-  setHidden(c.drawingNote, ready);
+  setAtlasState({
+    drawingNote: ready ? null : {
+      title: `The ${copy.layers[key].title} layer is being inked.`,
+      sub: "It lands in the next update. Wholesale, Rules, and Wires are live now.",
+    },
+  });
   if (key === "wires") {
     renderSizeControls();
     renderColourControls();
@@ -76,11 +76,6 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   if (key === "rules" && c.shadeBy === "bucket") showState("TX");
   if (key === "rules" && c.shadeBy !== "bucket") setShadeBy(c.shadeBy, "none");
   if (key === "wires" && c.sizeBy === null && c.colourBy === "type") showWiresIntro();
-  if (!ready) {
-    req(c.drawingNote.querySelector("p")).textContent = `The ${copy.layers[key].title} layer is being inked.`;
-    req(c.drawingNote.querySelector(".sub")).textContent =
-      "It lands in the next update. Wholesale, Rules, and Wires are live now.";
-  }
   updateUrl(key, urlMode);
 }
 
@@ -121,6 +116,24 @@ export function setShadeBy(key: string, urlMode: UrlMode = "replace"): void {
   updateUrl(c.current, urlMode);
   if (key === "bucket") showState("TX");
   else showPriceIntro(key);
+}
+
+// pick a storm basis (or any measure variant) for the active colour measure
+export function setVariant(v: string): void {
+  const c = ctx();
+  c.variantOf[c.colourBy] = v;
+  setColourBy(c.colourBy);
+}
+
+export function resetZoom(): void {
+  animateViewBox(HOME_VIEW);
+  setAtlasState({ zoomResetVisible: false });
+}
+
+// user-typed zip searches arrive here from the form; a search the reader
+// typed is a navigation, so it earns a history entry
+export function submitZip(zip: string): void {
+  if (/^\d{5}$/.test(zip)) void findZip(zip, "push");
 }
 
 // A colour segment may carry a "-variant" suffix, as in saidi-all. Split on

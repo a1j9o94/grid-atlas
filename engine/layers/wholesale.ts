@@ -2,8 +2,9 @@
 // region labels, state lines, and the trivia markers.
 import { req } from "../../lib/assert";
 import { copy } from "../../lib/data";
+import { setAtlasState } from "../../lib/store";
 import { FILL, NUDGE, SVG_NS } from "../constants";
-import { ctx, setHidden } from "../ctx";
+import { ctx } from "../ctx";
 import { animateViewBox } from "../viewbox";
 import { showTrivia } from "../ui/cards";
 
@@ -108,5 +109,5 @@ export function flyToTrivia(id: string): void {
   } else {
     animateViewBox([pt[0] - 130, pt[1] - 90, 260, 180]);
   }
-  setHidden(c.zoomReset, false);
+  setAtlasState({ zoomResetVisible: true });
 }

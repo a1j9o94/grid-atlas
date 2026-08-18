@@ -201,11 +201,11 @@ export function renderSizeKey(key: string | null): void {
 }
 
 // The strip keeps the words; the circles are on the plate.
-export function sizeLegendNote(key: string): string {
+export function sizeLegendNote(key: string): string | undefined {
   const c = ctx();
   const m = c.cartogram?.measures[key];
-  if (!m || !c.cartogram) return "";
+  if (!m || !c.cartogram) return undefined;
   const missing = Object.keys(c.cartogram.centroids).length - Object.keys(m.circles).length;
-  return `<span class="lg-size">${copy.cartogram.legend_note}` +
-    (missing > 0 ? ` ${copy.cartogram.missing_note.replace("{n}", missing.toLocaleString())}` : "") + `</span>`;
+  return copy.cartogram.legend_note +
+    (missing > 0 ? ` ${copy.cartogram.missing_note.replace("{n}", missing.toLocaleString())}` : "");
 }

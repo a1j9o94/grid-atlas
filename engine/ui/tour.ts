@@ -1,29 +1,19 @@
 // ---- the 30-second tour ----
-import { req } from "../../lib/assert";
+// The engine owns the sequencing (steps change layers); the store carries
+// which step is open and the TourPanel component renders it.
 import { copy } from "../../lib/data";
-import { ctx, setHidden } from "../ctx";
+import { getAtlasState, setAtlasState } from "../../lib/store";
+import { ctx } from "../ctx";
 import { setLayer } from "../actions";
 
-function byId(id: string): HTMLElement {
-  return req(document.getElementById(id), `#${id}`);
-}
-
 export function tourShow(i: number): void {
-  const c = ctx();
-  c.tourIdx = i;
-  const step = req(copy.tour[i], `tour step ${String(i)}`);
   // a tour shouldn't spam the back button: each step replaces, never pushes
-  void setLayer(step.layer, "replace");
-  byId("tour-step-label").textContent = `${String(i + 1)} of ${String(copy.tour.length)}`;
-  byId("tour-title").textContent = step.title;
-  byId("tour-body").textContent = step.body;
-  byId("tour-next").textContent = i === copy.tour.length - 1 ? "Explore" : "Next";
-  setHidden(byId("tour-panel"), false);
+  void setLayer(copy.tour[i]?.layer ?? "wholesale", "replace");
+  setAtlasState({ tourIdx: i });
 }
 
-function tourEnd(): void {
-  ctx().tourIdx = -1;
-  setHidden(byId("tour-panel"), true);
+export function tourEnd(): void {
+  setAtlasState({ tourIdx: null });
   try {
     localStorage.setItem("ga-tour-done", "1");
   } catch {
@@ -31,17 +21,15 @@ function tourEnd(): void {
   }
 }
 
-export function bindTour(): void {
-  const c = ctx();
-  const signal = c.ac.signal;
-  byId("tour-next").addEventListener("click", () => {
-    if (c.tourIdx >= copy.tour.length - 1) {
-      tourEnd();
-      c.zipInput.focus();
-    } else tourShow(c.tourIdx + 1);
-  }, { signal });
-  byId("tour-skip").addEventListener("click", tourEnd, { signal });
-  byId("tour-start").addEventListener("click", () => { tourShow(0); }, { signal });
+export function tourNext(): void {
+  const idx = getAtlasState().tourIdx;
+  if (idx === null) return;
+  if (idx >= copy.tour.length - 1) {
+    tourEnd();
+    ctx().zipInput.focus();
+  } else {
+    tourShow(idx + 1);
+  }
 }
 
 // first visit: offer the tour automatically (skippable, never repeats)

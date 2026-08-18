@@ -22,22 +22,14 @@ export interface EngineCtx {
   // flips when the host component unmounts mid-load; async work checks it
   dead: boolean;
 
-  // DOM
+  // DOM the engine owns. Everything else on the page is React's: the engine
+  // reaches it through the store, never by element.
   svg: SVGSVGElement;
   g: Record<GroupKey, SVGGElement>;
   wobbleDisp: SVGElement;
-  card: HTMLElement;
-  legend: HTMLElement;
-  shadeControls: HTMLElement;
-  colourControls: HTMLElement;
-  sizeControls: HTMLElement;
-  rail: HTMLElement;
-  explainer: HTMLElement;
-  drawingNote: HTMLElement;
-  zipForm: HTMLFormElement;
+  // the one shared element: React renders it uncontrolled, the engine sets
+  // its value on zip deep links and focuses it when the tour ends
   zipInput: HTMLInputElement;
-  zipMsg: HTMLElement;
-  zoomReset: HTMLElement;
 
   // geometry
   statesFC: StatesFC;
@@ -74,9 +66,6 @@ export interface EngineCtx {
   drag: DragState | null;
   pinch: number | null;
   hoveredWire: Element | null;
-
-  // tour
-  tourIdx: number;
 }
 
 let C: EngineCtx | null = null;
