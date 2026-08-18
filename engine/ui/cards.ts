@@ -276,8 +276,8 @@ export function showFrame(f: TimelineFrame): void {
       title: f.title,
       body: f.body,
       ...(f.note !== undefined ? { note: f.note } : {}),
-      events: f.ship ? events : [],
-      evidence: f.ship ? evidenceChips(f.evidence) : [],
+      events,
+      evidence: evidenceChips(f.evidence),
       pending: !f.ship,
     },
   });
@@ -378,9 +378,12 @@ export function openEvidence(id: string): void {
       ...(full !== undefined ? { image: full, alt: e.title ?? "" } : {}),
       cite: citeText(e),
       ...(e.source_url !== undefined ? { sourceUrl: e.source_url } : {}),
-      // Only a map promises a picture, so only a map owes an explanation when
-      // the picture is not here yet. A written source is complete as a citation.
-      missingPlate: e.kind === "map" && full === undefined,
+      // A chip labelled "first printed page" or "Map III" promises a picture,
+      // so it owes the reader a sentence when the picture is not committed yet.
+      // Gating this on kind === "map" let the statute pages go silent about it.
+      // Only a written source, which never promised an image, is complete on
+      // its citation alone.
+      missingPlate: full === undefined && e.kind !== "note",
       unverified: false,
     },
   });
