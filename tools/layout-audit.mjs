@@ -75,6 +75,10 @@ const VIEWS = [
   { name: "history-seam", q: "/then/1975" },
   { name: "history-today", q: "/then/2026" },
   { name: "history-evidence", q: "/then/1900/evidence/census-1902-stations" },
+  // A committed archival plate is the widest thing the lightbox ever holds: a
+  // 1600px image plus a citation. The note-only evidence view above never
+  // exercised that, because a note has no picture.
+  { name: "history-evidence-plate", q: "/then/1930/evidence/ftc-72a-chart-9-insull-group-1932" },
 ];
 
 // The query links this site shipped with. Each must answer with a redirect to
