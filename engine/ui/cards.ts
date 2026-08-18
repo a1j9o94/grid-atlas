@@ -11,11 +11,8 @@ import { colourValue, isColourMeasure, measureSpec, measureValue } from "../data
 import { WIRE_GROUPS } from "../wiregroups";
 import { ensureWires } from "../layers/wires";
 
-function show(card: CardModel | null): void {
+function show(card: CardModel): void {
   setAtlasState({ card });
-}
-export function clearCard(): void {
-  show(null);
 }
 
 export function showRegion(rto: string, splitKey?: string): void {

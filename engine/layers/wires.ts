@@ -5,7 +5,7 @@ import { copy, type WireFeature } from "../../lib/data";
 import { fmtBig } from "../../lib/format";
 import {
   FIT_EXTENT, HOME_VIEW, NO_DATA, OTHER_PARENT, PARENT_COLORS, SVG_NS,
-  WIRE_COLORS, wireGroup, type WireGroupKey,
+  WIRE_COLORS, wireGroup,
 } from "../constants";
 import { ctx, setHidden, type ParentGroup } from "../ctx";
 import { colourScale, colourValue, isColourMeasure, loadWiresBundle, measureSpec, measureValue, wiresTopoToFC } from "../data";
@@ -167,10 +167,6 @@ export function repaintWires(): void {
     const f = c.wiresFeatures[Number((el as SVGCircleElement).dataset.wire)];
     if (f) el.setAttribute("fill", wireFill(f));
   }
-}
-
-export function wiresCountOf(g: WireGroupKey): number {
-  return ctx().wiresCounts?.[g] ?? 0;
 }
 
 // The size key is drawn on the plate rather than in the HTML legend, in the

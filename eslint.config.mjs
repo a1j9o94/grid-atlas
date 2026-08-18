@@ -8,9 +8,8 @@ import reactHooks from "eslint-plugin-react-hooks";
 
 export default tseslint.config(
   {
-    // app.js and vendor.js are the legacy static entry, deleted at the end of
-    // the migration; tools/ is dev-only plain JS driven by its own runtime.
-    ignores: [".next/**", "node_modules/**", "next-env.d.ts", "tools/**", "public/**", "app.js", "vendor.js"],
+    // tools/ is dev-only plain JS driven by its own runtime
+    ignores: [".next/**", "node_modules/**", "next-env.d.ts", "tools/**", "public/**"],
   },
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,

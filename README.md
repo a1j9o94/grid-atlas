@@ -4,6 +4,8 @@ An explorable map of how electricity works in America. Live at [grid-atlas-coral
 
 The map teaches the system as a stack of layers. Wholesale: who runs each power market. Rules: whether your state lets you pick your power company. Wires: the ~2,900 utilities that own the poles. You: your zip code's place in all of it.
 
+Every view is a link. `/rules/res` shades states by what households pay. `/wires/saidi/by-cust` colours utilities by minutes without power and sizes them by meters; the `by-` prefix marks the size channel, so any measure id can be a colour segment without ambiguity. `/you/78701` finds a zip. `/trivia/caldwell-switched-grids` flies to a story. Defaults stay off the URL, junk paths return 404, and the query links this site shipped with redirect to their canonical paths forever.
+
 The Wires layer can also be drawn by size instead of by land. Every utility becomes a circle whose area is its meters, the electricity it delivers, the money it collects, or the rooftop solar on its system, relaxed apart so they do not overlap. Drawn by land, the map suggests empty country matters most. Drawn by meters, the top 100 utilities hold 76% of the country and the median utility serves about 4,500.
 
 The same layer can be recoloured instead of resized: by ownership type, by parent company, by time without power, by rooftop solar per home, or by smart meter share. Adding one is a registry entry in the pipeline plus a label in the copy deck. The client reads `measures.json` and renders whatever it finds marked `colourOnly`, so it never learns what any particular measure means.
@@ -49,7 +51,11 @@ The map should show current reality, so we keep a small, documented corrections 
 
 ## Stack
 
-Static site: vanilla JS, d3-geo for the Albers USA projection, TopoJSON for geometry. No framework, no tracking. The data pipeline (fetch, simplify, shard, corrections) runs in a companion workspace; its outputs are the files in `data/`.
+Next.js (App Router) in strict TypeScript, deployed on Vercel. The page chrome is React. The map is not: an imperative engine owns everything inside the SVG, because 2,900 hover-tracked paths and per-frame tweens have no business going through a reconciler. The engine computes plain-data models for the cards, legend, and controls and hands them to React through a small store. d3-geo draws the Albers USA projection; TopoJSON carries the geometry. No tracking.
+
+This site shipped its first year with no framework and no build step, and that stance is retired on purpose. More measures and features are coming, and the build step buys real routes with per-link previews, strict types over every data file, and code splitting. The registry property survives the move: adding a measure is still an entry in `measures.json` plus a label in the copy deck, and the routes, controls, cards, and page titles pick it up by existing. `lib/route.ts` owns the URL grammar; the proxy answers legacy query links with a 308 before any JavaScript runs.
+
+The data pipeline (fetch, simplify, shard, corrections) runs in a companion workspace; its outputs are the files in `public/data/`. The big files stay lazily fetched: the wires geometry loads on first open of that layer, and zip shapes load in two-digit shards.
 
 ## License
 
@@ -62,11 +68,14 @@ The layout contract is that the page fits the viewport at every size: no scrolli
 ```
 npm install
 npx playwright install chromium   # or set CHROME_PATH to one you have
+npm run build
 npm run audit                     # add -- --shots to also write PNGs
 ```
 
-It drives the real site across eight viewports and fifteen views, 120 combinations, and fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, chrome covering more than 22% of the drawn map, a map smaller than 12% of the viewport or under 150px tall, a map clipped by its own panel, a tap target under 28px, text clipped by its own box, or any console error.
+The audit starts the production build itself with `next start` and drives that, never the dev server: dev mode double-invokes effects and its overlay logs would trip the console-error check. It first asserts the legacy-link redirect matrix and that junk paths 404, then drives eight viewports across fifteen views, 120 combinations, and fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, chrome covering more than 22% of the drawn map, a map smaller than 12% of the viewport or under 150px tall, a map clipped by its own panel, a tap target under 28px, text clipped by its own box, or any console error.
 
 Every one of those checks was added after a real failure, and the same mistake keeps recurring in a new costume. The audit first reported 66 combinations clean on a build where the controls buried the map on a phone: it had only ever compared chrome against chrome, never chrome against the map. So a coverage check went in. Then it reported 90 combinations clean on a build where a landscape phone showed 88x55 pixels of map, because **a map squeezed to nothing scores a perfect 0% coverage**. Hence the minimum-size check. Then it reported overlaps that were not there, because it measured raw layout rects and an element scrolled out of view inside a clipping box keeps its rect wherever the content put it. Hence measuring the visible rect, intersected with every ancestor that clips.
 
-Assert the property you want, not the absence of the bug you just fixed. And measure what the reader experiences, not what the layout tree says. The tooling is dev-only and is kept out of the deploy by `.vercelignore`, so the site stays a zero-config static build.
+Assert the property you want, not the absence of the bug you just fixed. And measure what the reader experiences, not what the layout tree says.
+
+Typing and linting are part of the same contract. `npm run typecheck` runs strict TypeScript with `noUncheckedIndexedAccess`, because this codebase is full of keyed registry lookups that would otherwise produce a silent `undefined`. `npm run lint` runs typescript-eslint's type-checked strict presets at zero warnings. Both gate every commit.
