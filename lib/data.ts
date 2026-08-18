@@ -146,6 +146,15 @@ export interface StateProps {
 export interface RtoProps {
   RTO: string;
 }
+// The seam file's own two shapes: a region carries which machine it is, a line
+// carries which pair of machines it divides.
+export type Interconnection = "EASTERN" | "WESTERN" | "ERCOT";
+export interface SeamProps {
+  IC: Interconnection;
+}
+export interface SeamLineProps {
+  seam: "ew" | "ercot";
+}
 export interface TransitionProps {
   ID: string;
   NAME: string;
@@ -243,6 +252,11 @@ export interface TimelineGeometry {
   frame_key?: string;
   tints?: Record<string, string>;
   groups?: Record<string, { label: string; color: string }>;
+  // seam plates only. `unified` means the Eastern and Western grids were
+  // running in step, so they take one colour and the seam between them is
+  // ghosted. `emphasis` is the boundary that plate is about.
+  unified?: boolean;
+  emphasis?: "ew" | "ercot";
 }
 export interface TimelineFrame {
   id: string;
@@ -265,6 +279,13 @@ export interface TimelineFrame {
   view?: ViewBoxTuple;
 }
 export type ViewBoxTuple = [number, number, number, number];
+// What one of the three machines is, for the seam plates' hover card.
+export interface SeamMachine {
+  name: string;
+  body: string;
+  note?: string;
+  sources?: string[];
+}
 export interface TimelineFile {
   meta: Record<string, unknown>;
   frames: TimelineFrame[];
@@ -272,6 +293,7 @@ export interface TimelineFile {
   events: Record<string, TimelineEvent>;
   law_excerpts: Record<string, LawExcerpt>;
   evidence: Record<string, EvidenceAsset>;
+  seam_machines?: Record<string, SeamMachine>;
 }
 
 // The one seam between untyped JSON and typed code. Each file is cast once,

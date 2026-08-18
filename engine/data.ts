@@ -8,7 +8,7 @@ import { req } from "../lib/assert";
 import {
   fetchJson, fetchJsonOrNull,
   type CartogramFile, type MeasureBlock, type MeasureSpec, type MeasuresFile,
-  type RtoProps, type RtosFC, type StateProps, type StatesFC,
+  type RtoProps, type RtosFC, type SeamLineProps, type SeamProps, type StateProps, type StatesFC,
   type TransitionProps, type TransitionsFC, type Utility, type ZctaFC, type ZctaProps, type ZipLookup,
 } from "../lib/data";
 import { makeScale, type Scale } from "./scales";
@@ -20,6 +20,12 @@ function firstObject(topo: Topology): GeometryObject<GeoJsonProperties> {
 }
 function toFC<P>(topo: Topology): FeatureCollection<Geometry, P> {
   return feature(topo, firstObject(topo)) as unknown as FeatureCollection<Geometry, P>;
+}
+// A file with more than one object in it, read by name. The seam file is the
+// only one: three regions and the two boundaries between them, which have to
+// travel together to stay coincident after quantization.
+function namedFC<P>(topo: Topology, key: string): FeatureCollection<Geometry, P> {
+  return feature(topo, req(topo.objects[key], `topology object ${key}`)) as unknown as FeatureCollection<Geometry, P>;
 }
 
 export interface BaseData {
@@ -68,6 +74,29 @@ export function loadWiresBundle(): Promise<WiresBundle> {
 }
 export function wiresTopoToFC(topo: Topology): FeatureCollection<Geometry, import("../lib/data").WireProps> {
   return toFC(topo);
+}
+
+// The three machines, for the 1935, 1967 and 1975 plates. Built by
+// pipeline/13-build-seam.mjs, whose twenty checkpoints have to place every one
+// of them in the right region before the file is written at all.
+export interface SeamData {
+  regionsFC: FeatureCollection<Geometry, SeamProps>;
+  linesFC: FeatureCollection<Geometry, SeamLineProps>;
+}
+let seamPromise: Promise<SeamData> | null = null;
+export function loadSeam(): Promise<SeamData> {
+  seamPromise ??= (async () => {
+    const topo = await fetchJson<Topology>("/data/timeline/seam.topo.json");
+    const ew = namedFC<SeamLineProps>(topo, "seam_ew").features
+      .map((f) => ({ ...f, properties: { seam: "ew" as const } }));
+    const ercot = namedFC<SeamLineProps>(topo, "seam_ercot").features
+      .map((f) => ({ ...f, properties: { seam: "ercot" as const } }));
+    return {
+      regionsFC: namedFC<SeamProps>(topo, "regions"),
+      linesFC: { type: "FeatureCollection", features: [...ercot, ...ew] },
+    };
+  })();
+  return seamPromise;
 }
 
 export interface ZctaShard {

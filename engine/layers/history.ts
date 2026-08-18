@@ -8,11 +8,12 @@
 // Ported from the retired static shell. The geometry work is the same; the
 // cards and the scrubber are models now, computed here and rendered by React.
 import { fetchJson, type TimelineFile, type TimelineFrame } from "../../lib/data";
+import { loadSeam } from "../data";
 import { setAtlasState, type TimelineStop } from "../../lib/store";
 import { HOME_VIEW, SVG_NS } from "../constants";
 import { ctx, setHidden } from "../ctx";
 import { animateViewBox } from "../viewbox";
-import { showDot, showFrame } from "../ui/cards";
+import { showDot, showFrame, showMachine } from "../ui/cards";
 import { renderLegend } from "../ui/legend";
 import { updateUrl, type UrlMode } from "../urlstate";
 
@@ -135,6 +136,66 @@ function animateDots(ms = 700): void {
   c.dotAnim = requestAnimationFrame(tick);
 }
 
+// ---- the seam: the three machines, for 1935, 1967 and 1975 ----
+//
+// One file carries the three regions and the two boundaries between them,
+// because they have to stay coincident through quantization. What changes
+// between the three plates is not the geometry, it is which boundary is the
+// subject and whether East and West are one machine or two, and both of those
+// are attributes on the group that CSS reads.
+async function ensureSeam(): Promise<void> {
+  const c = ctx();
+  if (c.seam) return;
+  const seam = await loadSeam();
+  if (c.dead) return;
+  c.seam = seam;
+  buildSeam();
+}
+
+function buildSeam(): void {
+  const c = ctx();
+  if (c.seam === null || c.g.seam.dataset.built === "1") return;
+  c.g.seam.dataset.built = "1";
+  for (const f of c.seam.regionsFC.features) {
+    const d = c.path(f);
+    if (d === null) continue;
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("class", "sm-region");
+    p.dataset.ic = f.properties.IC;
+    c.g.seam.appendChild(p);
+  }
+  // ERCOT's boundary first, so the East-West seam wins where the two meet in
+  // the Panhandle. On the 1975 plate that crossing is the one place a reader
+  // could mistake one line for the other.
+  for (const f of c.seam.linesFC.features) {
+    const d = c.path(f);
+    if (d === null) continue;
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("class", "sm-line");
+    p.dataset.seam = f.properties.seam;
+    c.g.seamLines.appendChild(p);
+  }
+  const onPick = (e: Event): void => {
+    const p = (e.target as Element).closest<SVGPathElement>(".sm-region");
+    if (p?.dataset.ic !== undefined) showMachine(p.dataset.ic);
+  };
+  c.g.seam.addEventListener("mouseover", onPick, { signal: c.ac.signal });
+  c.g.seam.addEventListener("click", onPick, { signal: c.ac.signal });
+}
+
+// Two flags, read by CSS rather than by more code: `unified` repaints the
+// Western grid in the Eastern colour and ghosts the line between them, and
+// `emphasis` thickens the boundary the plate is about.
+function applySeamState(f: TimelineFrame): void {
+  const c = ctx();
+  for (const g of [c.g.seam, c.g.seamLines]) {
+    g.dataset.unified = f.geometry.unified === true ? "1" : "0";
+    g.dataset.emphasis = f.geometry.emphasis ?? "";
+  }
+}
+
 // A plate id is its year, so /then/1967 and a legacy ?year=1970 resolve the
 // same way: an exact id, or the latest plate at or before the year asked for.
 // That is what keeps a link to a retired year landing somewhere honest.
@@ -158,9 +219,27 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
   const showDots = kind === "dots" || kind === "dots+tints";
   const showGround = kind !== "current";
   const showToday = kind === "current";
+  const showSeam = kind === "seam";
 
   setHidden(c.g.timeBase, !showGround);
   setHidden(c.g.timeMarks, !showDots);
+  setHidden(c.g.seam, !showSeam);
+  setHidden(c.g.seamLines, !showSeam);
+  if (showSeam) {
+    applySeamState(f);
+    // The 380KB of seam geometry loads on the first plate that needs it, not
+    // with the timeline file. The frame is checked again on arrival because the
+    // reader can be three plates further along by then.
+    if (c.seam === null) {
+      const want = f.id;
+      void ensureSeam().then(() => {
+        const now = ctx();
+        const still = frameById(now.frameId);
+        if (now.dead || now.frameId !== want || !still) return;
+        applySeamState(still);
+      });
+    }
+  }
   // The last plate IS the wholesale layer. Nothing is redrawn for it: the
   // marks that already exist are unhidden, so the end of the timeline and the
   // top of the stack can never drift apart.
@@ -242,5 +321,7 @@ export function hideHistory(): void {
   stopPlay();
   setHidden(c.g.timeBase, true);
   setHidden(c.g.timeMarks, true);
+  setHidden(c.g.seam, true);
+  setHidden(c.g.seamLines, true);
   setAtlasState({ timeline: null, evidence: null });
 }

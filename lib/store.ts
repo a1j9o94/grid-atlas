@@ -60,8 +60,11 @@ export type CardModel =
       excerpt?: EvidenceChip;
       backLabel: string;
     }
+  // A city dot on a 1900-era plate and a machine on a seam plate render the
+  // same way, so they share a shape and differ only in what the reader pointed
+  // at. Card.tsx handles both in one branch.
   | {
-      kind: "dot";
+      kind: "dot" | "machine";
       kicker: string;
       name: string;
       body: string;
@@ -73,7 +76,7 @@ export type CardModel =
 export type LegendModel =
   // `shape` turns a square swatch into a lamp for the dot plates; everything
   // else is a plain background value
-  | { kind: "swatches"; items: { swatch: string; label: string; shape?: "dot" | "dot-story" }[]; note?: string }
+  | { kind: "swatches"; items: { swatch: string; label: string; shape?: "dot" | "dot-story" | "line" | "line-ghost" }[]; note?: string }
   | { kind: "ramp"; label: string; steps: readonly string[]; ticks: string[]; notReported: string; note?: string };
 
 export interface ControlOption {

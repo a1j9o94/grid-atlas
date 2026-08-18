@@ -329,6 +329,31 @@ export function showDot(i: number): void {
   });
 }
 
+// A machine on a seam plate: hovering the Eastern grid should say what the
+// Eastern grid is. Same card shape as a city dot, because the reader is doing
+// the same thing, pointing at a thing on the map and asking what it is.
+export function showMachine(ic: string): void {
+  const c = ctx();
+  const t = c.timeline;
+  const m = t?.seam_machines?.[ic];
+  if (!m) return;
+  // On the 1967 plate East and West were running in step, so there are two
+  // machines that year, not three. Counting them from the frame keeps the card
+  // from contradicting the legend beside it.
+  const unified = t.frames.find((f) => f.id === c.frameId)?.geometry.unified === true;
+  setAtlasState({
+    card: {
+      kind: "machine",
+      kicker: unified ? "one of two, this year" : "one of three",
+      name: m.name,
+      body: m.body,
+      ...(m.note !== undefined ? { note: m.note } : {}),
+      stats: [],
+      backLabel: "← back to the plate",
+    },
+  });
+}
+
 // ---- the evidence lightbox ----
 
 function citeText(o: { citation?: string; rights?: string }): string {

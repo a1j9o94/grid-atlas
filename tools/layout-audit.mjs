@@ -68,7 +68,11 @@ const VIEWS = [
   // the widest that bar ever gets, so every plate kind is worth a pass: dots,
   // a plate not drawn yet, and today (which is the wholesale layer redrawn).
   { name: "history-1900", q: "/then" },
-  { name: "history-pending", q: "/then/1967" },
+  { name: "history-pending", q: "/then/1930" },
+  // The three seam plates differ in what they emphasise rather than in layout,
+  // so one of them stands for the geometry and 1975 is the one whose legend is
+  // longest.
+  { name: "history-seam", q: "/then/1975" },
   { name: "history-today", q: "/then/2026" },
   { name: "history-evidence", q: "/then/1900/evidence/census-1902-stations" },
 ];

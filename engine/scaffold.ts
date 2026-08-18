@@ -41,8 +41,16 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
   <!-- history: the ground for a past plate. Under the state lines, so the
        borders you know still sit on top of a map you do not. -->
   <g id="g-time-base" filter="url(#wobble)" hidden></g>
+  <!-- The three machines, for the mid-century plates. Same wobble as the
+       wholesale regions, so a 1967 map is inked like a 2026 one. -->
+  <g id="g-seam" filter="url(#wobble)" hidden></g>
   <g id="g-zipoutline"></g>
   <g id="g-statelines"></g>
+  <!-- The seam itself, above the state lines, because on these three plates it
+       matters more than any border. It keeps #wobble: the filter displaces by
+       position in user space, so the line and the region edge it traces get the
+       same displacement and stay coincident. -->
+  <g id="g-seam-lines" filter="url(#wobble)" hidden></g>
   <g id="g-labels"></g>
   <g id="g-trivia"></g>
   <!-- history marks ride above everything, and never through #wobble: it
@@ -66,6 +74,8 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
       trivia: pick("#g-trivia"),
       timeBase: pick("#g-time-base"),
       timeMarks: pick("#g-time-marks"),
+      seam: pick("#g-seam"),
+      seamLines: pick("#g-seam-lines"),
     },
     wobbleDisp: req(svg.querySelector<SVGElement>("#wobble feDisplacementMap"), "#wobble feDisplacementMap"),
   };

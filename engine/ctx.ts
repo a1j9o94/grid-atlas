@@ -6,13 +6,14 @@ import type { MultiLineString } from "geojson";
 import type {
   CartogramFile, LayerKey, MeasuresFile, RtosFC, StatesFC, TimelineFile, TransitionsFC, WireFeature,
 } from "../lib/data";
+import type { SeamData } from "./data";
 import type { ViewBox, WireGroupKey } from "./constants";
 import type { Scale } from "./scales";
 
 export type GroupKey =
   | "rto" | "transitions" | "rules" | "wires" | "cartogram" | "sizekey"
   | "you" | "zipoutline" | "statelines" | "labels" | "trivia"
-  | "timeBase" | "timeMarks";
+  | "timeBase" | "timeMarks" | "seam" | "seamLines";
 
 export interface DragState { x: number; y: number; vb: ViewBox }
 export interface ParentGroup { color: string; meters: number; n: number; rank: number }
@@ -67,6 +68,9 @@ export interface EngineCtx {
   frameId: string | null;
   playTimer: ReturnType<typeof setInterval> | null;
   dotAnim: number | null;
+  // the three machines, fetched on the first seam plate rather than with the
+  // timeline file, because six plates in nine never need it
+  seam: SeamData | null;
 
   // animation + interaction
   morphAnim: number | null;

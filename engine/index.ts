@@ -86,6 +86,7 @@ export function createEngine(): Engine {
         frameId: null,
         playTimer: null,
         dotAnim: null,
+        seam: null,
         morphAnim: null,
         viewAnim: null,
         drag: null,

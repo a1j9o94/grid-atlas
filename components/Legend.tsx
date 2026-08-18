@@ -3,6 +3,18 @@
 import { NO_DATA } from "../engine/constants";
 import { useAtlas } from "../lib/store";
 
+// Legend swatch shapes. A plain colour swatch is the default and takes no
+// class. A lamp needs lg-dot for the round shape and lg-dot-story only for its
+// brighter core; a rule needs lg-line, and lg-line-ghost only for the broken
+// version. Both families key off `shape`, so the class is looked up per shape
+// rather than derived from one of them.
+const SHAPE_CLASS: Record<"dot" | "dot-story" | "line" | "line-ghost", string> = {
+  dot: " lg-dot",
+  "dot-story": " lg-dot lg-dot-story",
+  line: " lg-line",
+  "line-ghost": " lg-line lg-line-ghost",
+};
+
 export default function Legend() {
   const legend = useAtlas((s) => s.legend);
   return (
@@ -14,7 +26,7 @@ export default function Legend() {
               <span
                 // a story lamp is a lamp first: it needs lg-dot for the round
                 // shape and lg-dot-story only for its brighter core
-                className={"lg-swatch" + (it.shape ? ` lg-dot${it.shape === "dot-story" ? " lg-dot-story" : ""}` : "")}
+                className={"lg-swatch" + (it.shape === undefined ? "" : SHAPE_CLASS[it.shape])}
                 style={{ background: it.swatch }}
               ></span>
               {it.label}

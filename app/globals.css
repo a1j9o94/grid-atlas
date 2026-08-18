@@ -835,6 +835,43 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   vector-effect: non-scaling-stroke; transition: fill 600ms ease;
 }
 
+/* ---- the three machines, on the 1935, 1967 and 1975 plates ----
+   Two aged tones for East and West, deliberately unlike the modern market
+   palette so nobody reads a 1967 interconnection as a 2026 market. Texas keeps
+   --r-ercot on purpose: the whole point of the 1935 plate is that the shape it
+   describes is the shape still on the map today. */
+:root { --sm-east: #a9b79b; --sm-west: #cbb183; }
+
+.sm-region {
+  stroke: rgba(38, 48, 31, 0.22); stroke-width: 0.4;
+  vector-effect: non-scaling-stroke; cursor: pointer;
+  transition: fill 600ms ease;
+}
+.sm-region[data-ic="EASTERN"] { fill: var(--sm-east); }
+.sm-region[data-ic="WESTERN"] { fill: var(--sm-west); }
+.sm-region[data-ic="ERCOT"] { fill: var(--r-ercot); }
+.sm-region:hover { filter: brightness(0.94) saturate(1.2); }
+/* 1967: they ran in step, so they are one machine and take one colour. */
+#g-seam[data-unified="1"] .sm-region[data-ic="WESTERN"] { fill: var(--sm-east); }
+
+.sm-line {
+  fill: none; stroke: var(--ink); stroke-width: 1.4;
+  stroke-linejoin: round; stroke-linecap: round;
+  vector-effect: non-scaling-stroke; pointer-events: none;
+  transition: stroke-width 400ms ease, opacity 400ms ease;
+}
+#g-seam-lines[data-emphasis="ew"] .sm-line[data-seam="ew"],
+#g-seam-lines[data-emphasis="ercot"] .sm-line[data-seam="ercot"] { stroke-width: 2.6; }
+/* Ghosted where the divide was closed. Broken rather than absent: the reader
+   still needs to see where the two machines meet, and on the next plate the
+   same line comes back solid. */
+#g-seam-lines[data-unified="1"] .sm-line[data-seam="ew"] {
+  stroke-dasharray: 4 6; opacity: 0.5; stroke-width: 1.6;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sm-region, .sm-line { transition: none; }
+}
+
 /* a city with its own station, and darkness between */
 .tl-dot { cursor: pointer; }
 .tl-glow { fill: url(#lampglow); pointer-events: none; }
@@ -844,6 +881,12 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .tl-dot-story .tl-core { fill: #fff3cd; stroke: var(--ink); stroke-width: 1.1; }
 .lg-dot { border-radius: 50%; background: #f6e3ae; border-color: #8a6a1e; }
 .lg-dot-story { background: #fff3cd; border-color: var(--ink); }
+/* the seam, drawn in the legend as the rule it is on the map */
+.lg-line {
+  border: none; background: none; align-self: center;
+  border-top: 2.6px solid var(--ink); height: 0;
+}
+.lg-line-ghost { border-top-style: dashed; border-top-width: 1.6px; opacity: 0.5; }
 
 /* events on a frame card: a year and a line, each one openable */
 .c-events { display: flex; flex-direction: column; gap: 1px; margin: 9px 0 2px;

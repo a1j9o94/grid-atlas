@@ -53,12 +53,18 @@ export function renderLegend(key: LayerKey): void {
     } else {
       legend = {
         kind: "swatches",
+        // A swatch value that names a shape rather than a colour: a lamp for
+        // the dot plates, a rule for the seam. The seam entry matters because
+        // on the 1975 plate that line is the heaviest mark on the map and the
+        // whole point of the plate.
         items: (f?.legend ?? []).map((it) =>
           it.swatch === "dot"
             ? { swatch: "#f6e3ae", label: it.label, shape: "dot" as const }
             : it.swatch === "dot-story"
               ? { swatch: "#fff3cd", label: it.label, shape: "dot-story" as const }
-              : { swatch: it.swatch, label: it.label }),
+              : it.swatch === "line" || it.swatch === "line-ghost"
+                ? { swatch: "transparent", label: it.label, shape: it.swatch }
+                : { swatch: it.swatch, label: it.label }),
         ...(f?.ship === false ? { note: "This plate is still being inked." } : {}),
       };
     }

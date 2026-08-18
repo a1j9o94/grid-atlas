@@ -147,6 +147,7 @@ function CardBody({ card }: { card: CardModel }) {
         </>
       );
     case "dot":
+    case "machine":
       return (
         <>
           <div className="c-kicker">{card.kicker}</div>
