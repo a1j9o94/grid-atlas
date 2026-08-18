@@ -53,6 +53,8 @@ export interface EngineCtx {
   colourBy: string;
   shadeBy: string;
   variantOf: Record<string, string>;
+  // the zip the You layer is showing, once a search has landed
+  zip: string | null;
   // monotonic token guarding async layer switches against staleness
   routeToken: number;
 

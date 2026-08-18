@@ -12,7 +12,8 @@ export function tourShow(i: number): void {
   const c = ctx();
   c.tourIdx = i;
   const step = req(copy.tour[i], `tour step ${String(i)}`);
-  void setLayer(step.layer);
+  // a tour shouldn't spam the back button: each step replaces, never pushes
+  void setLayer(step.layer, "replace");
   byId("tour-step-label").textContent = `${String(i + 1)} of ${String(copy.tour.length)}`;
   byId("tour-title").textContent = step.title;
   byId("tour-body").textContent = step.body;

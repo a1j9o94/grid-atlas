@@ -5,6 +5,7 @@ import { ctx, setHidden } from "../ctx";
 import { zctaShard, zctaToFC } from "../data";
 import { animateViewBox } from "../viewbox";
 import { showYouCard, showZipWiresCard } from "../ui/cards";
+import { updateUrl, type UrlMode } from "../urlstate";
 
 export function youBase(): void {
   const c = ctx();
@@ -27,7 +28,7 @@ export function youBase(): void {
   c.g.you.appendChild(zg);
 }
 
-export async function findZip(zip: string): Promise<void> {
+export async function findZip(zip: string, urlMode: UrlMode = "replace"): Promise<void> {
   const c = ctx();
   c.zipMsg.textContent = "Looking…";
   const shard = await zctaShard(zip.substring(0, 2));
@@ -65,6 +66,9 @@ export async function findZip(zip: string): Promise<void> {
   }
 
   youBase();
+  // a found zip is a place worth linking to: it becomes the /you/<zip> path
+  c.zip = zip;
+  updateUrl(c.current, urlMode);
   const zg = req(c.g.you.querySelector<SVGGElement>("#g-zips"), "#g-zips");
   zg.innerHTML = "";
   // neighbors for context, target on top

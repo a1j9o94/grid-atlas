@@ -3,17 +3,30 @@
 // The page chrome, transcribed from the old index.html with every id and
 // class intact: styles.css and the layout audit select by them, so this DOM
 // is a contract. The map engine mounts into #map and owns everything inside.
-import { useEffect } from "react";
-import { createEngine } from "../engine";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { createEngine, type Engine } from "../engine";
 
 export default function AtlasApp() {
+  const engineRef = useRef<Engine | null>(null);
+  const pathname = usePathname();
+
   useEffect(() => {
     const engine = createEngine();
+    engineRef.current = engine;
     void engine.init();
     return () => {
+      engineRef.current = null;
       engine.destroy();
     };
   }, []);
+
+  // The pathname is the view state. This fires for Next navigations and for
+  // the engine's own native history writes alike; the engine diffs against
+  // its current state, so echoes of its own writes are no-ops.
+  useEffect(() => {
+    engineRef.current?.route(pathname);
+  }, [pathname]);
 
   return (
     <div className="plate">

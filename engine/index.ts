@@ -3,18 +3,19 @@
 // re-downloading anything.
 import { geoAlbersUsa, geoPath } from "d3-geo";
 import { req } from "../lib/assert";
-import { copy, type LayerKey } from "../lib/data";
-import { setColourBy, setLayer, setShadeBy, setSizeBy } from "./actions";
-import { FIT_EXTENT, HOME_VIEW, LAYERS } from "./constants";
+import { buildPath, DEFAULT_ROUTE, parseLegacyQuery, parseRoute } from "../lib/route";
+import { applyRoute, setColourBy, setShadeBy, setSizeBy } from "./actions";
+import { FIT_EXTENT, HOME_VIEW } from "./constants";
 import { ctx, setCtx, setHidden, type EngineCtx } from "./ctx";
-import { isColourMeasure, loadBase, measureSpec } from "./data";
+import { loadBase } from "./data";
 import { bindHover } from "./hover";
 import { buildRules, initPriceScales } from "./layers/rules";
-import { buildWholesale, flyToTrivia } from "./layers/wholesale";
+import { buildWholesale } from "./layers/wholesale";
 import { findZip } from "./layers/you";
 import { buildScaffold } from "./scaffold";
 import { bindModal } from "./ui/modal";
 import { bindTour, maybeAutoStartTour } from "./ui/tour";
+import { updateUrl } from "./urlstate";
 import { animateViewBox, bindZoomPan } from "./viewbox";
 
 function byId(id: string): HTMLElement {
@@ -51,7 +52,8 @@ function bindControls(): void {
   c.zipForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const zip = c.zipInput.value.trim();
-    if (/^\d{5}$/.test(zip)) void findZip(zip);
+    // a search the reader typed is a navigation: it earns a history entry
+    if (/^\d{5}$/.test(zip)) void findZip(zip, "push");
   }, { signal });
   c.zoomReset.addEventListener("click", () => {
     animateViewBox(HOME_VIEW);
@@ -59,65 +61,36 @@ function bindControls(): void {
   }, { signal });
 }
 
-// Deep-link boot: the legacy query-param parser, kept working verbatim until
-// the path router replaces it. Returns whether a deep link was followed.
-function bootFromUrl(): boolean {
+// Deep-link boot. Legacy query params still resolve here as a client-side
+// canonicalizer (the middleware answers them with a real redirect first);
+// otherwise the pathname is the state. Returns whether a deep link was
+// followed, which is what decides if the tour may offer itself.
+function bootRoute(): boolean {
   const c = ctx();
-  const params = new URLSearchParams(location.search);
-  const wanted = params.get("layer");
-  const wantedZip = params.get("zip");
-  const wantedTrivia = params.get("trivia");
-  if (wantedZip !== null && /^\d{5}$/.test(wantedZip)) {
-    void setLayer("you").then(() => {
-      if (c.dead) return;
-      c.zipInput.value = wantedZip;
-      void findZip(wantedZip);
-    });
-  } else if (wantedTrivia !== null && copy.trivia.some((t) => t.id === wantedTrivia)) {
-    void setLayer("wholesale").then(() => {
-      if (!c.dead) flyToTrivia(wantedTrivia);
-    });
-  } else if (wanted === "wires" && (params.get("size") !== null || params.get("colour") !== null)) {
-    // deep link straight into a sized or recoloured map,
-    // e.g. ?layer=wires&size=cust&colour=saidi
-    void setLayer("wires").then(() => {
-      if (c.dead) return;
-      const k = params.get("size");
-      if (k !== null && c.cartogram?.measures[k]) setSizeBy(k);
-      // A trailing "-variant" picks a storm basis, as in saidi-all. Split on
-      // the last hyphen only, so a measure id containing one still resolves.
-      let col = params.get("colour");
-      if (col !== null) {
-        const cut = col.lastIndexOf("-");
-        const base = cut > 0 ? col.slice(0, cut) : col;
-        const variant = cut > 0 ? col.slice(cut + 1) : null;
-        if (variant !== null && measureSpec(base)?.variants?.[variant] !== undefined) {
-          c.variantOf[base] = variant;
-          col = base;
-        }
-        if (col === "parent" || isColourMeasure(col)) setColourBy(col);
-      }
-    });
-  } else if (wanted === "rules" && params.get("shade") !== null) {
-    void setLayer("rules").then(() => {
-      if (c.dead) return;
-      const k = params.get("shade");
-      if (k !== null && c.priceScales[k]) setShadeBy(k);
-    });
-  } else {
-    void setLayer(LAYERS.includes(wanted as LayerKey) ? (wanted as LayerKey) : "wholesale");
-  }
-  return !!(wantedZip ?? wanted ?? wantedTrivia);
+  const legacy = parseLegacyQuery(location.search);
+  const route = legacy ?? parseRoute(location.pathname) ?? { ...DEFAULT_ROUTE };
+  const deepLinked = legacy !== null || location.pathname !== "/";
+  void applyRoute(route).then(() => {
+    if (c.dead) return;
+    // canonicalize what the address bar shows: clears legacy params and
+    // normalizes segment spellings without adding a history entry
+    if (route.trivia !== null) history.replaceState(null, "", buildPath(route));
+    else updateUrl(c.current, "replace");
+  });
+  return deepLinked;
 }
 
 export interface Engine {
   init(): Promise<void>;
+  // point the engine at a new pathname; no-ops until init has finished
+  route(pathname: string): void;
   destroy(): void;
 }
 
 export function createEngine(): Engine {
   let mine: EngineCtx | null = null;
   let destroyed = false;
+  let ready = false;
   return {
     async init(): Promise<void> {
       const base = await loadBase();
@@ -154,6 +127,7 @@ export function createEngine(): Engine {
         colourBy: "type",
         shadeBy: "bucket",
         variantOf: {},
+        zip: null,
         routeToken: 0,
         wiresFeatures: null,
         wiresCounts: null,
@@ -180,8 +154,15 @@ export function createEngine(): Engine {
       bindControls();
       bindTour();
       bindModal();
-      const deepLinked = bootFromUrl();
+      const deepLinked = bootRoute();
+      ready = true;
       maybeAutoStartTour(deepLinked);
+    },
+    route(pathname: string): void {
+      if (destroyed || !ready || !mine || mine.dead) return;
+      const parsed = parseRoute(pathname);
+      // an unknown path can only arrive from outside; the server 404s those
+      if (parsed) void applyRoute(parsed);
     },
     destroy(): void {
       destroyed = true;
