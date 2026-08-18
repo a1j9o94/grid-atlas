@@ -2,7 +2,29 @@
 
 // The hover card. The engine computes plain-data models (anything registry-
 // dependent is already resolved); this renders them.
-import { useAtlas, type CardModel, type StatModel } from "../lib/store";
+import { backToFrame, openEvidenceCard, showEventCard } from "../engine/actions";
+import { useAtlas, type CardModel, type EvidenceChip, type StatModel } from "../lib/store";
+
+// The receipt for whatever the plate just claimed. Clicking opens the source;
+// a chip whose scan is committed also previews it on hover, which is the whole
+// point of "show me the original".
+function Chips({ chips }: { chips: EvidenceChip[] }) {
+  if (chips.length === 0) return null;
+  return (
+    <div className="ev-chips">
+      {chips.map((ch) => (
+        <button
+          key={ch.id}
+          className="ev-chip"
+          title={ch.thumb !== undefined ? "Click to read it" : undefined}
+          onClick={() => { openEvidenceCard(ch.id); }}
+        >
+          {ch.glyph} {ch.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 function Stats({ stats }: { stats: StatModel[] }) {
   return (
@@ -87,6 +109,52 @@ function CardBody({ card }: { card: CardModel }) {
           {card.choice !== undefined && <div className="c-choice">{card.choice}</div>}
           {card.market !== undefined && <p className="c-body c-note"><b>Your market:</b> {card.market}</p>}
           <p className="c-body c-fine">Zip shapes are the Census version of zip codes. Utility match comes from a 2020 federal lookup.</p>
+        </>
+      );
+    case "frame":
+      return (
+        <>
+          <div className="c-kicker">{card.kicker}</div>
+          <h3>{card.title}</h3>
+          <p className="c-body">{card.body}</p>
+          {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
+          {card.pending && (
+            <p className="c-body c-note">
+              This plate is still being inked. The words are here. The map for this moment lands in the next update.
+            </p>
+          )}
+          {card.events.length > 0 && (
+            <div className="c-events">
+              {card.events.map((e) => (
+                <button key={e.id} className="c-event" onClick={() => { showEventCard(e.id); }}>
+                  <b>{e.year}</b><span>{e.title}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <Chips chips={card.evidence} />
+        </>
+      );
+    case "event":
+      return (
+        <>
+          <div className="c-kicker">{card.kicker}</div>
+          <h3>{card.title}</h3>
+          <p className="c-body">{card.body}</p>
+          {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
+          {card.excerpt !== undefined && <Chips chips={[card.excerpt]} />}
+          <button className="c-back" onClick={() => { backToFrame(); }}>{card.backLabel}</button>
+        </>
+      );
+    case "dot":
+      return (
+        <>
+          <div className="c-kicker">{card.kicker}</div>
+          <h3>{card.name}</h3>
+          <p className="c-body">{card.body}</p>
+          {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
+          <Stats stats={card.stats} />
+          <button className="c-back" onClick={() => { backToFrame(); }}>{card.backLabel}</button>
         </>
       );
     case "intro":

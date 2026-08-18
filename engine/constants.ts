@@ -1,7 +1,7 @@
 import type { LayerKey } from "../lib/data";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
-export const LAYERS: readonly LayerKey[] = ["wholesale", "rules", "wires", "you"];
+export const LAYERS: readonly LayerKey[] = ["wholesale", "rules", "wires", "you", "history"];
 export const READY: ReadonlySet<LayerKey> = new Set(LAYERS);
 
 export const FILL: Record<string, string> = {

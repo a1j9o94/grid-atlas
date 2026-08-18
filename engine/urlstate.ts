@@ -26,6 +26,11 @@ export function currentRoute(key: LayerKey): RouteState {
     size: c.sizeBy,
     zip: key === "you" ? c.zip : null,
     trivia: null,
+    // the plate the history layer is on; the opening plate stays off the URL
+    // so the plain rail link is just /then, the way /wires is
+    frame: key === "history" && c.frameId !== null && c.frameId !== c.timeline?.frames[0]?.id
+      ? c.frameId : null,
+    evidence: null,
   };
 }
 

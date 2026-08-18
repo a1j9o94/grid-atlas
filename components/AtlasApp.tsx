@@ -15,6 +15,8 @@ import Legend from "./Legend";
 import { ColourControls, ShadeControls, SizeControls } from "./Controls";
 import { DrawingNote, ZipSearch, ZoomReset } from "./MapChrome";
 import TourPanel from "./TourPanel";
+import TimelineBar from "./TimelineBar";
+import EvidenceModal from "./EvidenceModal";
 import MethodologyModal from "./MethodologyModal";
 
 export default function AtlasApp() {
@@ -44,7 +46,7 @@ export default function AtlasApp() {
         <header className="head">
           <p className="kicker">Plate 1 · An explorable map</p>
           <h1>How your electricity works</h1>
-          <p className="dek">Who runs the grid where you live, in four layers. Start wide. Zoom to your zip code.</p>
+          <p className="dek">Who runs the grid where you live, in five layers. Start wide. Zoom to your zip code. Then scrub back to 1900 and watch it get built.</p>
         </header>
 
         <div className="body">
@@ -55,6 +57,7 @@ export default function AtlasApp() {
 
           <div className="map-panel">
             <DrawingNote />
+            <TimelineBar />
             <svg id="map" viewBox="0 0 975 610" role="img" aria-label="Map of the United States electricity system" hidden></svg>
             <ZipSearch />
             <ZoomReset />
@@ -98,6 +101,7 @@ export default function AtlasApp() {
         </footer>
         <TourPanel />
         <MethodologyModal />
+        <EvidenceModal />
       </div>
     </div>
   );

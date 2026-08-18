@@ -3,7 +3,7 @@
 // zip shards) stay lazily fetched; helpers for those live at the bottom.
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
-export type LayerKey = "wholesale" | "rules" | "wires" | "you";
+export type LayerKey = "wholesale" | "rules" | "wires" | "you" | "history";
 
 export interface LayerCopy {
   title: string;
@@ -188,6 +188,91 @@ export interface ZipUtility {
   res_rate?: number;
 }
 export type ZipLookup = Record<string, ZipUtility[]>;
+
+// ---- the history layer's timeline ----
+// Dated plates rather than a continuous scrub: the archives support moments and
+// membership changes, not annual geometry. Lazy-fetched like measures, because
+// four readers in five never open this layer.
+export interface TimelineDot {
+  city: string;
+  state: string;
+  lonlat: [number, number];
+  pop1900: number;
+  rank?: number;
+  // a small place that earns its dot for what happened there
+  story?: string;
+  note?: string;
+}
+export interface TimelineEvent {
+  date: string;
+  // a date the records place only in a month or a year, shown instead of `date`
+  when?: string;
+  title: string;
+  body: string;
+  note?: string;
+  excerpt?: string;
+  verified?: boolean;
+  verify_notes?: string;
+  sources?: string[];
+}
+export interface LawExcerpt {
+  label: string;
+  citation: string;
+  quote: string;
+  gloss?: string;
+  source_url?: string;
+  verified?: boolean;
+}
+export interface EvidenceAsset {
+  kind: "map" | "document" | "note" | "law";
+  title?: string;
+  archive?: string;
+  citation?: string;
+  note?: string;
+  source_url?: string;
+  rights?: string;
+  // a law asset points at a law_excerpts entry instead of carrying prose
+  excerpt?: string;
+  files?: { full?: string; thumb?: string };
+  verified?: boolean;
+}
+export type FrameKind = "dots" | "dots+tints" | "seam" | "membership" | "current";
+export interface TimelineGeometry {
+  kind: FrameKind;
+  scale?: { field: string; min_r: number; max_r: number };
+  frame_key?: string;
+  tints?: Record<string, string>;
+  groups?: Record<string, { label: string; color: string }>;
+}
+export interface TimelineFrame {
+  id: string;
+  year: number;
+  label: string;
+  span: [number, number];
+  kicker?: string;
+  title: string;
+  body: string;
+  note?: string;
+  geometry: TimelineGeometry;
+  legend?: { swatch: string; label: string }[];
+  events?: string[];
+  evidence?: string[];
+  // false while the plate's map is still being built; the scrubber says so
+  ship: boolean;
+  verified?: boolean;
+  verify_notes?: string;
+  sources?: string[];
+  view?: ViewBoxTuple;
+}
+export type ViewBoxTuple = [number, number, number, number];
+export interface TimelineFile {
+  meta: Record<string, unknown>;
+  frames: TimelineFrame[];
+  dots: TimelineDot[];
+  events: Record<string, TimelineEvent>;
+  law_excerpts: Record<string, LawExcerpt>;
+  evidence: Record<string, EvidenceAsset>;
+}
 
 // The one seam between untyped JSON and typed code. Each file is cast once,
 // here, against the interfaces above; everything downstream stays typed.

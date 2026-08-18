@@ -11,7 +11,12 @@ export default function Legend() {
         <>
           {legend.items.map((it, i) => (
             <span key={i} className="lg-item">
-              <span className="lg-swatch" style={{ background: it.swatch }}></span>
+              <span
+                // a story lamp is a lamp first: it needs lg-dot for the round
+                // shape and lg-dot-story only for its brighter core
+                className={"lg-swatch" + (it.shape ? ` lg-dot${it.shape === "dot-story" ? " lg-dot-story" : ""}` : "")}
+                style={{ background: it.swatch }}
+              ></span>
               {it.label}
             </span>
           ))}

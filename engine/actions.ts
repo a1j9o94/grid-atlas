@@ -12,11 +12,15 @@ import { isColourMeasure, measureSpec } from "./data";
 import { buildParentGroups, ensureWires, morphCircles, renderSizeKey, repaintWires } from "./layers/wires";
 import { repaintRules } from "./layers/rules";
 import { flyToTrivia } from "./layers/wholesale";
+import {
+  ensureTimeline, frames, hideHistory, renderTimelineBar, resolveFrame, setFrame, startPlay,
+  stepFrame, stopPlay,
+} from "./layers/history";
 import { findZip, youBase } from "./layers/you";
 import { animateViewBox } from "./viewbox";
 import {
-  showCartogramMeasureCard, showColourMeasureIntro, showFindYourself, showParentIntro,
-  showPriceIntro, showRegion, showState, showWiresIntro,
+  openEvidence, showCartogramMeasureCard, showColourMeasureIntro, showFindYourself,
+  showFrame, showFrameEvent, showParentIntro, showPriceIntro, showRegion, showState, showWiresIntro,
 } from "./ui/cards";
 import { renderLegend } from "./ui/legend";
 import { renderColourControls, renderShadeControls, renderSizeControls } from "./ui/controls";
@@ -38,6 +42,7 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   setHidden(c.g.cartogram, key !== "wires" || c.sizeBy === null);
   setHidden(c.g.you, key !== "you");
   setHidden(c.g.zipoutline, key !== "wires");
+  if (key !== "history") hideHistory();
   c.svg.classList.remove("has-hover");
   if (key !== "you") {
     animateViewBox(HOME_VIEW, 500);
@@ -55,6 +60,13 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
     // the reader may have moved on while 5.7MB of geometry inked
     if (c.dead || c.routeToken !== token) return;
     setHidden(c.g.wires, false);
+  }
+  if (key === "history" && !c.timeline) {
+    setHidden(c.svg, true);
+    setAtlasState({ drawingNote: { title: "Opening the plates.", sub: "One moment." } });
+    await ensureTimeline();
+    // the reader may have moved on while the timeline loaded
+    if (c.dead || c.routeToken !== token) return;
   }
   setHidden(c.svg, !ready);
   setAtlasState({
@@ -76,6 +88,13 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   if (key === "rules" && c.shadeBy === "bucket") showState("TX");
   if (key === "rules" && c.shadeBy !== "bucket") setShadeBy(c.shadeBy, "none");
   if (key === "wires" && c.sizeBy === null && c.colourBy === "type") showWiresIntro();
+  // Opens on the first plate, not on today. "In 1900 there was no grid" is the
+  // hook, and today is one press away at the other end of the scrubber.
+  if (key === "history") {
+    renderTimelineBar();
+    const open = c.frameId ?? frames()[0]?.id ?? null;
+    if (open !== null) setFrame(open, "none");
+  }
   updateUrl(key, urlMode);
 }
 
@@ -183,8 +202,40 @@ export async function applyRoute(route: RouteState): Promise<void> {
       if (route.size === null || c.cartogram?.measures[route.size]) setSizeBy(route.size, "none");
     }
   }
+  if (route.layer === "history") {
+    const id = resolveFrame(route.frame);
+    if (id !== null && id !== c.frameId) setFrame(id, "none");
+    if (route.evidence !== null) openEvidence(route.evidence);
+  }
   if (route.layer === "you" && route.zip !== null && route.zip !== c.zip) {
     c.zipInput.value = route.zip;
     await findZip(route.zip, "none");
   }
+}
+
+// ---- history layer actions, called by the scrubber ----
+// Every one of these is a reader action, so each stops any auto-advance first.
+export function pickFrame(id: string): void {
+  stopPlay();
+  setFrame(id, "push");
+}
+export function walkFrame(delta: number): void {
+  stopPlay();
+  stepFrame(delta);
+}
+export function togglePlay(): void {
+  const c = ctx();
+  if (c.playTimer !== null) stopPlay();
+  else startPlay();
+}
+export function openEvidenceCard(id: string): void {
+  openEvidence(id);
+}
+export function showEventCard(id: string): void {
+  showFrameEvent(id);
+}
+export function backToFrame(): void {
+  const c = ctx();
+  const f = c.timeline?.frames.find((x) => x.id === c.frameId);
+  if (f) showFrame(f);
 }

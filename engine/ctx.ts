@@ -4,14 +4,15 @@
 import type { GeoPath, GeoProjection } from "d3-geo";
 import type { MultiLineString } from "geojson";
 import type {
-  CartogramFile, LayerKey, MeasuresFile, RtosFC, StatesFC, TransitionsFC, WireFeature,
+  CartogramFile, LayerKey, MeasuresFile, RtosFC, StatesFC, TimelineFile, TransitionsFC, WireFeature,
 } from "../lib/data";
 import type { ViewBox, WireGroupKey } from "./constants";
 import type { Scale } from "./scales";
 
 export type GroupKey =
   | "rto" | "transitions" | "rules" | "wires" | "cartogram" | "sizekey"
-  | "you" | "zipoutline" | "statelines" | "labels" | "trivia";
+  | "you" | "zipoutline" | "statelines" | "labels" | "trivia"
+  | "timeBase" | "timeMarks";
 
 export interface DragState { x: number; y: number; vb: ViewBox }
 export interface ParentGroup { color: string; meters: number; n: number; rank: number }
@@ -59,6 +60,13 @@ export interface EngineCtx {
   parentGroups: Map<string, ParentGroup> | null;
   colourScales: Map<string, Scale>;
   priceScales: Record<string, Scale>;
+
+  // history layer state. The file is fetched on first open; frameId is the
+  // plate showing, and playTimer is the auto-advance the reader can interrupt.
+  timeline: TimelineFile | null;
+  frameId: string | null;
+  playTimer: ReturnType<typeof setInterval> | null;
+  dotAnim: number | null;
 
   // animation + interaction
   morphAnim: number | null;

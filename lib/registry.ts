@@ -7,9 +7,10 @@
 // in measures.json becomes a valid, prerendered, titled route by existing.
 import measuresJson from "../public/data/measures.json";
 import cartogramJson from "../public/data/cartogram.json";
+import timelineJson from "../public/data/timeline.json";
 import {
   copy, statePrices,
-  type CartogramFile, type MeasureSpec, type MeasuresFile,
+  type CartogramFile, type MeasureSpec, type MeasuresFile, type TimelineFile,
 } from "./data";
 import type { RouteState } from "./route";
 
@@ -20,6 +21,9 @@ const shadeIds = statePrices.measures.filter((m) => m.kind === "sequential").map
 const sizeIds = Object.keys(cartogram.measures);
 const colourSpecs = measures.measures.filter((m) => m.colourOnly);
 const triviaById = new Map(copy.trivia.map((t) => [t.id, t]));
+const timeline = timelineJson as unknown as TimelineFile;
+const frameById = new Map(timeline.frames.map((f) => [f.id, f]));
+const evidenceIds = new Set(Object.keys(timeline.evidence));
 
 interface ColourParts {
   spec?: MeasureSpec;
@@ -43,6 +47,15 @@ function resolveColour(seg: string): ColourParts | null {
 
 export function isValidRoute(r: RouteState): boolean {
   if (r.trivia !== null) return triviaById.has(r.trivia);
+  if (r.layer === "history") {
+    // A known plate is valid. So is any bare four-digit year, because the
+    // client snaps one to the nearest plate at or before it: /then/1941 was a
+    // real link before that plate moved to 1935, and it should still land
+    // somewhere honest rather than 404. Anything else is junk.
+    if (r.frame !== null && !frameById.has(r.frame) && !/^\d{4}$/.test(r.frame)) return false;
+    if (r.evidence !== null && !evidenceIds.has(r.evidence)) return false;
+    return true;
+  }
   if (r.layer === "rules" && r.shade !== "bucket") return shadeIds.includes(r.shade);
   if (r.layer === "wires") {
     if (r.colour !== "type" && resolveColour(r.colour) === null) return false;
@@ -65,6 +78,11 @@ export function staticViewParams(): { view: string[] }[] {
   for (const s of sizeIds) views.push(["wires", `by-${s}`]);
   for (const c of colours) for (const s of sizeIds) views.push(["wires", c, `by-${s}`]);
   for (const t of copy.trivia) views.push(["trivia", t.id]);
+  // The plates enumerate themselves, so a tenth one becomes a prerendered
+  // titled route by existing in timeline.json. Retired years and evidence
+  // sub-paths stay dynamic: they are valid but not worth a build target.
+  views.push(["then"]);
+  for (const f of timeline.frames) views.push(["then", f.id]);
   return views.map((view) => ({ view }));
 }
 
@@ -89,6 +107,11 @@ export function describeRoute(r: RouteState): { title?: string; description?: st
       if (m) return { title: `${m.label} · ${SITE}`, description: m.note ?? copy.layers.rules.explainer };
     }
     return { title: `${copy.layers.rules.title} · ${SITE}`, description: copy.layers.rules.explainer };
+  }
+  if (r.layer === "history") {
+    const f = r.frame !== null ? frameById.get(r.frame) : timeline.frames[0];
+    if (f) return { title: `${f.title} · ${f.label} · ${SITE}`, description: trimBody(f.body) };
+    return { title: `${copy.layers.history.title} · ${SITE}`, description: copy.layers.history.explainer };
   }
   if (r.layer === "you") {
     if (r.zip !== null)

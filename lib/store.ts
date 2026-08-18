@@ -9,6 +9,21 @@ export interface StatModel {
   label: string;
 }
 
+// A source behind a plate: an archival scan, a statute, or a written record.
+// The glyph distinguishes something we looked at from something somebody
+// wrote down, and `thumb` is present only once the scan is committed.
+export interface EvidenceChip {
+  id: string;
+  glyph: string;
+  label: string;
+  thumb?: string;
+}
+export interface FrameEventRow {
+  id: string;
+  year: string;
+  title: string;
+}
+
 export type CardModel =
   | { kind: "region"; swatch: string; name: string; body: string; stats: StatModel[]; choice: string }
   | { kind: "state"; swatch: string; name: string; bucketLabel: string; body: string; note?: string }
@@ -23,10 +38,42 @@ export type CardModel =
     }
   | { kind: "zipWires"; zip: string }
   | { kind: "you"; zip: string; wires: string; choice?: string; market?: string }
-  | { kind: "intro"; title: string; body: string; note?: { lead?: string; text: string } };
+  | { kind: "intro"; title: string; body: string; note?: { lead?: string; text: string } }
+  | {
+      kind: "frame";
+      kicker: string;
+      title: string;
+      body: string;
+      note?: string;
+      events: FrameEventRow[];
+      evidence: EvidenceChip[];
+      // the plate's map is not built yet, so the card says so instead of
+      // leaving the reader in an empty country wondering
+      pending: boolean;
+    }
+  | {
+      kind: "event";
+      kicker: string;
+      title: string;
+      body: string;
+      note?: string;
+      excerpt?: EvidenceChip;
+      backLabel: string;
+    }
+  | {
+      kind: "dot";
+      kicker: string;
+      name: string;
+      body: string;
+      note?: string;
+      stats: StatModel[];
+      backLabel: string;
+    };
 
 export type LegendModel =
-  | { kind: "swatches"; items: { swatch: string; label: string }[]; note?: string }
+  // `shape` turns a square swatch into a lamp for the dot plates; everything
+  // else is a plain background value
+  | { kind: "swatches"; items: { swatch: string; label: string; shape?: "dot" | "dot-story" }[]; note?: string }
   | { kind: "ramp"; label: string; steps: readonly string[]; ticks: string[]; notReported: string; note?: string };
 
 export interface ControlOption {
@@ -47,6 +94,36 @@ export interface DrawingNoteModel {
   sub: string;
 }
 
+export interface TimelineStop {
+  id: string;
+  label: string;
+  title: string;
+  pressed: boolean;
+  pending: boolean;
+}
+export interface TimelineBarModel {
+  stops: TimelineStop[];
+  canPrev: boolean;
+  canNext: boolean;
+  playing: boolean;
+}
+
+// The evidence lightbox. The citation is passed as text plus an optional link
+// rather than as markup, so the component owns the anchor.
+export interface EvidenceModel {
+  title: string;
+  quote?: string;
+  gloss?: string;
+  image?: string;
+  alt?: string;
+  cite: string;
+  sourceUrl?: string;
+  // a map that promises a picture and has none committed yet owes the reader
+  // an explanation; a written source is complete as a citation
+  missingPlate: boolean;
+  unverified: boolean;
+}
+
 export interface AtlasState {
   ready: boolean;
   layer: LayerKey;
@@ -60,6 +137,8 @@ export interface AtlasState {
   zoomResetVisible: boolean;
   tourIdx: number | null;
   modalOpen: boolean;
+  timeline: TimelineBarModel | null;
+  evidence: EvidenceModel | null;
 }
 
 // Also the SSR snapshot: it must describe the page as index.html shipped it,
@@ -80,6 +159,8 @@ const INITIAL: AtlasState = {
   zoomResetVisible: false,
   tourIdx: null,
   modalOpen: false,
+  timeline: null,
+  evidence: null,
 };
 
 let state: AtlasState = INITIAL;

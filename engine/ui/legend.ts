@@ -44,6 +44,24 @@ export function renderLegend(key: LayerKey): void {
       legend = ramp(scale, m?.short ?? m?.label ?? c.shadeBy,
         (v) => (pct ? `${String(Math.round(v * 100))}%` : v.toFixed(1)));
     }
+  } else if (key === "history") {
+    const f = c.timeline?.frames.find((x) => x.id === c.frameId);
+    // The last plate IS the wholesale layer, so it borrows that legend rather
+    // than describing the same marks in different words.
+    if (f?.geometry.kind === "current") {
+      legend = { kind: "swatches", items: [{ swatch: TRANSITION_SWATCH, label: "Changed grids in 2026" }] };
+    } else {
+      legend = {
+        kind: "swatches",
+        items: (f?.legend ?? []).map((it) =>
+          it.swatch === "dot"
+            ? { swatch: "#f6e3ae", label: it.label, shape: "dot" as const }
+            : it.swatch === "dot-story"
+              ? { swatch: "#fff3cd", label: it.label, shape: "dot-story" as const }
+              : { swatch: it.swatch, label: it.label }),
+        ...(f?.ship === false ? { note: "This plate is still being inked." } : {}),
+      };
+    }
   } else if (key === "wires") {
     const note = c.sizeBy !== null ? sizeLegendNote(c.sizeBy) : undefined;
     const scale = colourScale(c.colourBy);

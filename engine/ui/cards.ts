@@ -2,9 +2,11 @@
 // store; the React card components render it. The engine pre-computes
 // anything registry-dependent so the components stay presentational.
 import { req } from "../../lib/assert";
-import { copy, rules, statePrices, type ZipUtility } from "../../lib/data";
+import { copy, rules, statePrices, type TimelineFrame, type ZipUtility } from "../../lib/data";
 import { fmtMeasure, titleCase } from "../../lib/format";
-import { setAtlasState, type CardModel, type StatModel } from "../../lib/store";
+import {
+  setAtlasState, type CardModel, type EvidenceChip, type FrameEventRow, type StatModel,
+} from "../../lib/store";
 import { swatchBackground, wireGroup } from "../constants";
 import { ctx } from "../ctx";
 import { colourValue, isColourMeasure, measureSpec, measureValue } from "../data";
@@ -229,4 +231,161 @@ export function showPriceIntro(key: string): void {
 
 export function showFindYourself(): void {
   show({ kind: "intro", title: "Find yourself", body: copy.layers.you.explainer });
+}
+
+// ---- history layer: the plate, its events, its evidence, and its cities ----
+
+function draftFlag(o: { verified?: boolean }): string {
+  return o.verified === false ? " · draft, still being checked" : "";
+}
+
+// ⌖ for something we looked at, § for something somebody wrote down.
+function evidenceChips(ids: readonly string[] | undefined): EvidenceChip[] {
+  const t = ctx().timeline;
+  if (!t || !ids) return [];
+  const chips: EvidenceChip[] = [];
+  for (const id of ids) {
+    const e = t.evidence[id];
+    if (!e) continue;
+    const law = e.kind === "law";
+    const label = law
+      ? (e.excerpt !== undefined ? t.law_excerpts[e.excerpt]?.label ?? "The law" : "The law")
+      : e.title ?? id;
+    chips.push({
+      id,
+      glyph: law ? "§" : "⌖",
+      label,
+      ...(e.files?.thumb !== undefined ? { thumb: e.files.thumb } : {}),
+    });
+  }
+  return chips;
+}
+
+export function showFrame(f: TimelineFrame): void {
+  const t = ctx().timeline;
+  const kicker = `${f.label}${f.kicker !== undefined ? ` · ${f.kicker}` : ""}${draftFlag(f)}`;
+  const events: FrameEventRow[] = [];
+  for (const id of f.events ?? []) {
+    const e = t?.events[id];
+    if (e) events.push({ id, year: e.date.slice(0, 4), title: e.title });
+  }
+  setAtlasState({
+    card: {
+      kind: "frame",
+      kicker,
+      title: f.title,
+      body: f.body,
+      ...(f.note !== undefined ? { note: f.note } : {}),
+      events: f.ship ? events : [],
+      evidence: f.ship ? evidenceChips(f.evidence) : [],
+      pending: !f.ship,
+    },
+  });
+}
+
+export function showFrameEvent(id: string): void {
+  const c = ctx();
+  const t = c.timeline;
+  const e = t?.events[id];
+  if (!t || !e) return;
+  const excerpt = e.excerpt !== undefined ? t.law_excerpts[e.excerpt] : undefined;
+  const back = t.frames.find((f) => f.id === c.frameId)?.label ?? "the plate";
+  setAtlasState({
+    card: {
+      kind: "event",
+      // `when` carries a date the records do not pin to a day. Ames is the
+      // case: June 1891 is solid, the 19th is the day usually given, and one
+      // local account says the 21st. Printing a false precision would be the
+      // easy way out, so the card says what is actually known.
+      kicker: `${e.when ?? e.date}${draftFlag(e)}`,
+      title: e.title,
+      body: e.body,
+      ...(e.note !== undefined ? { note: e.note } : {}),
+      ...(excerpt !== undefined && e.excerpt !== undefined
+        ? { excerpt: { id: `law:${e.excerpt}`, glyph: "§", label: excerpt.label } }
+        : {}),
+      backLabel: `← back to ${back}`,
+    },
+  });
+}
+
+export function showDot(i: number): void {
+  const t = ctx().timeline;
+  const d = t?.dots[i];
+  if (!t || !d) return;
+  const story = d.story !== undefined ? t.events[d.story] : undefined;
+  const stats: StatModel[] = [{ value: d.pop1900.toLocaleString(), label: "people in 1900" }];
+  if (d.rank !== undefined) stats.push({ value: `#${String(d.rank)}`, label: "largest in 1900" });
+  setAtlasState({
+    card: {
+      kind: "dot",
+      kicker: `1900${story ? " · a first worth knowing" : ""}`,
+      name: `${d.city}, ${d.state}`,
+      body: story?.body ?? "A city with its own power station, lighting the blocks around it and no further.",
+      ...(d.note !== undefined ? { note: d.note } : {}),
+      stats,
+      backLabel: "← back to the plate",
+    },
+  });
+}
+
+// ---- the evidence lightbox ----
+
+function citeText(o: { citation?: string; rights?: string }): string {
+  // The rights note is dropped when the citation already says the same thing,
+  // which is most of them: these are all federal publications.
+  const cite = o.citation ?? "";
+  const rights = o.rights !== undefined && !cite.toLowerCase().includes("public domain")
+    ? ` ${o.rights}` : "";
+  return `${cite}${rights}`;
+}
+
+export function openExcerpt(key: string): void {
+  const x = ctx().timeline?.law_excerpts[key];
+  if (!x) return;
+  setAtlasState({
+    evidence: {
+      title: x.label,
+      quote: `“${x.quote}”`,
+      ...(x.gloss !== undefined ? { gloss: x.gloss } : {}),
+      cite: citeText({ citation: x.citation }),
+      ...(x.source_url !== undefined ? { sourceUrl: x.source_url } : {}),
+      missingPlate: false,
+      unverified: x.verified === false,
+    },
+  });
+}
+
+export function openEvidence(id: string): void {
+  // an event's law chip carries its excerpt key behind a prefix
+  if (id.startsWith("law:")) {
+    openExcerpt(id.slice(4));
+    return;
+  }
+  const e = ctx().timeline?.evidence[id];
+  if (!e) return;
+  if (e.kind === "law") {
+    if (e.excerpt !== undefined) openExcerpt(e.excerpt);
+    return;
+  }
+  const full = e.files?.full;
+  setAtlasState({
+    evidence: {
+      title: e.title ?? id,
+      ...(e.note !== undefined ? { gloss: e.note } : {}),
+      // The full scan is fetched by the component when it renders, not with
+      // the plate, so scrubbing never pays for an image nobody opened.
+      ...(full !== undefined ? { image: full, alt: e.title ?? "" } : {}),
+      cite: citeText(e),
+      ...(e.source_url !== undefined ? { sourceUrl: e.source_url } : {}),
+      // Only a map promises a picture, so only a map owes an explanation when
+      // the picture is not here yet. A written source is complete as a citation.
+      missingPlate: e.kind === "map" && full === undefined,
+      unverified: false,
+    },
+  });
+}
+
+export function closeEvidence(): void {
+  setAtlasState({ evidence: null });
 }

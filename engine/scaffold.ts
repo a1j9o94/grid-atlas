@@ -18,6 +18,15 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
       <rect width="0.18" height="0.18" fill="var(--r-ercot)"/>
       <line x1="0" y1="0" x2="0" y2="0.18" stroke="rgba(246,238,224,0.95)" stroke-width="0.045"/>
     </pattern>
+    <!-- lamplight for the 1900 plate: a city with its own station, and nothing
+         between the dots. A gradient rather than a blur filter, because a
+         filter in user space would displace at a fixed size the way #wobble
+         does. -->
+    <radialGradient id="lampglow">
+      <stop offset="0%" stop-color="#f2d68a" stop-opacity="0.95"/>
+      <stop offset="40%" stop-color="#e0a838" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#e0a838" stop-opacity="0"/>
+    </radialGradient>
   </defs>
   <g id="g-rto" filter="url(#wobble)"></g>
   <g id="g-transitions" filter="url(#wobble)"></g>
@@ -29,10 +38,17 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
   <g id="g-cartogram" hidden></g>
   <g id="g-sizekey" hidden></g>
   <g id="g-you" hidden></g>
+  <!-- history: the ground for a past plate. Under the state lines, so the
+       borders you know still sit on top of a map you do not. -->
+  <g id="g-time-base" filter="url(#wobble)" hidden></g>
   <g id="g-zipoutline"></g>
   <g id="g-statelines"></g>
   <g id="g-labels"></g>
   <g id="g-trivia"></g>
+  <!-- history marks ride above everything, and never through #wobble: it
+       displaces by an absolute 6.5px, which would throw a 2px city dot several
+       times its own width off the city it stands for. -->
+  <g id="g-time-marks" hidden></g>
 `;
   const pick = (sel: string): SVGGElement => req(svg.querySelector<SVGGElement>(sel), sel);
   return {
@@ -48,6 +64,8 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
       statelines: pick("#g-statelines"),
       labels: pick("#g-labels"),
       trivia: pick("#g-trivia"),
+      timeBase: pick("#g-time-base"),
+      timeMarks: pick("#g-time-marks"),
     },
     wobbleDisp: req(svg.querySelector<SVGElement>("#wobble feDisplacementMap"), "#wobble feDisplacementMap"),
   };
