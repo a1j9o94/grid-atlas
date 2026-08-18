@@ -41,12 +41,12 @@ function titleCase(name) {
 }
 
 const [copy, rules, statesTopo, rtosTopo, transitionsTopo, statePrices] = await Promise.all([
-  fetch("data/copy.json").then(r => r.json()),
-  fetch("data/rules.json").then(r => r.json()),
-  fetch("data/states.topo.json").then(r => r.json()),
-  fetch("data/rtos.topo.json").then(r => r.json()),
-  fetch("data/transitions.topo.json").then(r => r.json()),
-  fetch("data/state-prices.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
+  fetch("/data/copy.json").then(r => r.json()),
+  fetch("/data/rules.json").then(r => r.json()),
+  fetch("/data/states.topo.json").then(r => r.json()),
+  fetch("/data/rtos.topo.json").then(r => r.json()),
+  fetch("/data/transitions.topo.json").then(r => r.json()),
+  fetch("/data/state-prices.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
 ]);
 
 // Sequential ramps, built in OKLCH at even lightness steps. Lightness carries
@@ -239,9 +239,9 @@ function assertCartogramProjection() {
 async function ensureWires() {
   if (wiresFeatures) return;
   const [topo, meas, carto] = await Promise.all([
-    (await fetch("data/wires.topo.json")).json(),
-    fetch("data/measures.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
-    fetch("data/cartogram.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
+    (await fetch("/data/wires.topo.json")).json(),
+    fetch("/data/measures.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
+    fetch("/data/cartogram.json").then(r => (r.ok ? r.json() : null)).catch(() => null),
   ]);
   measures = meas;
   cartogram = carto;
@@ -526,8 +526,8 @@ const zctaCache = {};
 async function zctaShard(pfx) {
   if (!zctaCache[pfx]) {
     const [geo, lookup] = await Promise.all([
-      fetch(`data/zcta/${pfx}.topo.json`).then(r => r.ok ? r.json() : null),
-      fetch(`data/zip/${pfx}.json`).then(r => r.ok ? r.json() : null),
+      fetch(`/data/zcta/${pfx}.topo.json`).then(r => r.ok ? r.json() : null),
+      fetch(`/data/zip/${pfx}.json`).then(r => r.ok ? r.json() : null),
     ]);
     zctaCache[pfx] = { geo, lookup };
   }
