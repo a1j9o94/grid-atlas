@@ -5,9 +5,13 @@
 // This exists because eyeballing a screenshot does not catch a 12px overlap or
 // an input clipping its last character, and both shipped at least once.
 //
-// Usage: npm run audit            (serves ./ on a free port, runs headless)
+// Usage: npm run build && npm run audit   (starts the production build on a
+//                                          free port, runs headless)
 //        npm run audit -- --url https://grid-atlas-coral.vercel.app
 //        npm run audit -- --shots  (also write PNGs to tools/shots/)
+//
+// The audit drives the production build, never `next dev`: dev mode double-
+// invokes effects and its overlay logs would trip the console-error check.
 //
 // Auditing a remote --url needs the browser to reach the internet. Behind a
 // proxy, set HTTPS_PROXY or pass --proxy; some sandboxes block browser egress
@@ -15,9 +19,9 @@
 // files by checksum instead.
 
 import { createServer } from "http";
-import { readFile } from "fs/promises";
-import { mkdirSync } from "fs";
-import { extname, join, normalize, dirname } from "path";
+import { spawn } from "child_process";
+import { existsSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { chromium } from "playwright";
 
@@ -43,24 +47,39 @@ const VIEWPORTS = [
 ];
 
 const VIEWS = [
-  { name: "wholesale", q: "?layer=wholesale" },
-  { name: "rules", q: "?layer=rules" },
-  { name: "wires-land", q: "?layer=wires" },
-  { name: "wires-meters", q: "?layer=wires&size=cust" },
-  { name: "wires-energy", q: "?layer=wires&size=mwh" },
-  { name: "wires-parent", q: "?layer=wires&colour=parent" },
-  { name: "wires-outages", q: "?layer=wires&colour=saidi" },
-  { name: "wires-solar", q: "?layer=wires&colour=solarw" },
-  { name: "wires-smart", q: "?layer=wires&colour=amishare" },
-  { name: "wires-solar-size", q: "?layer=wires&size=solarmw" },
-  { name: "wires-size-colour", q: "?layer=wires&size=cust&colour=saidi" },
+  { name: "wholesale", q: "/" },
+  { name: "rules", q: "/rules" },
+  { name: "wires-land", q: "/wires" },
+  { name: "wires-meters", q: "/wires/by-cust" },
+  { name: "wires-energy", q: "/wires/by-mwh" },
+  { name: "wires-parent", q: "/wires/parent" },
+  { name: "wires-outages", q: "/wires/saidi" },
+  { name: "wires-solar", q: "/wires/solarw" },
+  { name: "wires-smart", q: "/wires/amishare" },
+  { name: "wires-solar-size", q: "/wires/by-solarmw" },
+  { name: "wires-size-colour", q: "/wires/saidi/by-cust" },
   // Three stats plus a long legend label is the widest the card and the legend
   // ever get, so the combination is worth a viewport of its own.
-  { name: "wires-solar-both", q: "?layer=wires&size=solarmw&colour=solarw" },
-  { name: "rules-price", q: "?layer=rules&shade=res" },
-  { name: "rules-delivery", q: "?layer=rules&shade=delivery" },
-  { name: "you", q: "?zip=78701" },
+  { name: "wires-solar-both", q: "/wires/solarw/by-solarmw" },
+  { name: "rules-price", q: "/rules/res" },
+  { name: "rules-delivery", q: "/rules/delivery" },
+  { name: "you", q: "/you/78701" },
 ];
+
+// The query links this site shipped with. Each must answer with a redirect to
+// its canonical path before any JavaScript runs, and junk must 404 rather
+// than quietly render the default map.
+const REDIRECTS = [
+  ["/?layer=wires&size=cust&colour=saidi", "/wires/saidi/by-cust"],
+  ["/?layer=wires&colour=saidi-all", "/wires/saidi-all"],
+  ["/?layer=wires&size=mwh", "/wires/by-mwh"],
+  ["/?layer=rules&shade=res", "/rules/res"],
+  ["/?zip=78701", "/you/78701"],
+  ["/?trivia=caldwell-switched-grids", "/trivia/caldwell-switched-grids"],
+  ["/?layer=you", "/you"],
+  ["/?layer=wholesale", "/"],
+];
+const NOT_FOUND = ["/nonsense", "/wires/notameasure", "/wires/by-nothing", "/rules/blue", "/you/1234"];
 
 // Boxes that must never overlap each other. All of them are chrome floating
 // over or beside the map, which is exactly where collisions hide.
@@ -76,27 +95,52 @@ const PANELS = {
   shadeControls: "#shade-controls",
 };
 
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
+function freePort() {
+  return new Promise(resolve => {
+    const s = createServer();
+    s.listen(0, () => {
+      const p = s.address().port;
+      s.close(() => resolve(p));
+    });
+  });
+}
 
 async function serve() {
-  const server = createServer(async (req, res) => {
+  if (!existsSync(join(root, ".next"))) {
+    console.error("no production build found: run `npm run build` first");
+    process.exit(2);
+  }
+  const port = await freePort();
+  const child = spawn(
+    process.execPath,
+    [join(root, "node_modules", "next", "dist", "bin", "next"), "start", "-p", String(port)],
+    { cwd: root, stdio: "ignore" },
+  );
+  const url = `http://localhost:${port}`;
+  for (let i = 0; ; i++) {
     try {
-      let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
-      if (p === "/") p = "/index.html";
-      const file = join(root, normalize(p).replace(/^(\.\.[/\\])+/, ""));
-      const body = await readFile(file);
-      res.writeHead(200, { "content-type": MIME[extname(file)] ?? "application/octet-stream" });
-      res.end(body);
-    } catch {
-      res.writeHead(404).end("not found");
+      const r = await fetch(url + "/");
+      if (r.ok) break;
+    } catch { /* not up yet */ }
+    if (i >= 150) {
+      child.kill();
+      console.error("next start did not come up on " + url);
+      process.exit(2);
     }
-  });
-  await new Promise(r => server.listen(0, r));
-  return { server, url: `http://localhost:${server.address().port}` };
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return { server: { close: () => child.kill() }, url };
 }
 
 const problems = [];
 const add = (tag, msg) => problems.push(`${tag}: ${msg}`);
+
+// Vercel preview deployments sit behind deployment protection. Pass the
+// project's bypass pair to audit one anyway, appended to every visited URL:
+//   --bypass-query "x-vercel-protection-bypass=SECRET"   (automation secret)
+//   --bypass-query "_vercel_share=TOKEN"                 (share link token)
+const bypassQ = opt("bypass-query", null);
+const withBypass = u => (bypassQ ? u + (u.includes("?") ? "&" : "?") + bypassQ : u);
 
 const external = opt("url", null);
 const host = external ? { url: external, server: null } : await serve();
@@ -123,6 +167,25 @@ try {
 }
 if (flag("shots")) mkdirSync(join(here, "shots"), { recursive: true });
 
+// redirect + 404 matrix, once, before the layout sweep
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  for (const [from, to] of REDIRECTS) {
+    await page.goto(withBypass(host.url + from), { waitUntil: "commit" });
+    const landed = new URL(page.url());
+    // the bypass pair rides along and is dropped by the redirect; ignore it
+    if (bypassQ) landed.searchParams.delete(bypassQ.split("=")[0]);
+    const search = landed.searchParams.size ? `?${landed.searchParams.toString()}` : "";
+    if (landed.pathname + search !== to)
+      add("redirects", `${from} landed on ${landed.pathname}${search}, wanted ${to}`);
+  }
+  for (const path of NOT_FOUND) {
+    const resp = await page.goto(withBypass(host.url + path), { waitUntil: "commit" });
+    if (resp && resp.status() !== 404) add("404s", `${path} answered ${resp.status()}, wanted 404`);
+  }
+  await page.close();
+}
+
 for (const vp of VIEWPORTS) {
   const page = await browser.newPage({ viewport: { width: vp.w, height: vp.h } });
   const errs = [];
@@ -131,7 +194,7 @@ for (const vp of VIEWPORTS) {
 
   for (const view of VIEWS) {
     const tag = `${vp.name}/${view.name}`;
-    await page.goto(host.url + "/" + view.q, { waitUntil: "networkidle" });
+    await page.goto(withBypass(host.url + view.q), { waitUntil: "networkidle" });
     // the wires layer lazy-loads 5.5MB of geometry and then tweens
     await page.waitForTimeout(view.name.startsWith("wires") ? 2600 : 1200);
 

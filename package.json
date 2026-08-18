@@ -2,11 +2,35 @@
   "name": "grid-atlas",
   "private": true,
   "type": "module",
-  "description": "Dev tooling only. The site itself is static: no build step, no runtime dependencies. This file is listed in .vercelignore so the deploy stays zero-config.",
+  "description": "An explorable map of how electricity works in America.",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
     "audit": "node tools/layout-audit.mjs"
   },
+  "dependencies": {
+    "d3-geo": "^3.1.1",
+    "next": "^16.3.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "topojson-client": "^3.1.0"
+  },
   "devDependencies": {
-    "playwright": "^1.49.0"
+    "@next/eslint-plugin-next": "^16.3.1",
+    "@types/d3-geo": "^3.1.0",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-specification": "^1.0.5",
+    "eslint": "^9",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "playwright": "^1.49.0",
+    "typescript": "^5",
+    "typescript-eslint": "^8.67.0"
   }
 }

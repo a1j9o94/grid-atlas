@@ -1,0 +1,54 @@
+import { req } from "../lib/assert";
+import type { GroupKey } from "./ctx";
+
+// The one write of svg.innerHTML: filters, patterns, and the layer groups in
+// stacking order. Everything after this appends into the groups.
+export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGElement>; wobbleDisp: SVGElement } {
+  svg.innerHTML = `
+  <defs>
+    <filter id="wobble" filterUnits="userSpaceOnUse" x="-20" y="-20" width="1020" height="660" primitiveUnits="userSpaceOnUse">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <pattern id="hatch-sppwest" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="var(--r-spp)"/>
+      <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(38,48,31,0.4)" stroke-width="1.6"/>
+    </pattern>
+    <pattern id="hatch-transition" width="0.18" height="0.18" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+      <rect width="0.18" height="0.18" fill="var(--r-ercot)"/>
+      <line x1="0" y1="0" x2="0" y2="0.18" stroke="rgba(246,238,224,0.95)" stroke-width="0.045"/>
+    </pattern>
+  </defs>
+  <g id="g-rto" filter="url(#wobble)"></g>
+  <g id="g-transitions" filter="url(#wobble)"></g>
+  <g id="g-rules" filter="url(#wobble)" hidden></g>
+  <g id="g-wires" filter="url(#wobble)" hidden></g>
+  <!-- No wobble on the cartogram. The hand-ink filter displaces by an absolute
+       6.5px, which would fling a 1px circle several times its own width off
+       position and corrupt the area encoding this view exists to show. -->
+  <g id="g-cartogram" hidden></g>
+  <g id="g-sizekey" hidden></g>
+  <g id="g-you" hidden></g>
+  <g id="g-zipoutline"></g>
+  <g id="g-statelines"></g>
+  <g id="g-labels"></g>
+  <g id="g-trivia"></g>
+`;
+  const pick = (sel: string): SVGGElement => req(svg.querySelector<SVGGElement>(sel), sel);
+  return {
+    g: {
+      rto: pick("#g-rto"),
+      transitions: pick("#g-transitions"),
+      rules: pick("#g-rules"),
+      wires: pick("#g-wires"),
+      cartogram: pick("#g-cartogram"),
+      sizekey: pick("#g-sizekey"),
+      you: pick("#g-you"),
+      zipoutline: pick("#g-zipoutline"),
+      statelines: pick("#g-statelines"),
+      labels: pick("#g-labels"),
+      trivia: pick("#g-trivia"),
+    },
+    wobbleDisp: req(svg.querySelector<SVGElement>("#wobble feDisplacementMap"), "#wobble feDisplacementMap"),
+  };
+}
