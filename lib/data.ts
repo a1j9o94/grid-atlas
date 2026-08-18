@@ -220,6 +220,11 @@ export interface TimelineEvent {
   body: string;
   note?: string;
   excerpt?: string;
+  // Assets that back this particular claim, as against the plate around it.
+  // The concentration card is the case: its percentages are read off one
+  // committed table, and the reader should be one click from that table rather
+  // than hunting the plate's whole evidence list for it.
+  evidence?: string[];
   verified?: boolean;
   verify_notes?: string;
   sources?: string[];
@@ -242,6 +247,11 @@ export interface EvidenceAsset {
   rights?: string;
   // a law asset points at a law_excerpts entry instead of carrying prose
   excerpt?: string;
+  // Verbatim text from the source, where the words are the evidence and there
+  // is no plate to show. The 1938 FTC annual report is the case: FRASER serves
+  // it as a text PDF, so there is no page scan, and a quotation of the page
+  // carries more than a picture of the same type would.
+  quote?: string;
   files?: { full?: string; thumb?: string };
   verified?: boolean;
 }

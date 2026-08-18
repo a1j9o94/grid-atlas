@@ -142,7 +142,7 @@ function CardBody({ card }: { card: CardModel }) {
           <h3>{card.title}</h3>
           <p className="c-body">{card.body}</p>
           {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
-          {card.excerpt !== undefined && <Chips chips={[card.excerpt]} />}
+          <Chips chips={[...(card.excerpt !== undefined ? [card.excerpt] : []), ...card.evidence]} />
           <button className="c-back" onClick={() => { backToFrame(); }}>{card.backLabel}</button>
         </>
       );

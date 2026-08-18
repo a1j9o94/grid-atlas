@@ -58,6 +58,8 @@ export type CardModel =
       body: string;
       note?: string;
       excerpt?: EvidenceChip;
+      // assets backing this claim specifically, not the plate around it
+      evidence: EvidenceChip[];
       backLabel: string;
     }
   // A city dot on a 1900-era plate and a machine on a seam plate render the

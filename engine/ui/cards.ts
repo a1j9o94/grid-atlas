@@ -304,6 +304,7 @@ export function showFrameEvent(id: string): void {
       ...(excerpt !== undefined && e.excerpt !== undefined
         ? { excerpt: { id: `law:${e.excerpt}`, glyph: "§", label: excerpt.label } }
         : {}),
+      evidence: evidenceChips(e.evidence),
       backLabel: `← back to ${back}`,
     },
   });
@@ -397,6 +398,7 @@ export function openEvidence(id: string): void {
   setAtlasState({
     evidence: {
       title: e.title ?? id,
+      ...(e.quote !== undefined ? { quote: `“${e.quote}”` } : {}),
       ...(e.note !== undefined ? { gloss: e.note } : {}),
       // The full scan is fetched by the component when it renders, not with
       // the plate, so scrubbing never pays for an image nobody opened.
@@ -406,9 +408,9 @@ export function openEvidence(id: string): void {
       // A chip labelled "first printed page" or "Map III" promises a picture,
       // so it owes the reader a sentence when the picture is not committed yet.
       // Gating this on kind === "map" let the statute pages go silent about it.
-      // Only a written source, which never promised an image, is complete on
-      // its citation alone.
-      missingPlate: full === undefined && e.kind !== "note",
+      // A written source, which never promised an image, is complete on its
+      // citation alone, and so is one that quotes itself.
+      missingPlate: full === undefined && e.kind !== "note" && e.quote === undefined,
       unverified: false,
     },
   });

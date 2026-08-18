@@ -94,8 +94,11 @@ const y1935 = await open("1935");
 want("1935 does not emphasise the East-West seam",
   Number.parseFloat(y1935.ewWidth) < Number.parseFloat(y1975.ewWidth), true);
 
-// A retired year still has to land somewhere honest.
+// A retired year still has to land somewhere honest. The scrubber only exists
+// once timeline.json has arrived, so wait for a pressed stop rather than for
+// the network to go quiet: networkidle can land before React has rendered it.
 await page.goto(`${url}/then/1941`, { waitUntil: "networkidle" });
+await page.waitForSelector('.tl-stop[aria-pressed="true"]', { timeout: 30000 });
 want("1941 snaps to the plate at or before it", await page.evaluate(
   () => document.querySelector('.tl-stop[aria-pressed="true"]')?.textContent?.trim()), "1935");
 

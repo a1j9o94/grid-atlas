@@ -88,11 +88,12 @@
       "evidence": [
         "ftc-72a-map3-fields-of-operation-1925",
         "ftc-72a-map1-transmission-lines-1932",
-        "ftc-72a-chart-holding-company-pyramid",
+        "ftc-72a-chart-9-insull-group-1932",
+        "ftc-72a-chart-10-insull-chain-1930",
         "ftc-72a-table12-generation-by-group",
         "ftc-72a-table19-operating-companies-by-group",
         "middle-west-utilities-1923-properties-map",
-        "ftc-utility-corporations"
+        "ftc-annual-report-1938-volume-list"
       ],
       "ship": false,
       "verified": true,
@@ -932,7 +933,10 @@
         "https://archive.org/details/centralelectric00goog",
         "https://iiif.archive.org/iiif/cu31924022815181%2458/full/1600,/0/default.jpg"
       ],
-      "note": "The first Edison station to sell electricity in the United States. Not the first anywhere: his Holborn Viaduct station in London ran earlier the same year. The picture of it in the 1902 Census report is an engraving, not a photograph."
+      "note": "The first Edison station to sell electricity in the United States. Not the first anywhere: his Holborn Viaduct station in London ran earlier the same year. The picture of it in the 1902 Census report is an engraving, not a photograph.",
+      "evidence": [
+        "census-1902-pearl-street-station-plate"
+      ]
     },
     "appleton-1882": {
       "date": "1882-09-30",
@@ -945,7 +949,10 @@
         "https://archive.org/details/cu31924022815181",
         "https://archive.org/download/cu31924022815181/cu31924022815181_hocr_searchtext.txt.gz"
       ],
-      "note": "The first hydroelectric station running Edison's incandescent system for paying customers. The 1902 Census report captions it simply as the first Edison station, which is the loose version of the claim and the reason this card exists. Grand Rapids had been selling water-powered arc light since 1880."
+      "note": "The first hydroelectric station running Edison's incandescent system for paying customers. The 1902 Census report captions it simply as the first Edison station, which is the loose version of the claim and the reason this card exists. Grand Rapids had been selling water-powered arc light since 1880.",
+      "evidence": [
+        "census-1902-appleton-first-edison-station-plate"
+      ]
     },
     "great-barrington-1886": {
       "date": "1886-03-20",
@@ -1031,7 +1038,10 @@
         "https://overbye.engr.tamu.edu/wp-content/uploads/sites/146/2021/09/EastWest_HICSS_CommentsSept15_FinalWithNames_Ack_WithFooter.pdf",
         "https://documents.pserc.wisc.edu/documents/publications/reports/2021_reports/S_92G_Final_Report.pdf"
       ],
-      "note": "It did not hold cleanly. Oscillations built through the spring, and the utilities used a pre-agreed right to open the ties again in late July. They were closed again on December 3, and the link pulled itself apart 381 times over the following eight months. Texas was never part of this: ERCOT stayed separate throughout."
+      "note": "It did not hold cleanly. Oscillations built through the spring, and the utilities used a pre-agreed right to open the ties again in late July. They were closed again on December 3, and the link pulled itself apart 381 times over the following eight months. Texas was never part of this: ERCOT stayed separate throughout.",
+      "evidence": [
+        "fpc-1964-nps-principal-transmission-1962"
+      ]
     },
     "nerc-1968": {
       "date": "1968-06-01",
@@ -1245,7 +1255,12 @@
         "https://www.loc.gov/resource/sn83045462/1931-11-03/ed-1/?sp=15",
         "https://www.loc.gov/resource/sn83045462/1932-01-21/ed-1/?sp=13"
       ],
-      "verified": true
+      "verified": true,
+      "evidence": [
+        "ftc-72a-chart-9-insull-group-1932",
+        "ftc-72a-chart-10-insull-chain-1930",
+        "middle-west-utilities-1923-properties-map"
+      ]
     },
     "ebasco-1930": {
       "date": "1930-12-31",
@@ -1263,17 +1278,21 @@
     },
     "concentration-1930": {
       "date": "1930-06-30",
-      "when": "1929 to 1932",
+      "when": "1930",
       "title": "Sixteen systems, three quarters of the power",
-      "body": "The FTC counted sixteen holding-company systems that together generated 76.4 percent of the electricity produced by investor-owned utilities. A reader who wants one number for how concentrated this industry was should use that one.",
-      "note": "The individual empires cannot be added up or ranked against each other. The percentages in the record sit on different denominators and several of them count the same kilowatt hours twice.",
+      "body": "The FTC counted sixteen holding-company systems and added up what they generated. In 1930 they made 75.8 percent of the electricity produced by investor-owned utilities. The same table gives 80.2 percent for 1929 and 76.4 percent for 1932. A reader who wants one number for how concentrated this industry was should use the year they mean.",
+      "note": "The FTC says under its own table that these percentages understate the case, and gives the example: the United Corporation controlled Consolidated Gas Electric Light and Power of Baltimore on a 2.8 percent minority interest in its voting stock. The individual empires still cannot be added up or ranked against each other. The percentages in the record sit on different denominators and several of them count the same kilowatt hours twice.",
       "sources": [
+        "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
         "https://www.sec.gov/news/studies/puhc.txt",
         "https://www.eia.gov/electricity/archive/0563.pdf",
         "https://www.ftc.gov/sites/default/files/documents/reports_annual/annual-report-1935/ar1935_0.pdf",
         "https://www.ftc.gov/sites/default/files/documents/reports_annual/annual-report-1932/ar1932_0.pdf"
       ],
-      "verified": true
+      "verified": true,
+      "evidence": [
+        "ftc-72a-table12-generation-by-group"
+      ]
     },
     "ftc-investigation-1928": {
       "date": "1928-02-15",
@@ -1285,7 +1304,10 @@
         "https://www.govinfo.gov/content/pkg/STATUTE-49/pdf/STATUTE-49-Pg803.pdf",
         "https://www.ftc.gov/sites/default/files/documents/reports_annual/annual-report-1935/ar1935_0.pdf"
       ],
-      "verified": true
+      "verified": true,
+      "evidence": [
+        "ftc-annual-report-1938-volume-list"
+      ]
     },
     "public-utility-act-1935": {
       "date": "1935-08-26",
@@ -1299,7 +1321,10 @@
         "https://www.eia.gov/electricity/archive/0563.pdf",
         "https://www.law.cornell.edu/constitution-conan/article-1/section-8/clause-3/public-utility-holding-company-and-bituminous-coal-conservation-acts-of-1935"
       ],
-      "verified": true
+      "verified": true,
+      "evidence": [
+        "puhca-statute-49-stat-803"
+      ]
     },
     "texas-opens-switches-1935": {
       "date": "1935-08-01",
@@ -1341,7 +1366,10 @@
         "https://www.entergy.com/history",
         "https://www.fundinguniverse.com/company-histories/pacificorp-history/"
       ],
-      "verified": true
+      "verified": true,
+      "evidence": [
+        "puhca-section-11-49-stat-820-821"
+      ]
     },
     "wscc-1967": {
       "date": "1967-01-01",
@@ -1365,7 +1393,10 @@
         "https://esic.wsu.edu/documents/2025/09/when-the-grid-was-the-grid-a-short-history-of-building-our-electric-power-networks.pdf/",
         "https://ieeexplore.ieee.org/document/8594689/"
       ],
-      "verified": true
+      "verified": true,
+      "evidence": [
+        "fpc-1970-nps-transmission-system-figure-13-1"
+      ]
     },
     "stegall-1977": {
       "date": "1977-01-01",
@@ -1599,16 +1630,6 @@
       "rights": "U.S. government publication; public domain.",
       "verified": true
     },
-    "ftc-utility-corporations": {
-      "kind": "note",
-      "title": "FTC investigation of utility corporations, 1928 to 1935",
-      "archive": "Federal Trade Commission",
-      "citation": "Federal Trade Commission, Utility Corporations, Sen. Doc. No. 92, 70th Cong., 1st Sess. (roughly 100 volumes).",
-      "note": "Congress ordered the FTC to take the holding companies apart on paper. The result runs to about a hundred printed volumes and is where the empire maps in this frame come from.",
-      "source_url": "https://www.ftc.gov/",
-      "rights": "U.S. government publication; public domain.",
-      "verified": false
-    },
     "order-888-text": {
       "kind": "law",
       "excerpt": "order-888-1996"
@@ -1619,13 +1640,17 @@
     },
     "ftc-72a-map3-fields-of-operation-1925": {
       "kind": "map",
-      "title": "Map III: Fields of operations of principal power groups, located by counties, 1925 (FTC Utility Corporations, Part 72-A)",
+      "title": "Maps III and IV: fields of operations of principal power groups, by county, 1925 and 1932",
       "archive": "govinfo (GPO), U.S. Congressional Serial Set",
       "citation": "Federal Trade Commission, Utility Corporations, Summary Report on Economic, Financial, and Corporate Phases of Holding and Operating Companies of Electric and Gas Utilities, S. Doc. No. 92, pt. 72-A, 70th Cong., 1st Sess. (1935), map III, opposite p. 56.",
       "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
       "rights": "United States federal government publication, public domain",
       "verified": true,
-      "note": "This is the single best image in the whole set for showing how far each holding-company empire reached. It shades counties by which power group served them, and the legend names the groups: Electric Bond & Share, American Gas & Electric, and the rest. Pairing the 1925 and 1932 sheets shows the empires growing. The source PDF is 752 MB, so extract the two pages rather than downloading for casual vi"
+      "note": "The two sheets face the same printed page, and the point is reading them against each other. Each county is shaded for the group operating in it, and the legend names the groups. The shading is hatch pattern rather than colour, so a county is read by its texture. Map IV prints its own limit: separate cities and towns served are not shown.",
+      "files": {
+        "full": "/evidence/ftc-72a-map3-fields-of-operation-1925.webp",
+        "thumb": "/evidence/ftc-72a-map3-fields-of-operation-1925.thumb.webp"
+      }
     },
     "ftc-72a-map1-transmission-lines-1932": {
       "kind": "map",
@@ -1635,17 +1660,11 @@
       "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
       "rights": "United States federal government publication, public domain",
       "verified": true,
-      "note": "A national map of high-voltage transmission colour-coded by holding-company group. Useful as an early picture of the grid taking shape. I confirmed the plate is on this page by reading its OCR heading, 'ELECTRIC TRANSMISSION LINES, BY'."
-    },
-    "ftc-72a-chart-holding-company-pyramid": {
-      "kind": "map",
-      "title": "Charts XI and XII: The holding company pyramid (FTC Utility Corporations, Part 72-A)",
-      "archive": "govinfo (GPO), U.S. Congressional Serial Set",
-      "citation": "Federal Trade Commission, Utility Corporations, S. Doc. No. 92, pt. 72-A, 70th Cong., 1st Sess. (1935), charts XI and XII, opposite p. 162.",
-      "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
-      "rights": "United States federal government publication, public domain",
-      "verified": true,
-      "note": "The FTC's own diagram of a holding-company pyramid. It shows how a thin sliver of investment at the top controls the operating company at the bottom, and what happens to the numbers when the operating company's property account is written up by 22 percent. This is the picture that explains the whole PUHCA fight in one image."
+      "note": "A national map of high-voltage transmission colour-coded by holding-company group. Useful as an early picture of the grid taking shape. I confirmed the plate is on this page by reading its OCR heading, 'ELECTRIC TRANSMISSION LINES, BY'.",
+      "files": {
+        "full": "/evidence/ftc-72a-map1-transmission-lines-1932.webp",
+        "thumb": "/evidence/ftc-72a-map1-transmission-lines-1932.thumb.webp"
+      }
     },
     "ftc-72a-table12-generation-by-group": {
       "kind": "document",
@@ -1655,7 +1674,11 @@
       "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
       "rights": "United States federal government publication, public domain",
       "verified": true,
-      "note": "Company-by-company generation, ranked. This is the table to cite for any statement about how much of the country's electricity a named holding-company group actually produced. Table 11 on the preceding pages gives the 1924 distribution of control, and the surrounding text notes that large local corporations held about 30 percent."
+      "note": "Company-by-company generation, ranked. This is the table to cite for any statement about how much of the country's electricity a named holding-company group actually produced. Table 11 on the preceding pages gives the 1924 distribution of control, and the surrounding text notes that large local corporations held about 30 percent.",
+      "files": {
+        "full": "/evidence/ftc-72a-table12-generation-by-group.webp",
+        "thumb": "/evidence/ftc-72a-table12-generation-by-group.thumb.webp"
+      }
     },
     "ftc-72a-table19-operating-companies-by-group": {
       "kind": "document",
@@ -1665,7 +1688,11 @@
       "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
       "rights": "United States federal government publication, public domain",
       "verified": true,
-      "note": "Operating companies sorted under their parent group, with ledger assets, revenues and pre-tax income. The nearest thing in the set to a company-by-company holdings table. Table 16, on PDF page 82, adds gas volumes moved across state lines by group in 1930."
+      "note": "Operating companies sorted under their parent group, with ledger assets, revenues and pre-tax income. The nearest thing in the set to a company-by-company holdings table. Table 16, on PDF page 82, adds gas volumes moved across state lines by group in 1930.",
+      "files": {
+        "full": "/evidence/ftc-72a-table19-operating-companies-by-group.webp",
+        "thumb": "/evidence/ftc-72a-table19-operating-companies-by-group.thumb.webp"
+      }
     },
     "puhca-statute-49-stat-803": {
       "kind": "document",
@@ -1675,7 +1702,11 @@
       "source_url": "https://www.govinfo.gov/app/details/STATUTE-49/STATUTE-49-Pg803",
       "rights": "United States federal government publication, public domain",
       "verified": true,
-      "note": "The opening page carries the chapter number, the bill number S. 2796, the marginal note '[Public, No. 333.]', the date August 26, 1935, and section 1(b), where Congress says it is acting on the Federal Trade Commission's reports under S. Res. 83. A clean single image that links the investigation to the law."
+      "note": "The opening page carries the chapter number, the bill number S. 2796, the marginal note '[Public, No. 333.]', the date August 26, 1935, and section 1(b), where Congress says it is acting on the Federal Trade Commission's reports under S. Res. 83. A clean single image that links the investigation to the law.",
+      "files": {
+        "full": "/evidence/puhca-statute-49-stat-803.webp",
+        "thumb": "/evidence/puhca-statute-49-stat-803.thumb.webp"
+      }
     },
     "puhca-section-11-49-stat-820-821": {
       "kind": "document",
@@ -1685,17 +1716,22 @@
       "source_url": "https://www.govinfo.gov/app/details/STATUTE-49/STATUTE-49-Pg803",
       "rights": "United States federal government publication, public domain",
       "verified": true,
-      "note": "Section 11(b)(1) with the single integrated system rule and the adjoining-states test is on the page numbered 820. Section 11(b)(2), the clause that cuts a holding company off from any subsidiary that is itself a holding company over another holding company, is on the page numbered 821. Use this page rather than the fabricated quotation."
+      "note": "Section 11(b)(1) with the single integrated system rule and the adjoining-states test is on the page numbered 820. Section 11(b)(2), the clause that cuts a holding company off from any subsidiary that is itself a holding company over another holding company, is on the page numbered 821. Use this page rather than the fabricated quotation.",
+      "files": {
+        "full": "/evidence/puhca-section-11-49-stat-820-821.webp",
+        "thumb": "/evidence/puhca-section-11-49-stat-820-821.thumb.webp"
+      }
     },
     "ftc-annual-report-1938-volume-list": {
       "kind": "document",
-      "title": "FTC Annual Report for fiscal year 1938, page listing all 95 Utility Corporations volumes",
+      "title": "The FTC counts its own investigation, 1938",
       "archive": "FRASER, Federal Reserve Bank of St. Louis",
-      "citation": "Federal Trade Commission, Annual Report for the Fiscal Year Ended June 30, 1938, at 193.",
+      "quote": "are included in 84 printed volumes which, with 11 summary, final, index and appendix volumes, or a total of 95 were published as Senate Document No. 92, Seventieth Congress, first session, under the general title, Utility Corporations. … During the Investigation, the Commission's accountants, engineers, and economists examined 29 holding companies having total assets of $6,108,128,713; 70 subholding companies with total assets of $5,685,463,201, and 278 operating companies with total assets of $7,245,106,464.",
+      "note": "This is the Commission's own account of the size of the inquiry, printed three years after it ended. Ninety-five volumes, and 377 companies opened up. The 1935 law says on its face that Congress acted on these reports.",
+      "citation": "Annual Report of the Federal Trade Commission for the Fiscal Year Ended June 30, 1938 (Washington: GPO, 1938), 193.",
       "source_url": "https://fraser.stlouisfed.org/files/docs/publications/ftc/ftc_ar_1938.pdf",
-      "rights": "United States federal government publication, public domain",
-      "verified": true,
-      "note": "The FTC's own count and its own list of the summary, final, appendix and index volumes with dates and page counts. This is the page to cite for the 95-volume figure and for the identity of each lettered volume. FRASER serves the PDF directly. Its HTML pages were unreachable from this environment, so link the PDF."
+      "rights": "Public domain, work of the United States Government.",
+      "verified": true
     },
     "fpc-1964-nps-principal-transmission-1962": {
       "kind": "map",
@@ -1705,7 +1741,11 @@
       "source_url": "https://archive.org/details/nationalpowersur00unit/page/n236",
       "rights": "Public domain in the United States as a work of the US Government (17 U.S.C. 105). Author on title page: United States. Federal Power Commission. archive.org supplies no rights statement for this item, so the public-domain basis is statutory rather than asserted by the archive. HathiTrust independently marks all five copies of this title rightsCode pd. Suggested credit: Federal Power Commission, National Power Survey, Part I (Washington: GPO, October 1964), p. 210.",
       "verified": true,
-      "note": "CONFIRMED by retrieving bytes: HTTP 200, content-type image/jpeg, 361,450 bytes, 1600x2148 pixels. Visually verified at full size. This is the single best 1964 asset. One page carries two full-width US maps stacked vertically, red transmission lines on a cream ground, black state and region boundaries, tick marks for number of circuits. The 161 Kv map (top) shows a dense mesh across the Tennessee "
+      "note": "CONFIRMED by retrieving bytes: HTTP 200, content-type image/jpeg, 361,450 bytes, 1600x2148 pixels. Visually verified at full size. This is the single best 1964 asset. One page carries two full-width US maps stacked vertically, red transmission lines on a cream ground, black state and region boundaries, tick marks for number of circuits. The 161 Kv map (top) shows a dense mesh across the Tennessee ",
+      "files": {
+        "full": "/evidence/fpc-1964-nps-principal-transmission-1962.webp",
+        "thumb": "/evidence/fpc-1964-nps-principal-transmission-1962.thumb.webp"
+      }
     },
     "fpc-1964-nps-1980-projection-west": {
       "kind": "map",
@@ -1715,7 +1755,11 @@
       "source_url": "https://archive.org/details/nationalpowersur00unit/page/n242",
       "rights": "Public domain, US Government work. Same basis and credit line as the 1962 plate above.",
       "verified": true,
-      "note": "CONFIRMED: HTTP 200, image/jpeg, 363,379 bytes, 1600x2148. Visually verified. Two-page fold-out; leaf 242 is the western half and carries the whole legend, which is why it stands alone better than most spread halves. Legend keys 230 KV AC, 345 and 287 KV AC, 500 KV AC, 700 KV AC, DC, plus or minus 500 to 750 KV DC or 700 KV AC, number of circuits, and a generation-additions key with four symbol sh"
+      "note": "CONFIRMED: HTTP 200, image/jpeg, 363,379 bytes, 1600x2148. Visually verified. Two-page fold-out; leaf 242 is the western half and carries the whole legend, which is why it stands alone better than most spread halves. Legend keys 230 KV AC, 345 and 287 KV AC, 500 KV AC, 700 KV AC, DC, plus or minus 500 to 750 KV DC or 700 KV AC, number of circuits, and a generation-additions key with four symbol sh",
+      "files": {
+        "full": "/evidence/fpc-1964-nps-1980-projection-west.webp",
+        "thumb": "/evidence/fpc-1964-nps-1980-projection-west.thumb.webp"
+      }
     },
     "fpc-1970-nps-regions-and-power-supply-areas": {
       "kind": "map",
@@ -1725,7 +1769,11 @@
       "source_url": "https://archive.org/details/1970nationalpowe01unit/page/n92",
       "rights": "Public domain, US Government work. Credit: Federal Power Commission, The 1970 National Power Survey, Part I (Washington: GPO, December 1971), p. I-3-16.",
       "verified": true,
-      "note": "CONFIRMED: HTTP 200, image/jpeg, 440,383 bytes, 1600x2210. Visually verified. Clean black-and-white US map dividing the country into 6 heavy-outlined survey regions (Northeast, East Central, Southeast, West Central, South Central, West) and 48 numbered power supply areas in thinner line. Bold display type, high contrast, reproduces well small. This is the most legible single plate in the whole 197"
+      "note": "CONFIRMED: HTTP 200, image/jpeg, 440,383 bytes, 1600x2210. Visually verified. Clean black-and-white US map dividing the country into 6 heavy-outlined survey regions (Northeast, East Central, Southeast, West Central, South Central, West) and 48 numbered power supply areas in thinner line. Bold display type, high contrast, reproduces well small. This is the most legible single plate in the whole 197",
+      "files": {
+        "full": "/evidence/fpc-1970-nps-regions-and-power-supply-areas.webp",
+        "thumb": "/evidence/fpc-1970-nps-regions-and-power-supply-areas.thumb.webp"
+      }
     },
     "fpc-1970-nps-transmission-system-figure-13-1": {
       "kind": "map",
@@ -1735,7 +1783,11 @@
       "source_url": "https://archive.org/details/1970nationalpowe01unit/page/n272",
       "rights": "Public domain, US Government work. Same credit as Figure 3.6.",
       "verified": true,
-      "note": "CONFIRMED both halves: leaf 272 HTTP 200, image/jpeg, 281,258 bytes, 1600x2147; leaf 273 HTTP 200, image/jpeg, 322,754 bytes, 1600x2150. Visually verified. Colour plate: black dashed 230 KV AC, black solid 345 KV AC, green 500 KV AC, red 765 KV AC, red dashed plus or minus 400 KV DC, with circuit tick marks. Cities labelled (Seattle, Portland, Boise, Billings, Bismarck, Denver, Phoenix, Chicago, D"
+      "note": "CONFIRMED both halves: leaf 272 HTTP 200, image/jpeg, 281,258 bytes, 1600x2147; leaf 273 HTTP 200, image/jpeg, 322,754 bytes, 1600x2150. Visually verified. Colour plate: black dashed 230 KV AC, black solid 345 KV AC, green 500 KV AC, red 765 KV AC, red dashed plus or minus 400 KV DC, with circuit tick marks. Cities labelled (Seattle, Portland, Boise, Billings, Bismarck, Denver, Phoenix, Chicago, D",
+      "files": {
+        "full": "/evidence/fpc-1970-nps-transmission-system-figure-13-1.webp",
+        "thumb": "/evidence/fpc-1970-nps-transmission-system-figure-13-1.thumb.webp"
+      }
     },
     "fpc-1970-nps-principal-electric-facilities-region-1": {
       "kind": "map",
@@ -1745,7 +1797,11 @@
       "source_url": "https://archive.org/details/1970nationalpowe02unit/page/n167",
       "rights": "Public domain, US Government work. Credit: Federal Power Commission, The 1970 National Power Survey, Part II (Washington: GPO, 1971), p. II-1-135.",
       "verified": true,
-      "note": "CONFIRMED: HTTP 200, image/jpeg, 239,483 bytes, 1601x1329. Visually verified and this is the richest plate found. Landscape fold-out. Left third is a printed table of major generating stations of 400 MW and over, coded A through BD, with 1970, 1980 and 1990 capacity columns by category (conventional hydroelectric, pumped storage hydroelectric, nuclear fueled steam-electric, conventional steam-elec"
+      "note": "CONFIRMED: HTTP 200, image/jpeg, 239,483 bytes, 1601x1329. Visually verified and this is the richest plate found. Landscape fold-out. Left third is a printed table of major generating stations of 400 MW and over, coded A through BD, with 1970, 1980 and 1990 capacity columns by category (conventional hydroelectric, pumped storage hydroelectric, nuclear fueled steam-electric, conventional steam-elec",
+      "files": {
+        "full": "/evidence/fpc-1970-nps-principal-electric-facilities-region-1.webp",
+        "thumb": "/evidence/fpc-1970-nps-principal-electric-facilities-region-1.thumb.webp"
+      }
     },
     "middle-west-utilities-1923-properties-map": {
       "kind": "map",
@@ -1755,7 +1811,11 @@
       "source_url": "https://archive.org/details/essentialservice00midd/page/n28",
       "rights": "Published 1923, therefore public domain in the United States (all works published before 1929 are out of copyright as of 2026, regardless of renewal). archive.org supplies no rights field. Credit: Middle West Utilities Company, Essential Service in Fifteen States (Chicago, 1923), pp. 24-25; digitized by the University of Illinois Urbana-Champaign.",
       "verified": true,
-      "note": "CONFIRMED: HTTP 200, image/jpeg, 391,095 bytes, 1600x2168. Visually verified. Blue-and-black lithographed map with an art-nouveau border, running heads \"MIDDLE WEST UTILITIES COMPANY\" and \"ESSENTIAL SERVICE IN FIFTEEN STATES\". The legend lists 18 numbered principal operating companies: Illinois Northern Utilities, McHenry County Light and Power, Central Illinois Public Service, Central Power, Miss"
+      "note": "CONFIRMED: HTTP 200, image/jpeg, 391,095 bytes, 1600x2168. Visually verified. Blue-and-black lithographed map with an art-nouveau border, running heads \"MIDDLE WEST UTILITIES COMPANY\" and \"ESSENTIAL SERVICE IN FIFTEEN STATES\". The legend lists 18 numbered principal operating companies: Illinois Northern Utilities, McHenry County Light and Power, Central Illinois Public Service, Central Power, Miss",
+      "files": {
+        "full": "/evidence/middle-west-utilities-1923-properties-map.webp",
+        "thumb": "/evidence/middle-west-utilities-1923-properties-map.thumb.webp"
+      }
     },
     "census-1902-pearl-street-station-plate": {
       "kind": "document",
@@ -1765,7 +1825,11 @@
       "source_url": "https://archive.org/details/cu31924022815181/page/n58",
       "rights": "Public domain in the United States: a work of the US Government (Bureau of the Census), published 1906, and pre-1929 in any case. archive.org supplies no rights field for this Cornell scan; the closely related Google scan of the same report carries possible-copyright-status NOT_IN_COPYRIGHT. Credit: U.S. Bureau of the Census, Electrical Industries: 1902 (Washington: Government Printing Office, 1906), plate facing p. 34.",
       "verified": true,
-      "note": "CONFIRMED: HTTP 200, image/jpeg, 714,135 bytes, 1600x2136. Visually verified and it is excellent. One plate holding three fine-line engravings. Top and largest: the dynamo room, showing six men among a row of Jumbo dynamos direct-connected to steam engines, overhead belting and gas-style lamps, wooden plank floor. Lower left: the test battery of 1,000 incandescent lamps mounted on a wall frame wit"
+      "note": "CONFIRMED: HTTP 200, image/jpeg, 714,135 bytes, 1600x2136. Visually verified and it is excellent. One plate holding three fine-line engravings. Top and largest: the dynamo room, showing six men among a row of Jumbo dynamos direct-connected to steam engines, overhead belting and gas-style lamps, wooden plank floor. Lower left: the test battery of 1,000 incandescent lamps mounted on a wall frame wit",
+      "files": {
+        "full": "/evidence/census-1902-pearl-street-station-plate.webp",
+        "thumb": "/evidence/census-1902-pearl-street-station-plate.thumb.webp"
+      }
     },
     "census-1902-appleton-first-edison-station-plate": {
       "kind": "document",
@@ -1775,7 +1839,11 @@
       "source_url": "https://archive.org/details/cu31924022815181/page/n42",
       "rights": "Public domain, US Government work published 1906. Same credit line as the Pearl Street plate.",
       "verified": true,
-      "note": "CONFIRMED: HTTP 200, image/jpeg, 585,363 bytes, 1600x2136. Visually verified. Top: a photographic halftone of a small vertical-board wooden shed with a single window and door, snow-dusted ground, another building behind. Bottom: a cutaway engraving showing the shed's interior with a belt-driven dynamo, a bank of resistance coils, a switchboard and a small lamp cluster, marked \"Scale 1-24\". Printed"
+      "note": "CONFIRMED: HTTP 200, image/jpeg, 585,363 bytes, 1600x2136. Visually verified. Top: a photographic halftone of a small vertical-board wooden shed with a single window and door, snow-dusted ground, another building behind. Bottom: a cutaway engraving showing the shed's interior with a belt-driven dynamo, a bank of resistance coils, a switchboard and a small lamp cluster, marked \"Scale 1-24\". Printed",
+      "files": {
+        "full": "/evidence/census-1902-appleton-first-edison-station-plate.webp",
+        "thumb": "/evidence/census-1902-appleton-first-edison-station-plate.thumb.webp"
+      }
     },
     "loc-1904-electric-railway-power-house-interior": {
       "kind": "document",
@@ -1785,7 +1853,39 @@
       "source_url": "https://www.loc.gov/item/2016844562/",
       "rights": "rights_advisory: \"No known restrictions on publication. For more information, see National Photo Company Collection - Rights and Restrictions Information https://www.loc.gov/rr/print/res/275_npco.html\". LOC also states it does not itself own rights and cannot grant or deny permission, so the researcher carries the assessment. Credit: Library of Congress, Prints and Photographs Division, National Photo Company Collection.",
       "verified": true,
-      "note": "CONFIRMED: HTTP 200, image/jpeg, 88,868 bytes, 1024x836, single-channel greyscale. Visually verified and it is a genuinely strong period image. Four men in bowler hats and caps stand on and beside an enormous engine flywheel inside a fire-damaged generating hall; overhead a tangle of buckled conduit and collapsed roof steel, a tall boiler drum at left, a row of arched windows receding at right. Th"
+      "note": "CONFIRMED: HTTP 200, image/jpeg, 88,868 bytes, 1024x836, single-channel greyscale. Visually verified and it is a genuinely strong period image. Four men in bowler hats and caps stand on and beside an enormous engine flywheel inside a fire-damaged generating hall; overhead a tangle of buckled conduit and collapsed roof steel, a tall boiler drum at left, a row of arched windows receding at right. Th",
+      "files": {
+        "full": "/evidence/loc-1904-electric-railway-power-house-interior.webp",
+        "thumb": "/evidence/loc-1904-electric-railway-power-house-interior.thumb.webp"
+      }
+    },
+    "ftc-72a-chart-9-insull-group-1932": {
+      "kind": "map",
+      "title": "Chart IX: the whole Insull group on one sheet, January 1932",
+      "archive": "govinfo, U.S. Congressional Serial Set",
+      "note": "Hundreds of companies in nested boxes, on a fold-out that scans at 6,919 by 9,306 pixels. Four line styles carry the relationships: interest through Corporation Securities Co. of Chicago, interest through Insull Utility Investments, main subsidiary relations, and lesser ones. The chart's own footnote says the controlling stakes were minorities, and says why they still worked: intercompany holdings of other minorities, plus Samuel Insull, Martin J. Insull and Samuel Insull Jr. holding key executive positions throughout the group.",
+      "citation": "Federal Trade Commission, Utility Corporations, Sen. Doc. No. 92, 70th Cong., 1st Sess., Part 72-A (Washington: GPO, 1935), Chart IX, facing p. 136.",
+      "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
+      "rights": "Public domain, work of the United States Government.",
+      "verified": true,
+      "files": {
+        "full": "/evidence/ftc-72a-chart-9-insull-group-1932.webp",
+        "thumb": "/evidence/ftc-72a-chart-9-insull-group-1932.thumb.webp"
+      }
+    },
+    "ftc-72a-chart-10-insull-chain-1930": {
+      "kind": "map",
+      "title": "Chart X: one chain through the pyramid, December 31, 1930",
+      "archive": "govinfo, U.S. Congressional Serial Set",
+      "note": "Seven layers, drawn as one column. Insull Interests, not incorporated, holding 69.3 per cent of Corporation Securities Co. of Chicago, which with Insull Utility Investments held 28.1 per cent of the voting stock of Middle West Utilities. Middle West held 99 per cent of National Electric Power, which held 93 per cent of National Public Service, which held all of Seaboard Public Service, which held all of Florida Power Corp, which held all of West Florida Power Co. and its $100,200 of common stock. The chart is dated the last day of 1930, and the FTC notes it is drawn before the receivership.",
+      "citation": "Federal Trade Commission, Utility Corporations, Sen. Doc. No. 92, 70th Cong., 1st Sess., Part 72-A (Washington: GPO, 1935), Chart X, facing p. 160.",
+      "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
+      "rights": "Public domain, work of the United States Government.",
+      "verified": true,
+      "files": {
+        "full": "/evidence/ftc-72a-chart-10-insull-chain-1930.webp",
+        "thumb": "/evidence/ftc-72a-chart-10-insull-chain-1930.thumb.webp"
+      }
     }
   },
   "seam_machines": {
