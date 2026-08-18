@@ -2,7 +2,10 @@
 // store; the React card components render it. The engine pre-computes
 // anything registry-dependent so the components stay presentational.
 import { req } from "../../lib/assert";
-import { copy, rules, statePrices, type TimelineFrame, type ZipUtility } from "../../lib/data";
+import {
+  copy, parseHoldingsTrace, rules, statePrices,
+  type TimelineFrame, type ZipUtility,
+} from "../../lib/data";
 import { fmtMeasure, titleCase } from "../../lib/format";
 import {
   setAtlasState, type CardModel, type EvidenceChip, type FrameEventRow, type StatModel,
@@ -325,6 +328,48 @@ export function showDot(i: number): void {
       body: story?.body ?? "A city with its own power station, lighting the blocks around it and no further.",
       ...(d.note !== undefined ? { note: d.note } : {}),
       stats,
+      backLabel: "← back to the plate",
+    },
+  });
+}
+
+// A county on FTC Map III. The card keeps the plate's uncertainty grammar in
+// ordinary language: a possible or ambiguous hatch never becomes a confident
+// ownership claim just because the reader hovered it.
+export function showHoldingCounty(fips: string): void {
+  const h = ctx().holdings;
+  const county = h?.countiesFC.features.find((f) => f.properties.GEOID === fips);
+  const raw = h?.trace.years["1925"]?.[fips];
+  if (!h || !county || raw === undefined) return;
+  const parsed = parseHoldingsTrace(raw);
+  const legend = h.trace.legends["1925"] ?? {};
+  const labels = parsed.groups.map((g) => legend[g]?.printed_label ?? g);
+  let statusLine: string;
+  let body: string;
+  if (parsed.status === "exact") {
+    statusLine = labels[0] ?? "Named holding-company system";
+    body = "The traced hatch assigns this county to this holding-company system on FTC Map III.";
+  } else if (parsed.status === "maybe") {
+    statusLine = `Possible: ${labels[0] ?? "named system"}`;
+    body = "The county appears filled, but the engraved pattern is not clear enough for a certain assignment.";
+  } else if (parsed.status === "amb") {
+    statusLine = `Ambiguous: ${labels.join(" or ")}`;
+    body = "Independent readings agree that the county is filled, but not which of these printed patterns it carries.";
+  } else if (parsed.status === "unknown") {
+    statusLine = "A principal power group operated here";
+    body = "The county is visibly filled on the plate, but its engraved pattern cannot be read reliably.";
+  } else {
+    statusLine = "No county-level group fill";
+    body = "The plate does not shade this county for one of its principal power groups.";
+  }
+  setAtlasState({
+    card: {
+      kind: "holdingCounty",
+      kicker: "FTC Map III · 1925",
+      name: `${county.properties.NAME} · ${county.properties.STUSPS}`,
+      statusLine,
+      body,
+      note: "Modern county geometry is used to read a historical plate; changed boundaries and separate towns remain limits of the trace.",
       backLabel: "← back to the plate",
     },
   });

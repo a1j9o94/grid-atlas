@@ -158,6 +158,17 @@ function CardBody({ card }: { card: CardModel }) {
           <button className="c-back" onClick={() => { backToFrame(); }}>{card.backLabel}</button>
         </>
       );
+    case "holdingCounty":
+      return (
+        <>
+          <div className="c-kicker">{card.kicker}</div>
+          <h3>{card.name}</h3>
+          <div className="c-choice">{card.statusLine}</div>
+          <p className="c-body">{card.body}</p>
+          {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
+          <button className="c-back" onClick={() => { backToFrame(); }}>{card.backLabel}</button>
+        </>
+      );
     case "intro":
       return (
         <>

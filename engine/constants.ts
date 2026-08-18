@@ -22,6 +22,40 @@ export function swatchBackground(rto: string): string {
 export const TRANSITION_SWATCH =
   "repeating-linear-gradient(-45deg, #b4552d 0 4px, #f0d8ca 4px 5.5px)";
 
+// FTC Map III is monochrome. These editorial colours separate the twenty
+// printed hatch identities after they have been hand traced; the legend says
+// that explicitly so nobody mistakes them for colours sampled from the plate.
+export const HOLDING_COLORS: Record<string, string> = {
+  age: "#8f5f4b",
+  "american-water-works": "#52799a",
+  "cities-service": "#b87c34",
+  ebasco: "#697d91",
+  "federal-light": "#876b9d",
+  fitkin: "#ba6861",
+  "general-gas-electric": "#477a72",
+  hodenpyl: "#657d45",
+  insull: "#9d5545",
+  "national-electric": "#9a7b43",
+  "north-american": "#4c7790",
+  "north-american-light": "#7566a0",
+  "northeastern-super": "#4e8585",
+  southeastern: "#a86877",
+  "standard-gas": "#797b42",
+  "stone-webster": "#5f6e9b",
+  tenney: "#9c6d8a",
+  ugi: "#477c59",
+  "united-gas-electric": "#a76437",
+  "united-light-power": "#77705d",
+};
+export const HOLDINGS_EXACT_SWATCH =
+  "linear-gradient(90deg, #9d5545 0 20%, #697d91 20% 40%, #657d45 40% 60%, #52799a 60% 80%, #b87c34 80%)";
+export const HOLDINGS_MAYBE_SWATCH =
+  "repeating-linear-gradient(135deg, #718279 0 3px, #e4e7db 3px 6px)";
+export const HOLDINGS_AMB_SWATCH =
+  "repeating-linear-gradient(45deg, #696e65 0 2px, #d8dbd1 2px 5px)";
+export const HOLDINGS_UNKNOWN_SWATCH =
+  "repeating-linear-gradient(90deg, #9da296 0 1px, #d8dbd1 1px 4px)";
+
 // wires layer: ownership as ONE hue, stepped from investor-owned (light) to
 // citizen-owned (dark). Any two contrasting hues at this area coverage reads
 // as an election map, so the encoding is ordered "how public is your power

@@ -17,8 +17,9 @@ const arg = (k, d) => {
   return i > -1 ? process.argv[i + 1] : d;
 };
 const port = Number(arg("port", "3451"));
-const url = `http://localhost:${port}`;
-const child = spawn("npx", ["next", "start", "-p", String(port)], { stdio: "ignore" });
+const url = `http://127.0.0.1:${port}`;
+const child = spawn(process.execPath,
+  ["node_modules/next/dist/bin/next", "start", "-H", "127.0.0.1", "-p", String(port)], { stdio: "ignore" });
 for (let i = 0; i < 90; i++) {
   try { if ((await fetch(url)).ok) break; } catch { /* not up yet */ }
   await new Promise(r => setTimeout(r, 500));
@@ -68,6 +69,62 @@ const open = async (frame) => {
   await page.waitForSelector("#g-seam .sm-region", { state: "attached", timeout: 30000 });
   return read();
 };
+
+// FTC Map III: every county-equivalent must be present, and the five explicit
+// trace states must survive the JSON-to-DOM boundary. This is deliberately an
+// exact count: silently dropping one tiny independent city is still data loss.
+await page.goto(`${url}/then/1930`, { waitUntil: "networkidle" });
+await page.waitForFunction(
+  () => document.querySelectorAll("#g-holdings .holdings-county").length === 3108,
+  null, { timeout: 30000 });
+const holdings = await page.evaluate(() => ({
+  total: document.querySelectorAll("#g-holdings .holdings-county").length,
+  exact: document.querySelectorAll("#g-holdings .holdings-exact").length,
+  maybe: document.querySelectorAll("#g-holdings .holdings-maybe").length,
+  amb: document.querySelectorAll("#g-holdings .holdings-amb").length,
+  unknown: document.querySelectorAll("#g-holdings .holdings-unknown").length,
+  none: document.querySelectorAll("#g-holdings .holdings-none").length,
+  visible: !document.getElementById("g-holdings")?.hasAttribute("hidden"),
+  dotsHidden: document.getElementById("g-time-marks")?.hasAttribute("hidden"),
+  pending: document.querySelector('.tl-stop[aria-pressed="true"]')?.hasAttribute("data-pending"),
+  legend: document.getElementById("legend")?.textContent?.replace(/\s+/g, " ").trim(),
+}));
+want("1930 draws every county once", holdings.total, 3108);
+want("1930 preserves exact/maybe/amb/unknown/none",
+  [holdings.exact, holdings.maybe, holdings.amb, holdings.unknown, holdings.none],
+  [1329, 57, 215, 334, 1173]);
+want("1930 holdings visible and city dots hidden", [holdings.visible, holdings.dotsHidden], [true, true]);
+want("1930 is shipped, not pending", holdings.pending, false);
+want("1930 legend explains source colour", holdings.legend?.includes("source plate is monochrome"), true);
+
+// Cook County is a release anchor. Picking it must name both the county and
+// the printed system, proving geometry, trace, legend and card are joined.
+await page.locator('.holdings-county[data-fips="17031"]').dispatchEvent("mouseover");
+await page.waitForTimeout(100);
+want("Cook County pick names the county", await page.locator(".card h3").textContent(), "Cook · IL");
+want("Cook County pick names Insull", await page.locator(".card .c-choice").textContent(), "Insull Interests");
+
+// Leaving the plate in-app must hide it without destroying it; stepping back
+// reuses the already-built paths and never duplicates the county mesh.
+const clickStop = async (label) => {
+  const stop = page.locator(".tl-stop").filter({ hasText: label });
+  await stop.click();
+  await page.waitForFunction((text) => {
+    const active = document.querySelector('.tl-stop[aria-pressed="true"]');
+    return active?.textContent?.includes(text);
+  }, label);
+};
+await clickStop("1935");
+want("1935 hides holdings", await page.evaluate(
+  () => document.getElementById("g-holdings")?.hasAttribute("hidden")), true);
+await clickStop("1930");
+await page.waitForFunction(
+  () => document.querySelectorAll("#g-holdings .holdings-county").length === 3108);
+want("returning to 1930 reuses one county mesh", await page.evaluate(
+  () => document.querySelectorAll("#g-holdings .holdings-county").length), 3108);
+await page.locator("#rail .step").first().click();
+want("leaving History hides holdings", await page.evaluate(
+  () => document.getElementById("g-holdings")?.hasAttribute("hidden")), true);
 
 // Three machines, two boundaries, on every seam plate. The dots belong to 1900.
 for (const frame of ["1935", "1967", "1975"]) {

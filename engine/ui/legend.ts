@@ -5,7 +5,10 @@ import { copy, rules, statePrices, type LayerKey } from "../../lib/data";
 import { fmtMeasure, titleCase } from "../../lib/format";
 import { req } from "../../lib/assert";
 import { setAtlasState, type LegendModel } from "../../lib/store";
-import { NO_DATA, OTHER_PARENT, TRANSITION_SWATCH } from "../constants";
+import {
+  HOLDINGS_AMB_SWATCH, HOLDINGS_EXACT_SWATCH, HOLDINGS_MAYBE_SWATCH,
+  HOLDINGS_UNKNOWN_SWATCH, NO_DATA, OTHER_PARENT, TRANSITION_SWATCH,
+} from "../constants";
 import { ctx } from "../ctx";
 import { colourScale, isColourMeasure, measureSpec } from "../data";
 import type { Scale } from "../scales";
@@ -50,6 +53,18 @@ export function renderLegend(key: LayerKey): void {
     // than describing the same marks in different words.
     if (f?.geometry.kind === "current") {
       legend = { kind: "swatches", items: [{ swatch: TRANSITION_SWATCH, label: "Changed grids in 2026" }] };
+    } else if (f?.geometry.kind === "holdings") {
+      legend = {
+        kind: "swatches",
+        items: [
+          { swatch: HOLDINGS_EXACT_SWATCH, label: "Named system" },
+          { swatch: HOLDINGS_MAYBE_SWATCH, label: "Possible system" },
+          { swatch: HOLDINGS_AMB_SWATCH, label: "Ambiguous pattern" },
+          { swatch: HOLDINGS_UNKNOWN_SWATCH, label: "Filled; system unreadable" },
+          { swatch: "#e4e7db", label: "No county fill" },
+        ],
+        note: "Colour separates traced systems; the FTC source plate is monochrome. Hover a county for the printed name and confidence.",
+      };
     } else {
       legend = {
         kind: "swatches",

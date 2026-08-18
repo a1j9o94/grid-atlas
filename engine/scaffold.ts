@@ -27,6 +27,17 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
       <stop offset="40%" stop-color="#e0a838" stop-opacity="0.42"/>
       <stop offset="100%" stop-color="#e0a838" stop-opacity="0"/>
     </radialGradient>
+    <!-- Confidence, not company identity. Exact and possible assignments use
+         the editorial system palette; these two neutral patterns say that a
+         filled county could not be assigned to one printed hatch. -->
+    <pattern id="holdings-ambiguous" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="#d8dbd1"/>
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#696e65" stroke-width="2"/>
+    </pattern>
+    <pattern id="holdings-unknown" width="5" height="5" patternUnits="userSpaceOnUse">
+      <rect width="5" height="5" fill="#d8dbd1"/>
+      <line x1="1" y1="0" x2="1" y2="5" stroke="#92988b" stroke-width="1"/>
+    </pattern>
   </defs>
   <g id="g-rto" filter="url(#wobble)"></g>
   <g id="g-transitions" filter="url(#wobble)"></g>
@@ -41,6 +52,9 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
   <!-- history: the ground for a past plate. Under the state lines, so the
        borders you know still sit on top of a map you do not. -->
   <g id="g-time-base" filter="url(#wobble)" hidden></g>
+  <!-- The FTC county trace. County edges stay crisp: applying the 6.5px hand-
+       ink displacement to a small eastern county can move it outside itself. -->
+  <g id="g-holdings" hidden></g>
   <!-- The three machines, for the mid-century plates. Same wobble as the
        wholesale regions, so a 1967 map is inked like a 2026 one. -->
   <g id="g-seam" filter="url(#wobble)" hidden></g>
@@ -78,6 +92,7 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
       trivia: pick("#g-trivia"),
       timeBase: pick("#g-time-base"),
       timeMarks: pick("#g-time-marks"),
+      holdings: pick("#g-holdings"),
       seam: pick("#g-seam"),
       membership: pick("#g-membership"),
       seamLines: pick("#g-seam-lines"),

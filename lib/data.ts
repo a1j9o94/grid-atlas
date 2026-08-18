@@ -193,6 +193,49 @@ export type RtosFC = FeatureCollection<Geometry, RtoProps>;
 export type TransitionsFC = FeatureCollection<Geometry, TransitionProps>;
 export type ZctaFC = FeatureCollection<Geometry, ZctaProps>;
 
+// County geometry and the hand-read FTC Map III trace. The geometry is kept
+// separate from the trace so a later plate can reuse the same 3,108 paths
+// without downloading another copy of the county mesh.
+export interface HoldingsCountyProps {
+  GEOID: string;
+  NAME: string;
+  STUSPS: string;
+}
+export type HoldingsCountyFC = FeatureCollection<Geometry, HoldingsCountyProps>;
+export type HoldingsTraceStatus = "exact" | "maybe" | "amb" | "unknown" | "none";
+export interface HoldingsTrace {
+  raw: string;
+  status: HoldingsTraceStatus;
+  groups: string[];
+}
+export interface HoldingsLegendEntry {
+  printed_label: string;
+  note?: string;
+}
+export interface HoldingsFile {
+  schema_version: number;
+  status: string;
+  meta: Record<string, unknown>;
+  legends: Record<string, Record<string, HoldingsLegendEntry>>;
+  years: Record<string, Record<string, string>>;
+  rollups: Record<string, unknown>;
+}
+
+// The release grammar preserves uncertainty instead of turning a hard-to-read
+// hatch into a confident owner. Exact values are bare legend keys; the four
+// reserved forms are intentionally parsed here, at the JSON/type boundary.
+export function parseHoldingsTrace(raw: string): HoldingsTrace {
+  if (raw === "none") return { raw, status: "none", groups: [] };
+  if (raw === "unknown-served") return { raw, status: "unknown", groups: [] };
+  if (raw.startsWith("maybe:")) {
+    return { raw, status: "maybe", groups: [raw.slice("maybe:".length)].filter(Boolean) };
+  }
+  if (raw.startsWith("amb:")) {
+    return { raw, status: "amb", groups: raw.slice("amb:".length).split("|").filter(Boolean) };
+  }
+  return { raw, status: "exact", groups: [raw] };
+}
+
 export interface ZipUtility {
   id: number | string;
   name: string;
@@ -260,7 +303,7 @@ export interface EvidenceAsset {
   files?: { full?: string; thumb?: string };
   verified?: boolean;
 }
-export type FrameKind = "dots" | "dots+tints" | "seam" | "membership" | "current";
+export type FrameKind = "dots" | "dots+tints" | "holdings" | "seam" | "membership" | "current";
 export interface TimelineGeometry {
   kind: FrameKind;
   scale?: { field: string; min_r: number; max_r: number };

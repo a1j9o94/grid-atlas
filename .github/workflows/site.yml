@@ -1,0 +1,40 @@
+name: Site
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Validate Map III assets
+        run: |
+          node --input-type=module <<'JS'
+          import fs from "node:fs";
+          import { feature } from "topojson-client";
+          const topo = JSON.parse(fs.readFileSync("public/data/timeline/holdings-counties.topo.json", "utf8"));
+          const geometry = feature(topo, Object.values(topo.objects)[0]);
+          const holdings = JSON.parse(fs.readFileSync("public/data/timeline/holdings-1925.json", "utf8"));
+          const geometryIds = new Set(geometry.features.map((item) => item.properties.GEOID));
+          const trace = holdings.years["1925"];
+          if (holdings.status !== "release-map3-1925") throw new Error(`bad release status: ${holdings.status}`);
+          if (geometry.features.length !== 3108 || geometryIds.size !== 3108 || Object.keys(trace).length !== 3108) {
+            throw new Error("Map III must join exactly 3,108 unique geometry and trace FIPS");
+          }
+          for (const fips of Object.keys(trace)) if (!geometryIds.has(fips)) throw new Error(`missing geometry ${fips}`);
+          if (!Object.values(holdings.meta.trace_anchors).every(Boolean)) throw new Error("Map III anchor failed");
+          JS
+      - run: npm run build
