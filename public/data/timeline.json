@@ -90,6 +90,7 @@
       ],
       "evidence": [
         "ftc-72a-map3-fields-of-operation-1925",
+        "ftc-72a-map4-fields-of-operation-1932",
         "ftc-72a-map1-transmission-lines-1932",
         "ftc-72a-chart-9-insull-group-1932",
         "ftc-72a-chart-10-insull-chain-1930",
@@ -101,7 +102,7 @@
       "ship": true,
       "verified": true,
       "sources": [],
-      "note": "The county layer is a hand trace of FTC Map III, dated 1925, shown on modern county equivalents inside this 1930 context plate. It preserves unreadable, ambiguous and boundary-uncertain counties rather than guessing. Separate cities and towns may be absent, and the historical percentages use different denominators, so the systems cannot be ranked from this map.",
+      "note": "The interactive county layer is a hand trace of FTC Map III, dated 1925, shown on modern county equivalents inside this 1930 context plate. It preserves unreadable, ambiguous and boundary-uncertain counties rather than guessing. The original Map IV (1932) sheet is available in the evidence rail as a source scan; it is not projected onto modern counties because independent georeference checks did not clear the release threshold. Separate cities and towns may be absent, and the historical percentages use different denominators, so the systems cannot be ranked from these maps.",
       "verify_notes": "Map III county trace released with explicit exact, possible, ambiguous, unreadable, and unfilled states."
     },
     {
@@ -1734,16 +1735,30 @@
     },
     "ftc-72a-map3-fields-of-operation-1925": {
       "kind": "map",
-      "title": "Maps III and IV: fields of operations of principal power groups, by county, 1925 and 1932",
+      "title": "Map III: fields of operations of principal power groups, by county, 1925",
       "archive": "govinfo (GPO), U.S. Congressional Serial Set",
       "citation": "Federal Trade Commission, Utility Corporations, Summary Report on Economic, Financial, and Corporate Phases of Holding and Operating Companies of Electric and Gas Utilities, S. Doc. No. 92, pt. 72-A, 70th Cong., 1st Sess. (1935), map III, opposite p. 56.",
       "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
       "rights": "United States federal government publication, public domain",
       "verified": true,
-      "note": "The two sheets face the same printed page, and the point is reading them against each other. Each county is shaded for the group operating in it, and the legend names the groups. The shading is hatch pattern rather than colour, so a county is read by its texture. Map IV prints its own limit: separate cities and towns served are not shown.",
+      "note": "Each county is shaded for the group operating in it, and the legend names the groups. The shading is hatch pattern rather than colour, so a county is read by its texture. This 1925 sheet is the source of the interactive county layer.",
       "files": {
         "full": "/evidence/ftc-72a-map3-fields-of-operation-1925.webp",
         "thumb": "/evidence/ftc-72a-map3-fields-of-operation-1925.thumb.webp"
+      }
+    },
+    "ftc-72a-map4-fields-of-operation-1932": {
+      "kind": "map",
+      "title": "Map IV: fields of operations of principal power groups, by county, 1932",
+      "archive": "govinfo (GPO), U.S. Congressional Serial Set",
+      "citation": "Federal Trade Commission, Utility Corporations, Summary Report on Economic, Financial, and Corporate Phases of Holding and Operating Companies of Electric and Gas Utilities, S. Doc. No. 92, pt. 72-A, 70th Cong., 1st Sess. (1935), map IV, opposite p. 56.",
+      "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
+      "rights": "United States federal government publication, public domain",
+      "verified": true,
+      "note": "This is the original 1932 source plate, presented as a pan-and-zoom scan rather than a modern county overlay. Its printed note says that separate cities and towns served are not shown. Independent georeference validation did not clear the threshold required to assign these hatch fields to modern county polygons, so the site does not imply county-level precision that the scan cannot support.",
+      "files": {
+        "full": "/evidence/ftc-72a-map4-fields-of-operation-1932.webp",
+        "thumb": "/evidence/ftc-72a-map4-fields-of-operation-1932.thumb.webp"
       }
     },
     "ftc-72a-map1-transmission-lines-1932": {
@@ -2011,3 +2026,4 @@
     }
   }
 }
+
