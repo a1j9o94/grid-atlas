@@ -5,9 +5,13 @@
 // This exists because eyeballing a screenshot does not catch a 12px overlap or
 // an input clipping its last character, and both shipped at least once.
 //
-// Usage: npm run audit            (serves ./ on a free port, runs headless)
+// Usage: npm run build && npm run audit   (starts the production build on a
+//                                          free port, runs headless)
 //        npm run audit -- --url https://grid-atlas-coral.vercel.app
 //        npm run audit -- --shots  (also write PNGs to tools/shots/)
+//
+// The audit drives the production build, never `next dev`: dev mode double-
+// invokes effects and its overlay logs would trip the console-error check.
 //
 // Auditing a remote --url needs the browser to reach the internet. Behind a
 // proxy, set HTTPS_PROXY or pass --proxy; some sandboxes block browser egress
@@ -15,9 +19,9 @@
 // files by checksum instead.
 
 import { createServer } from "http";
-import { readFile } from "fs/promises";
-import { mkdirSync } from "fs";
-import { extname, join, normalize, dirname } from "path";
+import { spawn } from "child_process";
+import { existsSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { chromium } from "playwright";
 
@@ -76,23 +80,41 @@ const PANELS = {
   shadeControls: "#shade-controls",
 };
 
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
+function freePort() {
+  return new Promise(resolve => {
+    const s = createServer();
+    s.listen(0, () => {
+      const p = s.address().port;
+      s.close(() => resolve(p));
+    });
+  });
+}
 
 async function serve() {
-  const server = createServer(async (req, res) => {
+  if (!existsSync(join(root, ".next"))) {
+    console.error("no production build found: run `npm run build` first");
+    process.exit(2);
+  }
+  const port = await freePort();
+  const child = spawn(
+    process.execPath,
+    [join(root, "node_modules", "next", "dist", "bin", "next"), "start", "-p", String(port)],
+    { cwd: root, stdio: "ignore" },
+  );
+  const url = `http://localhost:${port}`;
+  for (let i = 0; ; i++) {
     try {
-      let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
-      if (p === "/") p = "/index.html";
-      const file = join(root, normalize(p).replace(/^(\.\.[/\\])+/, ""));
-      const body = await readFile(file);
-      res.writeHead(200, { "content-type": MIME[extname(file)] ?? "application/octet-stream" });
-      res.end(body);
-    } catch {
-      res.writeHead(404).end("not found");
+      const r = await fetch(url + "/");
+      if (r.ok) break;
+    } catch { /* not up yet */ }
+    if (i >= 150) {
+      child.kill();
+      console.error("next start did not come up on " + url);
+      process.exit(2);
     }
-  });
-  await new Promise(r => server.listen(0, r));
-  return { server, url: `http://localhost:${server.address().port}` };
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return { server: { close: () => child.kill() }, url };
 }
 
 const problems = [];
