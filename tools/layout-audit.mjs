@@ -47,24 +47,39 @@ const VIEWPORTS = [
 ];
 
 const VIEWS = [
-  { name: "wholesale", q: "?layer=wholesale" },
-  { name: "rules", q: "?layer=rules" },
-  { name: "wires-land", q: "?layer=wires" },
-  { name: "wires-meters", q: "?layer=wires&size=cust" },
-  { name: "wires-energy", q: "?layer=wires&size=mwh" },
-  { name: "wires-parent", q: "?layer=wires&colour=parent" },
-  { name: "wires-outages", q: "?layer=wires&colour=saidi" },
-  { name: "wires-solar", q: "?layer=wires&colour=solarw" },
-  { name: "wires-smart", q: "?layer=wires&colour=amishare" },
-  { name: "wires-solar-size", q: "?layer=wires&size=solarmw" },
-  { name: "wires-size-colour", q: "?layer=wires&size=cust&colour=saidi" },
+  { name: "wholesale", q: "/" },
+  { name: "rules", q: "/rules" },
+  { name: "wires-land", q: "/wires" },
+  { name: "wires-meters", q: "/wires/by-cust" },
+  { name: "wires-energy", q: "/wires/by-mwh" },
+  { name: "wires-parent", q: "/wires/parent" },
+  { name: "wires-outages", q: "/wires/saidi" },
+  { name: "wires-solar", q: "/wires/solarw" },
+  { name: "wires-smart", q: "/wires/amishare" },
+  { name: "wires-solar-size", q: "/wires/by-solarmw" },
+  { name: "wires-size-colour", q: "/wires/saidi/by-cust" },
   // Three stats plus a long legend label is the widest the card and the legend
   // ever get, so the combination is worth a viewport of its own.
-  { name: "wires-solar-both", q: "?layer=wires&size=solarmw&colour=solarw" },
-  { name: "rules-price", q: "?layer=rules&shade=res" },
-  { name: "rules-delivery", q: "?layer=rules&shade=delivery" },
-  { name: "you", q: "?zip=78701" },
+  { name: "wires-solar-both", q: "/wires/solarw/by-solarmw" },
+  { name: "rules-price", q: "/rules/res" },
+  { name: "rules-delivery", q: "/rules/delivery" },
+  { name: "you", q: "/you/78701" },
 ];
+
+// The query links this site shipped with. Each must answer with a redirect to
+// its canonical path before any JavaScript runs, and junk must 404 rather
+// than quietly render the default map.
+const REDIRECTS = [
+  ["/?layer=wires&size=cust&colour=saidi", "/wires/saidi/by-cust"],
+  ["/?layer=wires&colour=saidi-all", "/wires/saidi-all"],
+  ["/?layer=wires&size=mwh", "/wires/by-mwh"],
+  ["/?layer=rules&shade=res", "/rules/res"],
+  ["/?zip=78701", "/you/78701"],
+  ["/?trivia=caldwell-switched-grids", "/trivia/caldwell-switched-grids"],
+  ["/?layer=you", "/you"],
+  ["/?layer=wholesale", "/"],
+];
+const NOT_FOUND = ["/nonsense", "/wires/notameasure", "/wires/by-nothing", "/rules/blue", "/you/1234"];
 
 // Boxes that must never overlap each other. All of them are chrome floating
 // over or beside the map, which is exactly where collisions hide.
@@ -145,6 +160,22 @@ try {
 }
 if (flag("shots")) mkdirSync(join(here, "shots"), { recursive: true });
 
+// redirect + 404 matrix, once, before the layout sweep
+{
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  for (const [from, to] of REDIRECTS) {
+    await page.goto(host.url + from, { waitUntil: "commit" });
+    const landed = new URL(page.url());
+    if (landed.pathname + landed.search !== to)
+      add("redirects", `${from} landed on ${landed.pathname}${landed.search}, wanted ${to}`);
+  }
+  for (const path of NOT_FOUND) {
+    const resp = await page.goto(host.url + path, { waitUntil: "commit" });
+    if (resp && resp.status() !== 404) add("404s", `${path} answered ${resp.status()}, wanted 404`);
+  }
+  await page.close();
+}
+
 for (const vp of VIEWPORTS) {
   const page = await browser.newPage({ viewport: { width: vp.w, height: vp.h } });
   const errs = [];
@@ -153,7 +184,7 @@ for (const vp of VIEWPORTS) {
 
   for (const view of VIEWS) {
     const tag = `${vp.name}/${view.name}`;
-    await page.goto(host.url + "/" + view.q, { waitUntil: "networkidle" });
+    await page.goto(host.url + view.q, { waitUntil: "networkidle" });
     // the wires layer lazy-loads 5.5MB of geometry and then tweens
     await page.waitForTimeout(view.name.startsWith("wires") ? 2600 : 1200);
 
