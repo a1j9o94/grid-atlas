@@ -73,6 +73,15 @@ export type CardModel =
       note?: string;
       stats: StatModel[];
       backLabel: string;
+    }
+  | {
+      kind: "holdingCounty";
+      kicker: string;
+      name: string;
+      statusLine: string;
+      body: string;
+      note?: string;
+      backLabel: string;
     };
 
 export type LegendModel =

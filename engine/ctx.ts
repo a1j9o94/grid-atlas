@@ -6,14 +6,14 @@ import type { MultiLineString } from "geojson";
 import type {
   CartogramFile, LayerKey, MeasuresFile, RtosFC, StatesFC, TimelineFile, TransitionsFC, WireFeature,
 } from "../lib/data";
-import type { MembershipFrames, SeamData } from "./data";
+import type { HoldingsBundle, MembershipFrames, SeamData } from "./data";
 import type { ViewBox, WireGroupKey } from "./constants";
 import type { Scale } from "./scales";
 
 export type GroupKey =
   | "rto" | "transitions" | "rules" | "wires" | "cartogram" | "sizekey"
   | "you" | "zipoutline" | "statelines" | "labels" | "trivia"
-  | "timeBase" | "timeMarks" | "seam" | "seamLines" | "membership";
+  | "timeBase" | "timeMarks" | "holdings" | "seam" | "seamLines" | "membership";
 
 export interface DragState { x: number; y: number; vb: ViewBox }
 export interface ParentGroup { color: string; meters: number; n: number; rank: number }
@@ -73,6 +73,9 @@ export interface EngineCtx {
   seam: SeamData | null;
   // market footprints at the three membership frames, fetched on the first one
   membership: MembershipFrames | null;
+  // FTC Map III county geometry plus its hand-read 1925 trace. This is fetched
+  // only when the 1930 plate opens.
+  holdings: HoldingsBundle | null;
 
   // animation + interaction
   morphAnim: number | null;

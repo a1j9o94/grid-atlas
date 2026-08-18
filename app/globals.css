@@ -835,6 +835,31 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   vector-effect: non-scaling-stroke; transition: fill 600ms ease;
 }
 
+/* FTC Map III's 3,108 county readings. System identity is colour; line and
+   texture carry confidence, so uncertain counties remain distinct when hue
+   cannot be perceived. The source itself was monochrome—this is an editorial
+   separation of the hand-read hatch identities, as the legend notes. */
+.holdings-county {
+  stroke: rgba(38, 48, 31, 0.28); stroke-width: 0.34;
+  vector-effect: non-scaling-stroke; cursor: pointer;
+  transition: filter 100ms ease, opacity 100ms ease, stroke-width 100ms ease;
+}
+.holdings-exact { fill: var(--holding-fill, #90968a); }
+.holdings-maybe {
+  fill: var(--holding-fill, #90968a); fill-opacity: 0.62;
+  stroke: rgba(38, 48, 31, 0.68); stroke-dasharray: 1.4 1.1;
+}
+.holdings-amb { fill: url(#holdings-ambiguous); }
+.holdings-unknown { fill: url(#holdings-unknown); }
+.holdings-none { fill: #e4e7db; }
+.holdings-county:hover {
+  filter: brightness(0.88) saturate(1.15); stroke: var(--ink);
+  stroke-width: 1.15;
+}
+@media (prefers-reduced-motion: reduce) {
+  .holdings-county { transition: none; }
+}
+
 /* ---- the three machines, on the 1935, 1967 and 1975 plates ----
    Two aged tones for East and West, deliberately unlike the modern market
    palette so nobody reads a 1967 interconnection as a 2026 market. Texas keeps

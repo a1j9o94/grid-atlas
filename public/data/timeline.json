@@ -78,7 +78,7 @@
       "title": "A handful of men own the lights",
       "body": "Small companies got bought, then the buyers got bought. By 1930 two rival empires each reached into 32 states out of 48, and their territories overlapped everywhere. Sixteen systems together made about three quarters of the country's investor-owned power.",
       "geometry": {
-        "kind": "dots+tints"
+        "kind": "holdings"
       },
       "events": [
         "ftc-investigation-1928",
@@ -98,11 +98,11 @@
         "middle-west-utilities-1923-properties-map",
         "ftc-annual-report-1938-volume-list"
       ],
-      "ship": false,
+      "ship": true,
       "verified": true,
       "sources": [],
-      "note": "Every number on this plate carries its own year, because these systems grew fast and the record is full of figures from different moments. What the empires cannot be given is a ranking: the percentages in the record sit on different denominators and several of them count the same electricity twice.",
-      "verify_notes": "Needs holdings-1930.json for the county tints."
+      "note": "The county layer is a hand trace of FTC Map III, dated 1925, shown on modern county equivalents inside this 1930 context plate. It preserves unreadable, ambiguous and boundary-uncertain counties rather than guessing. Separate cities and towns may be absent, and the historical percentages use different denominators, so the systems cannot be ranked from this map.",
+      "verify_notes": "Map III county trace released with explicit exact, possible, ambiguous, unreadable, and unfilled states."
     },
     {
       "id": "1935",

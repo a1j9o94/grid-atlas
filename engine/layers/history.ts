@@ -7,13 +7,15 @@
 //
 // Ported from the retired static shell. The geometry work is the same; the
 // cards and the scrubber are models now, computed here and rendered by React.
-import { fetchJson, type TimelineFile, type TimelineFrame } from "../../lib/data";
-import { loadMembership, loadSeam } from "../data";
+import {
+  fetchJson, parseHoldingsTrace, type TimelineFile, type TimelineFrame,
+} from "../../lib/data";
+import { loadHoldingsBundle, loadMembership, loadSeam } from "../data";
 import { setAtlasState, type TimelineStop } from "../../lib/store";
-import { FILL, HOME_VIEW, SVG_NS } from "../constants";
+import { FILL, HOLDING_COLORS, HOME_VIEW, SVG_NS } from "../constants";
 import { ctx, setHidden } from "../ctx";
 import { animateViewBox } from "../viewbox";
-import { showDot, showFrame, showMachine, showMarket } from "../ui/cards";
+import { showDot, showFrame, showHoldingCounty, showMachine, showMarket } from "../ui/cards";
 import { renderLegend } from "../ui/legend";
 import { updateUrl, type UrlMode } from "../urlstate";
 
@@ -247,6 +249,45 @@ function drawMembership(frameKey: string): void {
   }
 }
 
+// ---- the holding-company empires: FTC Map III, dated 1925 ----
+
+async function ensureHoldings(): Promise<void> {
+  const c = ctx();
+  if (c.holdings) return;
+  const h = await loadHoldingsBundle();
+  if (c.dead) return;
+  c.holdings = h;
+  buildHoldings();
+}
+
+function buildHoldings(): void {
+  const c = ctx();
+  const h = c.holdings;
+  if (!h || c.g.holdings.dataset.built === "1") return;
+  c.g.holdings.dataset.built = "1";
+  const year = h.trace.years["1925"] ?? {};
+  for (const f of h.countiesFC.features) {
+    const d = c.path(f);
+    if (d === null) continue;
+    const fips = f.properties.GEOID;
+    const parsed = parseHoldingsTrace(year[fips] ?? "unknown-served");
+    const p = document.createElementNS(SVG_NS, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("class", `holdings-county holdings-${parsed.status}`);
+    p.dataset.fips = fips;
+    p.dataset.trace = parsed.raw;
+    const colour = parsed.groups[0] !== undefined ? HOLDING_COLORS[parsed.groups[0]] : undefined;
+    if (colour !== undefined) p.style.setProperty("--holding-fill", colour);
+    c.g.holdings.appendChild(p);
+  }
+  const onPick = (e: Event): void => {
+    const p = (e.target as Element).closest<SVGPathElement>(".holdings-county");
+    if (p?.dataset.fips !== undefined) showHoldingCounty(p.dataset.fips);
+  };
+  c.g.holdings.addEventListener("mouseover", onPick, { signal: c.ac.signal });
+  c.g.holdings.addEventListener("click", onPick, { signal: c.ac.signal });
+}
+
 // A plate id is its year, so /then/1967 and a legacy ?year=1970 resolve the
 // same way: an exact id, or the latest plate at or before the year asked for.
 // That is what keeps a link to a retired year landing somewhere honest.
@@ -272,12 +313,33 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
   const showToday = kind === "current";
   const showSeam = kind === "seam";
   const showMembership = kind === "membership";
+  const showHoldings = kind === "holdings";
 
   setHidden(c.g.timeBase, !showGround);
   setHidden(c.g.timeMarks, !showDots);
   setHidden(c.g.seam, !showSeam);
   setHidden(c.g.seamLines, !showSeam);
   setHidden(c.g.membership, !showMembership);
+  setHidden(c.g.holdings, !showHoldings);
+  if (showHoldings && c.holdings === null) {
+    const want = f.id;
+    void ensureHoldings()
+      .then(() => {
+        // Use this engine instance, not a replacement mounted while the fetch
+        // was in flight. A destroyed context owns detached DOM and must stay
+        // untouched.
+        if (c.dead || c.current !== "history" || c.frameId !== want) return;
+        setHidden(c.g.holdings, false);
+      })
+      .catch(() => {
+        if (c.dead || c.current !== "history" || c.frameId !== want) return;
+        setHidden(c.g.holdings, true);
+        showFrame({
+          ...f,
+          note: "The 1925 county layer could not be loaded. The source evidence remains available; reload to try the interactive trace again.",
+        });
+      });
+  }
   if (showMembership) {
     const fk = f.geometry.frame_key;
     if (fk !== undefined) {
@@ -391,5 +453,6 @@ export function hideHistory(): void {
   setHidden(c.g.seam, true);
   setHidden(c.g.seamLines, true);
   setHidden(c.g.membership, true);
+  setHidden(c.g.holdings, true);
   setAtlasState({ timeline: null, evidence: null });
 }

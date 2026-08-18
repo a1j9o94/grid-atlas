@@ -8,6 +8,7 @@ import { req } from "../lib/assert";
 import {
   fetchJson, fetchJsonOrNull,
   type CartogramFile, type MeasureBlock, type MeasureSpec, type MeasuresFile,
+  type HoldingsCountyFC, type HoldingsCountyProps, type HoldingsFile,
   type MembershipProps, type RtoProps, type RtosFC, type SeamLineProps, type SeamProps,
   type StateProps, type StatesFC,
   type TransitionProps, type TransitionsFC, type Utility, type ZctaFC, type ZctaProps, type ZipLookup,
@@ -113,6 +114,25 @@ export function loadMembership(): Promise<MembershipFrames> {
     return out;
   })();
   return membershipPromise;
+}
+
+// FTC Map III: lazy on the first 1930 plate. The 1.2MB county topology is not
+// part of base data because no other layer needs county boundaries, while the
+// compact trace can later gain a 1932 year without duplicating geometry.
+export interface HoldingsBundle {
+  countiesFC: HoldingsCountyFC;
+  trace: HoldingsFile;
+}
+let holdingsPromise: Promise<HoldingsBundle> | null = null;
+export function loadHoldingsBundle(): Promise<HoldingsBundle> {
+  holdingsPromise ??= (async () => {
+    const [topo, trace] = await Promise.all([
+      fetchJson<Topology>("/data/timeline/holdings-counties.topo.json"),
+      fetchJson<HoldingsFile>("/data/timeline/holdings-1925.json"),
+    ]);
+    return { countiesFC: toFC<HoldingsCountyProps>(topo), trace };
+  })();
+  return holdingsPromise;
 }
 
 export interface ZctaShard {
