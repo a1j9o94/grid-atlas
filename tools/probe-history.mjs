@@ -123,6 +123,21 @@ const hy = await page.evaluate(() => {
     disabled: btns.filter((b) => b.disabled).length,
   };
 });
+// The guard that keeps a half-read year off the site. Every year offered must be
+// `complete` in the artifact's own trace_status. A denylist on `not-built` used to
+// sit here and it admitted `in-progress`, which is what the 1932 trace reads while
+// it is being worked: 1,860 counties of 3,108, so the map would have drawn the
+// eastern two thirds and left the west silently blank.
+const statuses = await page.evaluate(async () => {
+  const f = await fetch("/data/timeline/holdings-1925.json").then((r) => r.json());
+  return { status: f.meta.trace_status ?? {}, years: Object.keys(f.years ?? {}) };
+});
+const complete = Object.entries(statuses.status)
+  .filter(([, v]) => v === "complete").map(([k]) => k).sort();
+want("only complete years are offered", hy.years.slice().sort(), complete);
+want("every year in the file is accounted for by a status",
+  statuses.years.every((y) => y in statuses.status), true);
+
 want("1930 names its source plate", hy.present, true);
 want("every offered year is a traced sheet", hy.years.length >= 1, true);
 want("exactly one source plate is current", hy.pressed, 1);

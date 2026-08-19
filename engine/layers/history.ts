@@ -288,12 +288,19 @@ function buildHoldings(): void {
 
 // Which sheets the artifact actually carries. A year is only offered once its
 // trace is complete, so a half-finished 1932 never appears as a choice.
+//
+// The test is an allowlist on `complete`, not a denylist on `not-built`. Those
+// are not the same: a trace in progress reads `in-progress`, which a denylist
+// admits, and the 1932 trace sits at 1,860 of 3,108 counties for as long as the
+// reading takes. Under the old test it would have drawn a map of the eastern two
+// thirds of the country with the west silently blank, which is the one failure
+// this layer must never produce.
 export function holdingsYears(): string[] {
   const t = ctx().holdings?.trace;
   if (!t) return [];
   const status = (t.meta.trace_status ?? {}) as Record<string, string>;
   return Object.keys(t.years)
-    .filter((y) => Object.keys(t.years[y] ?? {}).length > 0 && status[y] !== "not-built")
+    .filter((y) => Object.keys(t.years[y] ?? {}).length > 0 && status[y] === "complete")
     .sort();
 }
 
