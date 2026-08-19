@@ -5,7 +5,7 @@
     "notes": "Source of truth for the history layer. Frames are snapshots, not a continuous scrub: the archives support dated moments, not annual geometry. Dot anchors are [lon, lat] EPSG:4326 and the site projects them, same as trivia. A frame's verified flag describes the frame's own words; each event card carries its own, so an uncertain detail flags itself without casting doubt on the plate around it. ship:false frames appear on the scrubber and say they are still being inked.",
     "honesty_footnotes": [
       "Past market footprints are drawn with today's utility shapes. Distribution boundaries move far less than market membership, but this is an approximation.",
-      "Empire tints show where a holding company had subsidiaries. That is reach, not exclusive territory, and the empires overlapped.",
+      "The county layer is a hand trace of the FTC's own plate, Map III, dated 1925 and drawn on modern county equivalents. It shows fields of operation, which is where a group ran utilities, not where it held stock. Uncertainty is kept rather than resolved: about one county in nine is visibly filled but its pattern cannot be read, and ambiguous counties name both candidates. The plate also cannot carry city-scale operators, because Map IV states in its own margin that separate cities and towns served are not shown and the same applies to Map III. Richmond, Norfolk, Baltimore and Washington are the known cases.",
       "The line between the Eastern and Western grids is drawn from today's utility service boundaries, assigned by balancing authority. It settled roughly here by the mid-1970s. In three places, near Scottsbluff, Miles City and Rapid City, one utility's single shape spans the line, so the line there is the best this source can support rather than a surveyed border.",
       "Market footprints are built by replaying 34 dated events from 1996 and requiring every utility's final state to match the live map. Where a market's founding roster survives in filings, which is PJM, a utility named nowhere follows the named zone nearest it. Where it does not, a utility not named in any event is drawn as a member from that market's founding. 185 utilities out of 1,956, 9.5 per cent, would land in a different market on the 1999 or 2005 plate under their second or third nearest zone. They are municipals and co-ops in Ohio, Indiana and Kentucky, in the gaps between the companies PJM absorbed between 2004 and 2012, and all of them agree by 2014.",
       "The 1999 plate draws five markets because five were running. MISO's 1998 approval was conditional, its compliance order came in April 1999, and it did not operate until December 2001. SPP did not become an RTO until 2004. Neither is drawn rather than being approximated."
@@ -76,7 +76,7 @@
       ],
       "kicker": "the empires",
       "title": "A handful of men own the lights",
-      "body": "Small companies got bought, then the buyers got bought. By 1930 two rival empires each reached into 32 states out of 48, and their territories overlapped everywhere. Sixteen systems together made about three quarters of the country's investor-owned power.",
+      "body": "Small companies got bought, then the buyers got bought. At the end of 1930 Samuel Insull's system operated in 32 states out of 48, two thirds of the country, and its rivals overlapped it everywhere. Sixteen systems together made about three quarters of the country's investor-owned power.",
       "geometry": {
         "kind": "holdings"
       },
@@ -1362,7 +1362,7 @@
       "when": "1930",
       "title": "And so does Electric Bond and Share",
       "body": "General Electric set up Electric Bond and Share in 1905, and by the 1930s it was the largest utility holding company in the country. It sat at the top of five subholding companies, which together sat above roughly 237 subsidiaries at the bottom.",
-      "note": "Two rival empires each operated in 32 states out of 48, two thirds of the country, and their territories overlapped everywhere. A 32-state reach was not what made either one unusual.",
+      "note": "Bond and Share's own system reached 32 states too, which the Supreme Court recorded in 1938: the electric operations of its subsidiaries were conducted in thirty-two states. Two rival empires arriving at the same count is the fact worth keeping. A 32-state reach was not what made either one unusual. The count only closes by including American Gas and Electric, which Bond and Share held through a minority stake, so it is a judgment about what reaching into a state means rather than a gap in the record.",
       "sources": [
         "https://www.law.cornell.edu/supremecourt/text/329/90",
         "https://caselaw.findlaw.com/court/us-supreme-court/303/419.html",
@@ -2026,4 +2026,3 @@
     }
   }
 }
-
