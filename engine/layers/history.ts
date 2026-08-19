@@ -342,6 +342,19 @@ export interface HoldingsChange {
   same: number;
   uncertain: number;
 }
+// The two plates do not name systems identically, and they should not be made
+// to. Map IV distinguishes Middle West Utilities from Insull's other holdings
+// where Map III prints one Insull cell, and that is real information the
+// earlier sheet does not carry. So the raw key stays raw and the comparison
+// runs on a canonical key the artifact supplies, the same way the emitter
+// already unions Southeastern and Hodenpyl into Commonwealth and Southern.
+// Without this, a county reading `insull` in 1925 and `insull-middle-west` in
+// 1932 counts as changing hands when nothing happened.
+function canonicalKey(year: string, key: string): string {
+  const rollup = ctx().holdings?.trace.key_rollup?.[year];
+  return rollup?.[key] ?? key;
+}
+
 export function holdingsChange(): HoldingsChange | null {
   const h = ctx().holdings;
   const years = holdingsYears();
@@ -356,7 +369,8 @@ export function holdingsChange(): HoldingsChange | null {
     const pb = parseHoldingsTrace(b[f.properties.GEOID] ?? "unknown-served");
     const certain = (p: typeof pa): boolean => p.status === "exact" || p.status === "none";
     if (!certain(pa) || !certain(pb)) { out.uncertain++; continue; }
-    const ga = pa.groups[0], gb = pb.groups[0];
+    const ga = pa.groups[0] === undefined ? undefined : canonicalKey(from, pa.groups[0]);
+    const gb = pb.groups[0] === undefined ? undefined : canonicalKey(to, pb.groups[0]);
     if (ga === undefined && gb === undefined) out.same++;
     else if (ga === undefined) out.gained++;
     else if (gb === undefined) out.lost++;

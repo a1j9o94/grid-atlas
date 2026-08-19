@@ -222,6 +222,12 @@ export interface HoldingsFile {
   legends: Record<string, Record<string, HoldingsLegendEntry>>;
   years: Record<string, Record<string, string>>;
   rollups: Record<string, unknown>;
+  // Raw plate key to the canonical system the two sheets can be compared on,
+  // per year. The plates name systems at different grain: Map IV separates
+  // Middle West Utilities from Insull's other holdings where Map III prints one
+  // Insull cell. The raw key keeps what the plate says; this is how the years
+  // are made to mean the same thing without flattening either.
+  key_rollup?: Record<string, Record<string, string>>;
 }
 
 // The release grammar preserves uncertainty instead of turning a hard-to-read
