@@ -15,6 +15,7 @@ import Legend from "./Legend";
 import { ColourControls, ShadeControls, SizeControls } from "./Controls";
 import { DrawingNote, ZipSearch, ZoomReset } from "./MapChrome";
 import TourPanel from "./TourPanel";
+import HoldingsYears from "./HoldingsYears";
 import TimelineBar from "./TimelineBar";
 import EvidenceModal from "./EvidenceModal";
 import MethodologyModal from "./MethodologyModal";
@@ -57,7 +58,14 @@ export default function AtlasApp() {
 
           <div className="map-panel">
             <DrawingNote />
-            <TimelineBar />
+            {/* Both are pinned to the top of the map panel, so they stack in one
+                positioned column rather than each choosing its own offset. That
+                is what stops the source-plate control landing on the scrubber
+                when the panel is short. */}
+            <div className="time-stack">
+              <TimelineBar />
+              <HoldingsYears />
+            </div>
             <svg id="map" viewBox="0 0 975 610" role="img" aria-label="Map of the United States electricity system" hidden></svg>
             <ZipSearch />
             <ZoomReset />

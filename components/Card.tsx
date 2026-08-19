@@ -117,6 +117,7 @@ function CardBody({ card }: { card: CardModel }) {
           <div className="c-kicker">{card.kicker}</div>
           <h3>{card.title}</h3>
           <p className="c-body">{card.body}</p>
+          {card.changeLine !== undefined && <p className="c-body c-change">{card.changeLine}</p>}
           {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
           {card.pending && (
             <p className="c-body c-note">
@@ -163,7 +164,21 @@ function CardBody({ card }: { card: CardModel }) {
         <>
           <div className="c-kicker">{card.kicker}</div>
           <h3>{card.name}</h3>
-          <div className="c-choice">{card.statusLine}</div>
+          {card.readings === undefined ? (
+            <div className="c-choice">{card.statusLine}</div>
+          ) : (
+            // Both sheets at once. Reading them stacked is the whole reason the
+            // second plate was traced, so the card shows the change rather than
+            // making the reader flip the control and hold one in their head.
+            <dl className="c-years">
+              {card.readings.map((r) => (
+                <div key={r.year} className="c-year">
+                  <dt>{r.year}<span className="c-plate">{r.plate}</span></dt>
+                  <dd>{r.statusLine}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
           <p className="c-body">{card.body}</p>
           {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
           <button className="c-back" onClick={() => { backToFrame(); }}>{card.backLabel}</button>

@@ -50,6 +50,9 @@ export type CardModel =
       // the plate's map is not built yet, so the card says so instead of
       // leaving the reader in an empty country wondering
       pending: boolean;
+      // what moved between two traced source plates, present only when the
+      // plate carries more than one
+      changeLine?: string;
     }
   | {
       kind: "event";
@@ -79,6 +82,9 @@ export type CardModel =
       kicker: string;
       name: string;
       statusLine: string;
+      // Present only when more than one source plate is traced. The reader sees
+      // both years at once, because the change between them is the point.
+      readings?: { year: string; plate: string; statusLine: string }[];
       body: string;
       note?: string;
       backLabel: string;
@@ -101,6 +107,20 @@ export interface ControlsModel {
 }
 export interface ColourControlsModel extends ControlsModel {
   variants: ControlOption[] | null;
+}
+
+// Which source plate the holdings layer is drawing. Two sheets seven years
+// apart, and the control names the one on screen, because the plate around it
+// is labelled for an era rather than for a printing.
+export interface HoldingsYearOption {
+  year: string;
+  label: string;
+  plate: string;
+  pressed: boolean;
+}
+export interface HoldingsControlModel {
+  label: string;
+  years: HoldingsYearOption[];
 }
 
 export interface DrawingNoteModel {
@@ -142,6 +162,7 @@ export interface AtlasState {
   ready: boolean;
   layer: LayerKey;
   card: CardModel | null;
+  holdings: HoldingsControlModel | null;
   legend: LegendModel | null;
   shadeControls: ControlsModel | null;
   colourControls: ColourControlsModel | null;
@@ -161,6 +182,7 @@ const INITIAL: AtlasState = {
   ready: false,
   layer: "wholesale",
   card: null,
+  holdings: null,
   legend: null,
   shadeControls: null,
   colourControls: null,

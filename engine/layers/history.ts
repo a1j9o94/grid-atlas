@@ -260,24 +260,22 @@ async function ensureHoldings(): Promise<void> {
   buildHoldings();
 }
 
+// The geometry is built once. Switching year repaints the same 3,108 paths
+// rather than rebuilding them, which is what keeps the two sheets comparable:
+// a county that does not change between 1925 and 1932 is literally the same
+// element, so nothing can shift under the reader as they flip.
 function buildHoldings(): void {
   const c = ctx();
   const h = c.holdings;
   if (!h || c.g.holdings.dataset.built === "1") return;
   c.g.holdings.dataset.built = "1";
-  const year = h.trace.years["1925"] ?? {};
   for (const f of h.countiesFC.features) {
     const d = c.path(f);
     if (d === null) continue;
-    const fips = f.properties.GEOID;
-    const parsed = parseHoldingsTrace(year[fips] ?? "unknown-served");
     const p = document.createElementNS(SVG_NS, "path");
     p.setAttribute("d", d);
-    p.setAttribute("class", `holdings-county holdings-${parsed.status}`);
-    p.dataset.fips = fips;
-    p.dataset.trace = parsed.raw;
-    const colour = parsed.groups[0] !== undefined ? HOLDING_COLORS[parsed.groups[0]] : undefined;
-    if (colour !== undefined) p.style.setProperty("--holding-fill", colour);
+    p.setAttribute("class", "holdings-county");
+    p.dataset.fips = f.properties.GEOID;
     c.g.holdings.appendChild(p);
   }
   const onPick = (e: Event): void => {
@@ -286,6 +284,111 @@ function buildHoldings(): void {
   };
   c.g.holdings.addEventListener("mouseover", onPick, { signal: c.ac.signal });
   c.g.holdings.addEventListener("click", onPick, { signal: c.ac.signal });
+}
+
+// Which sheets the artifact actually carries. A year is only offered once its
+// trace is complete, so a half-finished 1932 never appears as a choice.
+export function holdingsYears(): string[] {
+  const t = ctx().holdings?.trace;
+  if (!t) return [];
+  const status = (t.meta.trace_status ?? {}) as Record<string, string>;
+  return Object.keys(t.years)
+    .filter((y) => Object.keys(t.years[y] ?? {}).length > 0 && status[y] !== "not-built")
+    .sort();
+}
+
+function paintHoldings(year: string): void {
+  const c = ctx();
+  const h = c.holdings;
+  if (!h) return;
+  const rows = h.trace.years[year] ?? {};
+  c.holdingsYear = year;
+  c.g.holdings.dataset.year = year;
+  for (const p of c.g.holdings.querySelectorAll<SVGPathElement>(".holdings-county")) {
+    const fips = p.dataset.fips ?? "";
+    const parsed = parseHoldingsTrace(rows[fips] ?? "unknown-served");
+    p.setAttribute("class", `holdings-county holdings-${parsed.status}`);
+    p.dataset.trace = parsed.raw;
+    const colour = parsed.groups[0] !== undefined ? HOLDING_COLORS[parsed.groups[0]] : undefined;
+    // Clearing first matters: a county that had a group in 1925 and none in
+    // 1932 would otherwise keep the old custom property and paint the old
+    // colour under a "no fill" class.
+    p.style.removeProperty("--holding-fill");
+    if (colour !== undefined) p.style.setProperty("--holding-fill", colour);
+  }
+  renderHoldingsControl();
+  renderLegend("history");
+}
+
+export function setHoldingsYear(year: string): void {
+  if (!holdingsYears().includes(year)) return;
+  paintHoldings(year);
+}
+
+// What changed between the two sheets, counted. This is the growth story as a
+// number, and it costs one pass over 3,108 counties, so it is computed here
+// rather than baked into the artifact where it could drift from what is drawn.
+//
+// Counties whose reading is uncertain in either year are excluded rather than
+// counted as changes. An unreadable hatch in 1932 against a named system in
+// 1925 is not evidence that anything happened, and letting it into the count
+// would inflate every number here in the direction of the story.
+export interface HoldingsChange {
+  from: string;
+  to: string;
+  gained: number;
+  lost: number;
+  changed: number;
+  same: number;
+  uncertain: number;
+}
+export function holdingsChange(): HoldingsChange | null {
+  const h = ctx().holdings;
+  const years = holdingsYears();
+  if (!h || years.length < 2) return null;
+  const [from, to] = [years[0], years[years.length - 1]];
+  if (from === undefined || to === undefined || from === to) return null;
+  const a = h.trace.years[from] ?? {};
+  const b = h.trace.years[to] ?? {};
+  const out: HoldingsChange = { from, to, gained: 0, lost: 0, changed: 0, same: 0, uncertain: 0 };
+  for (const f of h.countiesFC.features) {
+    const pa = parseHoldingsTrace(a[f.properties.GEOID] ?? "unknown-served");
+    const pb = parseHoldingsTrace(b[f.properties.GEOID] ?? "unknown-served");
+    const certain = (p: typeof pa): boolean => p.status === "exact" || p.status === "none";
+    if (!certain(pa) || !certain(pb)) { out.uncertain++; continue; }
+    const ga = pa.groups[0], gb = pb.groups[0];
+    if (ga === undefined && gb === undefined) out.same++;
+    else if (ga === undefined) out.gained++;
+    else if (gb === undefined) out.lost++;
+    else if (ga === gb) out.same++;
+    else out.changed++;
+  }
+  return out;
+}
+
+// The control names the sheet being drawn. It is the answer to the plate
+// carrying an era label while the map under it is one dated printing, and it
+// only renders when there is more than one sheet to choose between.
+export function renderHoldingsControl(): void {
+  const c = ctx();
+  const years = holdingsYears();
+  const f = frameById(c.frameId);
+  if (f?.geometry.kind !== "holdings" || years.length === 0) {
+    setAtlasState({ holdings: null });
+    return;
+  }
+  setAtlasState({
+    holdings: {
+      label: "Source plate",
+      years: years.map((y) => ({
+        year: y,
+        label: y,
+        plate: (c.holdings?.trace.meta.plate_names as Record<string, string> | undefined)?.[y]
+          ?? (y === "1925" ? "Map III" : "Map IV"),
+        pressed: y === c.holdingsYear,
+      })),
+    },
+  });
 }
 
 // A plate id is its year, so /then/1967 and a legacy ?year=1970 resolve the
@@ -321,6 +424,13 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
   setHidden(c.g.seamLines, !showSeam);
   setHidden(c.g.membership, !showMembership);
   setHidden(c.g.holdings, !showHoldings);
+  if (showHoldings && c.holdings !== null) {
+    // Already loaded, so repaint for whichever sheet the reader last chose,
+    // defaulting to the earliest the artifact carries.
+    paintHoldings(c.holdingsYear ?? holdingsYears()[0] ?? "1925");
+  } else if (!showHoldings) {
+    setAtlasState({ holdings: null });
+  }
   if (showHoldings && c.holdings === null) {
     const want = f.id;
     void ensureHoldings()
@@ -330,6 +440,7 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
         // untouched.
         if (c.dead || c.current !== "history" || c.frameId !== want) return;
         setHidden(c.g.holdings, false);
+        paintHoldings(c.holdingsYear ?? holdingsYears()[0] ?? "1925");
       })
       .catch(() => {
         if (c.dead || c.current !== "history" || c.frameId !== want) return;

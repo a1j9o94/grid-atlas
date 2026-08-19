@@ -117,6 +117,7 @@ const PANELS = {
   colourControls: "#colour-controls",
   shadeControls: "#shade-controls",
   timelineBar: "#timeline-bar",
+  holdingsYears: "#holdings-years",
 };
 
 function freePort() {
@@ -292,7 +293,7 @@ for (const vp of VIEWPORTS) {
         };
         const area = drawn.w * drawn.h;
         let covered = 0;
-        for (const sel of [".map-ui", "#zip-search", "#zoom-reset", "#timeline-bar"]) {
+        for (const sel of [".map-ui", "#zip-search", "#zoom-reset", ".time-stack"]) {
           const el = document.querySelector(sel);
           if (!el || el.hasAttribute("hidden") || getComputedStyle(el).display === "none") continue;
           const b = el.getBoundingClientRect();

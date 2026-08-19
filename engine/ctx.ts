@@ -76,6 +76,8 @@ export interface EngineCtx {
   // FTC Map III county geometry plus its hand-read 1925 trace. This is fetched
   // only when the 1930 plate opens.
   holdings: HoldingsBundle | null;
+  // which source plate the 1930 plate is drawing, 1925 or 1932
+  holdingsYear: string | null;
 
   // animation + interaction
   morphAnim: number | null;

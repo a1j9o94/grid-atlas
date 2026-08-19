@@ -102,7 +102,56 @@ want("1930 legend explains source colour", holdings.legend?.includes("source pla
 await page.locator('.holdings-county[data-fips="17031"]').dispatchEvent("mouseover");
 await page.waitForTimeout(100);
 want("Cook County pick names the county", await page.locator(".card h3").textContent(), "Cook · IL");
-want("Cook County pick names Insull", await page.locator(".card .c-choice").textContent(), "Insull Interests");
+want("Cook County pick names Insull", await page.evaluate(() => {
+  const one = document.querySelector(".card .c-choice")?.textContent ?? "";
+  const many = [...document.querySelectorAll(".card .c-year dd")].map((d) => d.textContent ?? "");
+  return one.includes("Insull") || many.some((t) => t.includes("Insull"));
+}), true);
+
+// The source-plate control. With one sheet traced it names the sheet and does
+// not offer a press; with two it becomes a real switch and the county card
+// starts reading both years. Written so it asserts the truth either way, which
+// means it keeps working the day the 1932 trace lands.
+const hy = await page.evaluate(() => {
+  const el = document.getElementById("holdings-years");
+  const btns = [...document.querySelectorAll("#holdings-years .hy-year")];
+  return {
+    present: !!el && !el.hasAttribute("hidden"),
+    years: btns.map((b) => b.querySelector("b")?.textContent),
+    plates: btns.map((b) => b.querySelector(".hy-plate")?.textContent),
+    pressed: btns.filter((b) => b.getAttribute("aria-pressed") === "true").length,
+    disabled: btns.filter((b) => b.disabled).length,
+  };
+});
+want("1930 names its source plate", hy.present, true);
+want("every offered year is a traced sheet", hy.years.length >= 1, true);
+want("exactly one source plate is current", hy.pressed, 1);
+want("the plate name is shown beside the year",
+  hy.plates.every((p) => typeof p === "string" && p.length > 0), true);
+// A single sheet is not a choice, so it must not present as one.
+want("a lone sheet is not offered as a switch",
+  hy.years.length === 1 ? hy.disabled === 1 : hy.disabled === 0, true);
+
+// Switching year must repaint, never rebuild: a county that does not change
+// between the sheets has to stay the same element or the map shifts under the
+// reader as they flip.
+if (hy.years.length > 1) {
+  const before = await page.evaluate(() =>
+    document.querySelector('#g-holdings .holdings-county')?.getAttribute("d"));
+  await page.evaluate(() => {
+    const btns = [...document.querySelectorAll("#holdings-years .hy-year")];
+    btns.find((b) => b.getAttribute("aria-pressed") !== "true")?.click();
+  });
+  await page.waitForTimeout(300);
+  const after = await page.evaluate(() => ({
+    d: document.querySelector('#g-holdings .holdings-county')?.getAttribute("d"),
+    count: document.querySelectorAll("#g-holdings .holdings-county").length,
+    year: document.getElementById("g-holdings")?.dataset.year,
+  }));
+  want("switching year repaints rather than rebuilds", after.d, before);
+  want("switching year keeps every county", after.count, 3108);
+  want("the drawn year follows the control", after.year !== undefined, true);
+}
 
 // Leaving the plate in-app must hide it without destroying it; stepping back
 // reuses the already-built paths and never duplicates the county mesh.

@@ -12,6 +12,7 @@ import {
 } from "../../lib/store";
 import { swatchBackground, wireGroup } from "../constants";
 import { ctx } from "../ctx";
+import { holdingsChange, holdingsYears } from "../layers/history";
 import { colourValue, isColourMeasure, measureSpec, measureValue } from "../data";
 import { WIRE_GROUPS } from "../wiregroups";
 import { ensureWires } from "../layers/wires";
@@ -264,9 +265,28 @@ function evidenceChips(ids: readonly string[] | undefined): EvidenceChip[] {
   return chips;
 }
 
+// Once both sheets are traced the plate card carries what changed between
+// them, because that is the argument the second plate exists to make and it
+// should not be something the reader has to derive by flipping.
+function holdingsChangeLine(f: TimelineFrame): string | null {
+  if (f.geometry.kind !== "holdings") return null;
+  const ch = holdingsChange();
+  if (ch === null) return null;
+  const moved = ch.gained + ch.lost + ch.changed;
+  if (moved === 0) return null;
+  const parts: string[] = [];
+  if (ch.gained) parts.push(`${String(ch.gained)} gained a system`);
+  if (ch.changed) parts.push(`${String(ch.changed)} changed hands`);
+  if (ch.lost) parts.push(`${String(ch.lost)} went blank`);
+  return `Between the two sheets, ${parts.join(", ")}. `
+    + `${String(ch.same)} counties read the same in both years, and ${String(ch.uncertain)} `
+    + `are too uncertain in one year or the other to compare.`;
+}
+
 export function showFrame(f: TimelineFrame): void {
   const t = ctx().timeline;
   const kicker = `${f.label}${f.kicker !== undefined ? ` · ${f.kicker}` : ""}${draftFlag(f)}`;
+  const changeLine = holdingsChangeLine(f);
   const events: FrameEventRow[] = [];
   for (const id of f.events ?? []) {
     const e = t?.events[id];
@@ -282,6 +302,7 @@ export function showFrame(f: TimelineFrame): void {
       events,
       evidence: evidenceChips(f.evidence),
       pending: !f.ship,
+      ...(changeLine !== null ? { changeLine } : {}),
     },
   });
 }
@@ -336,38 +357,59 @@ export function showDot(i: number): void {
 // A county on FTC Map III. The card keeps the plate's uncertainty grammar in
 // ordinary language: a possible or ambiguous hatch never becomes a confident
 // ownership claim just because the reader hovered it.
-export function showHoldingCounty(fips: string): void {
+// One county's reading, per source plate. Where both sheets are traced the card
+// shows them together, because the change between 1925 and 1932 is the thing
+// this plate exists to show and a reader should not have to flip and remember.
+function readingFor(year: string, fips: string): { year: string; plate: string; statusLine: string } | null {
   const h = ctx().holdings;
-  const county = h?.countiesFC.features.find((f) => f.properties.GEOID === fips);
-  const raw = h?.trace.years["1925"]?.[fips];
-  if (!h || !county || raw === undefined) return;
+  const raw = h?.trace.years[year]?.[fips];
+  if (!h || raw === undefined) return null;
   const parsed = parseHoldingsTrace(raw);
-  const legend = h.trace.legends["1925"] ?? {};
+  const legend = h.trace.legends[year] ?? {};
   const labels = parsed.groups.map((g) => legend[g]?.printed_label ?? g);
+  // The numeral names the subsidiary inside the group. Only Map IV carries one.
+  const sub = parsed.numeral !== undefined ? ` · subsidiary ${parsed.numeral}` : "";
   let statusLine: string;
+  if (parsed.status === "exact") statusLine = (labels[0] ?? "Named holding-company system") + sub;
+  else if (parsed.status === "maybe") statusLine = `Possible: ${labels[0] ?? "named system"}${sub}`;
+  else if (parsed.status === "amb") statusLine = `Ambiguous: ${labels.join(" or ")}${sub}`;
+  else if (parsed.status === "unknown") statusLine = "A principal power group operated here";
+  else statusLine = "No county-level group fill";
+  const plates = (h.trace.meta.plate_names ?? {}) as Record<string, string>;
+  return { year, plate: plates[year] ?? (year === "1925" ? "Map III" : "Map IV"), statusLine };
+}
+
+export function showHoldingCounty(fips: string): void {
+  const c = ctx();
+  const h = c.holdings;
+  const county = h?.countiesFC.features.find((f) => f.properties.GEOID === fips);
+  if (!h || !county) return;
+  const years = holdingsYears();
+  const readings = years.map((y) => readingFor(y, fips)).filter((r) => r !== null);
+  if (readings.length === 0) return;
+  const shown = c.holdingsYear ?? years[0] ?? "1925";
+  const current = readings.find((r) => r.year === shown) ?? readings[0];
+  if (current === undefined) return;
+
+  // With one sheet the body explains the reading. With two it explains what
+  // changed, or says plainly that nothing did, which is itself a finding.
   let body: string;
-  if (parsed.status === "exact") {
-    statusLine = labels[0] ?? "Named holding-company system";
-    body = "The traced hatch assigns this county to this holding-company system on FTC Map III.";
-  } else if (parsed.status === "maybe") {
-    statusLine = `Possible: ${labels[0] ?? "named system"}`;
-    body = "The county appears filled, but the engraved pattern is not clear enough for a certain assignment.";
-  } else if (parsed.status === "amb") {
-    statusLine = `Ambiguous: ${labels.join(" or ")}`;
-    body = "Independent readings agree that the county is filled, but not which of these printed patterns it carries.";
-  } else if (parsed.status === "unknown") {
-    statusLine = "A principal power group operated here";
-    body = "The county is visibly filled on the plate, but its engraved pattern cannot be read reliably.";
+  if (readings.length < 2) {
+    body = "The traced hatch on the FTC's own plate places this county for that year. Uncertain reads stay uncertain rather than resolving to an owner.";
   } else {
-    statusLine = "No county-level group fill";
-    body = "The plate does not shade this county for one of its principal power groups.";
+    const first = readings[0]?.statusLine;
+    const same = readings.every((r) => r.statusLine === first);
+    body = same
+      ? "Both plates read the same here, so this county did not change hands between the two printings."
+      : "The two plates read differently here. Seven years apart, that is the empire growing, shrinking, or changing hands.";
   }
   setAtlasState({
     card: {
       kind: "holdingCounty",
-      kicker: "FTC Map III · 1925",
+      kicker: `FTC ${current.plate} · ${current.year}`,
       name: `${county.properties.NAME} · ${county.properties.STUSPS}`,
-      statusLine,
+      statusLine: current.statusLine,
+      ...(readings.length > 1 ? { readings } : {}),
       body,
       note: "Modern county geometry is used to read a historical plate; changed boundaries and separate towns remain limits of the trace.",
       backLabel: "← back to the plate",

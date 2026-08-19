@@ -207,6 +207,9 @@ export interface HoldingsTrace {
   raw: string;
   status: HoldingsTraceStatus;
   groups: string[];
+  // Map IV overprints a circled numeral on the hatch, naming the subsidiary
+  // inside the group. Map III has no such mark, so this is absent for 1925.
+  numeral?: string;
 }
 export interface HoldingsLegendEntry {
   printed_label: string;
@@ -225,15 +228,24 @@ export interface HoldingsFile {
 // hatch into a confident owner. Exact values are bare legend keys; the four
 // reserved forms are intentionally parsed here, at the JSON/type boundary.
 export function parseHoldingsTrace(raw: string): HoldingsTrace {
-  if (raw === "none") return { raw, status: "none", groups: [] };
-  if (raw === "unknown-served") return { raw, status: "unknown", groups: [] };
-  if (raw.startsWith("maybe:")) {
-    return { raw, status: "maybe", groups: [raw.slice("maybe:".length)].filter(Boolean) };
+  // The numeral rides on the end as `key#3`, and it qualifies the whole record
+  // rather than one candidate, so it comes off before anything else is read.
+  // Map III never carries one; every 1925 value falls straight through.
+  const hash = raw.lastIndexOf("#");
+  const numeral = hash > 0 ? raw.slice(hash + 1) : undefined;
+  const body = hash > 0 ? raw.slice(0, hash) : raw;
+  const withNumeral = (t: Omit<HoldingsTrace, "raw" | "numeral">): HoldingsTrace =>
+    ({ raw, ...t, ...(numeral !== undefined && numeral !== "" ? { numeral } : {}) });
+
+  if (body === "none") return withNumeral({ status: "none", groups: [] });
+  if (body === "unknown-served") return withNumeral({ status: "unknown", groups: [] });
+  if (body.startsWith("maybe:")) {
+    return withNumeral({ status: "maybe", groups: [body.slice("maybe:".length)].filter(Boolean) });
   }
-  if (raw.startsWith("amb:")) {
-    return { raw, status: "amb", groups: raw.slice("amb:".length).split("|").filter(Boolean) };
+  if (body.startsWith("amb:")) {
+    return withNumeral({ status: "amb", groups: body.slice("amb:".length).split("|").filter(Boolean) });
   }
-  return { raw, status: "exact", groups: [raw] };
+  return withNumeral({ status: "exact", groups: [body] });
 }
 
 export interface ZipUtility {
