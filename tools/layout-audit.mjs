@@ -68,7 +68,13 @@ const VIEWS = [
   // the widest that bar ever gets, so every plate kind is worth a pass: dots,
   // a plate not drawn yet, and today (which is the wholesale layer redrawn).
   { name: "history-1900", q: "/then" },
-  { name: "history-pending", q: "/then/1930" },
+  // The holdings plate. Both sheets are traced now, so the source-plate control
+  // is a real two-way switch rather than a label naming the only sheet there is,
+  // and it is chrome that did not exist when this list was written. The default
+  // sheet and the switched one are both worth a pass: the legend is rebuilt per
+  // sheet and Map IV's is four marks longer than Map III's.
+  { name: "history-holdings", q: "/then/1930" },
+  { name: "history-holdings-1932", q: "/then/1930", click: "#holdings-years .hy-year:last-of-type" },
   // The three seam plates differ in what they emphasise rather than in layout,
   // so one of them stands for the geometry and 1975 is the one whose legend is
   // longest.
@@ -222,6 +228,18 @@ for (const vp of VIEWPORTS) {
     await page.goto(withBypass(host.url + view.q), { waitUntil: "networkidle" });
     // the wires layer lazy-loads 5.5MB of geometry and then tweens
     await page.waitForTimeout(view.name.startsWith("wires") ? 2600 : 1200);
+    // Some chrome only exists after an interaction. The source-plate switch is
+    // the case: which sheet is drawn is client state rather than a route, so the
+    // only way to measure the layout holding the other sheet is to press it.
+    if (view.click) {
+      const el = await page.$(view.click);
+      if (!el) {
+        add(tag, `click target ${view.click} not present`);
+      } else {
+        await el.click();
+        await page.waitForTimeout(900);
+      }
+    }
 
     const r = await page.evaluate(panels => {
       const de = document.documentElement;

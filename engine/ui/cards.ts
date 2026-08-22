@@ -367,8 +367,19 @@ function readingFor(year: string, fips: string): { year: string; plate: string; 
   const parsed = parseHoldingsTrace(raw);
   const legend = h.trace.legends[year] ?? {};
   const labels = parsed.groups.map((g) => legend[g]?.printed_label ?? g);
-  // The numeral names the subsidiary inside the group. Only Map IV carries one.
-  const sub = parsed.numeral !== undefined ? ` · subsidiary ${parsed.numeral}` : "";
+  // The numeral names the subsidiary inside the group, and the plate's numbered lists
+  // are what make Map IV the richer sheet. Resolve it to the printed company name where
+  // the legend carries the list. A numeral is scoped to the hatch beneath it, so it is
+  // looked up under the group actually read, never in a flat table across all groups.
+  // Where it cannot be resolved the bare numeral is still shown rather than dropped,
+  // because five numerals on this plate decode implausibly and are recorded as printed.
+  const subs = parsed.groups[0] !== undefined ? legend[parsed.groups[0]]?.subsidiaries : undefined;
+  const subName = parsed.numeral !== undefined ? subs?.[parsed.numeral] : undefined;
+  const sub = parsed.numeral === undefined
+    ? ""
+    : subName !== undefined
+      ? ` · ${subName}`
+      : ` · subsidiary ${parsed.numeral}`;
   let statusLine: string;
   if (parsed.status === "exact") statusLine = (labels[0] ?? "Named holding-company system") + sub;
   else if (parsed.status === "maybe") statusLine = `Possible: ${labels[0] ?? "named system"}${sub}`;
