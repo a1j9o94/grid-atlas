@@ -354,10 +354,25 @@
     ]
    }
   ],
+  "trace_error_estimate": {
+   "limitation": "One person did both the trace and the fresh read. Blinding hides the verdict but not familiarity with the plate, so this is biased optimistic by an amount the method cannot measure.",
+   "method": "A stratified sample frozen before adjudication, re-read from the plate with the shipped verdict hidden. Scored by pipeline/22-holdout.py. See pipeline/lib/map4-holdout-result.md.",
+   "sample_counties": 155,
+   "served_status_agreement": 0.9053,
+   "served_status_scored": 95,
+   "which_system_compatible": 0.9103,
+   "which_system_exact": 0.7308,
+   "which_system_note": "Compatible means the two reads name overlapping candidate sets, which is a difference in confidence rather than a disagreement about who served the county. That is the number to quote; exact match understates agreement.",
+   "which_system_scored": 78
+  },
   "trace_limits": [
    "County fill is not a claim that every community was served. Map IV explicitly omits separate cities and towns, and the same cartographic limit applies to Map III.",
    "County geometry uses modern equivalents. Changed boundaries, independent cities, coasts, folds, partial fills, and split fills remain explicit uncertainty.",
    "The general-gas-electric to age succession edge is inferred; the raw plate label remains available and is authoritative for the 1925 layer.",
+   "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
+   "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
+   "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
+   "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
    "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
    "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected."
   ],
