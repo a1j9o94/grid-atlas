@@ -214,6 +214,12 @@ export interface HoldingsTrace {
 export interface HoldingsLegendEntry {
   printed_label: string;
   note?: string;
+  // Map IV prints a numbered list under some legend cells, naming the subsidiaries
+  // inside that group, and overprints the matching circled numeral on the county.
+  // Keyed by the numeral as it appears in a trace value's `key#n` suffix. The three
+  // lists overlap, so a numeral only means anything once its texture is known, which
+  // is why this hangs off the legend entry rather than sitting in one flat table.
+  subsidiaries?: Record<string, string>;
 }
 export interface HoldingsFile {
   schema_version: number;
