@@ -365,6 +365,18 @@
    "which_system_note": "Compatible means the two reads name overlapping candidate sets, which is a difference in confidence rather than a disagreement about who served the county. That is the number to quote; exact match understates agreement.",
    "which_system_scored": 78
   },
+  "trace_known_weaknesses": [
+   {
+    "counties": 77,
+    "declared_uncertain": 15,
+    "disagree_with_blind_read": 58,
+    "dominant_clash": "insull-middle-west against standard-gas, 42 counties",
+    "note": "The one state whose disagreement is neither resolved nor explained. The Iowa clash was settled by measurement because its two candidate marks differ by 45 degrees of lattice orientation; these two do not separate that way, and four of five sampled counties measure against neither. The held-out sample independently disagreed with the trace at Pontotoc. Shipped as read. Treat Oklahoma pattern keys as weaker than the rest of the sheet, and note that 14 of the 58 disagreements are about which subsidiary numeral rides on the mark, not about which system served the county.",
+    "of_those_numeral_only": 14,
+    "state": "OK",
+    "year": "1932"
+   }
+  ],
   "trace_limits": [
    "County fill is not a claim that every community was served. Map IV explicitly omits separate cities and towns, and the same cartographic limit applies to Map III.",
    "County geometry uses modern equivalents. Changed boundaries, independent cities, coasts, folds, partial fills, and split fills remain explicit uncertainty.",
@@ -374,7 +386,10 @@
    "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
    "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
    "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
-   "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected."
+   "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
+   "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
+   "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
+   "Uncertainty is not uniform across the sheet, and meta.trace_known_weaknesses names where it concentrates. Oklahoma is the weakest state on Map IV: 58 of its 77 counties disagree with the independent read and neither measurement nor a second reader settles which is right. It ships as read rather than as a guess dressed up, and its pattern keys should carry less weight than the rest of the sheet."
   ],
   "trace_method": "Human plate trace with independent blind review and preserved uncertainty.",
   "trace_status": {
