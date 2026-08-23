@@ -83,7 +83,10 @@ export function showWire(i: number): void {
   // serves six states; Appalachian Power files in Ohio and serves none of it.
   const served = c.measures?.utilities[p.ID]?.st;
   const where = (served?.length ? served : [p.STATE]).filter(Boolean).join(", ");
-  stats.push({ value: p.RTO === "NONE" ? "No RTO" : (copy.regions[p.RTO]?.name ?? p.RTO), label: "grid" });
+  stats.push({
+    value: p.RTO === "NONE" ? "No regional market" : (copy.regions[p.RTO]?.name ?? p.RTO),
+    label: "wholesale market",
+  });
   show({
     kind: "wire",
     swatch: WIRE_GROUPS[g].color,
@@ -162,11 +165,11 @@ export async function showYouCard(zip: string, utilsIn: ZipUtility[]): Promise<v
   let market: string | undefined;
   if (rtoSet.length === 1) {
     market = rtoSet[0] === "NONE"
-      ? "No RTO. Utilities run this grid themselves."
-      : `${req(copy.regions[req(rtoSet[0])]).name} runs the market here.`;
+      ? "No regional market operator. Local utilities coordinate wholesale power here."
+      : `${req(copy.regions[req(rtoSet[0])]).name} coordinates the wholesale market here.`;
   } else if (rtoSet.length > 1) {
     market = "This zip sits near a grid border. " + rows.filter((r) => r.rto !== null)
-      .map((r) => `${r.name} trades in ${r.rto === "NONE" ? "no market" : req(copy.regions[req(r.rto)]).name}`)
+      .map((r) => `${r.name} participates in ${r.rto === "NONE" ? "no regional market" : req(copy.regions[req(r.rto)]).name}`)
       .join(". ") + ".";
   }
   // the honest bottom line: in choice states, co-ops and city utilities are
@@ -179,9 +182,9 @@ export async function showYouCard(zip: string, utilsIn: ZipUtility[]): Promise<v
     const lubbock = primary && /Lubbock/i.test(primary.name);
     if (rule.bucket === "choice" && exemptOwner && !lubbock) {
       const kind = primary.group === "coop" ? "a co-op" : "city-owned";
-      choice = `Here, probably not: ${primary.name} is ${kind}, and those usually keep one seller even in choice states. Most of the state can pick.`;
+      choice = `One seller here: ${primary.name} is ${kind}. These utilities usually keep one seller even in states with broad choice.`;
     } else if (lubbock) {
-      choice = `${bucket.label}: Lubbock's city utility joined the Texas shopping market in 2024, the first to do it voluntarily.`;
+      choice = `${bucket.label}: Lubbock's city utility joined Texas retail choice in 2024. It was the first city utility to do so voluntarily.`;
     } else {
       choice = `${bucket.label}: ${bucket.body}`;
     }
@@ -234,7 +237,7 @@ export function showPriceIntro(key: string): void {
 }
 
 export function showFindYourself(): void {
-  show({ kind: "intro", title: "Find yourself", body: copy.layers.you.explainer });
+  show({ kind: "intro", title: "Find your address", body: copy.layers.you.explainer });
 }
 
 // ---- history layer: the plate, its events, its evidence, and its cities ----
@@ -275,12 +278,12 @@ function holdingsChangeLine(f: TimelineFrame): string | null {
   const moved = ch.gained + ch.lost + ch.changed;
   if (moved === 0) return null;
   const parts: string[] = [];
-  if (ch.gained) parts.push(`${String(ch.gained)} gained a system`);
-  if (ch.changed) parts.push(`${String(ch.changed)} changed hands`);
-  if (ch.lost) parts.push(`${String(ch.lost)} went blank`);
-  return `Between the two sheets, ${parts.join(", ")}. `
-    + `${String(ch.same)} counties read the same in both years, and ${String(ch.uncertain)} `
-    + `are too uncertain in one year or the other to compare.`;
+  if (ch.gained) parts.push(`${String(ch.gained)} counties gained a named group`);
+  if (ch.changed) parts.push(`${String(ch.changed)} counties changed groups`);
+  if (ch.lost) parts.push(`${String(ch.lost)} counties lost a named group`);
+  return `Between the two maps, ${parts.join(", ")}. `
+    + `${String(ch.same)} counties have the same reading in both years. ${String(ch.uncertain)} `
+    + `cannot be compared because at least one reading is uncertain.`;
 }
 
 // A map that states its own error rate is worth more than one that looks certain, and
@@ -304,8 +307,8 @@ function holdingsMethod(f: TimelineFrame): {
   const total = Object.keys(trace).length;
   if (total > 0) {
     rows.push({
-      label: "Counties read",
-      value: `${total.toLocaleString()}, every one on the plate`,
+      label: "Counties reviewed",
+      value: `${total.toLocaleString()}, covering the full source map`,
     });
     let unc = 0;
     for (const raw of Object.values(trace)) {
@@ -313,15 +316,15 @@ function holdingsMethod(f: TimelineFrame): {
       if (st === "amb" || st === "maybe" || st === "unknown") unc++;
     }
     rows.push({
-      label: "Read as uncertain",
-      value: `${unc.toLocaleString()} counties, ${pct(unc / total)} of the sheet`,
+      label: "Uncertain readings",
+      value: `${unc.toLocaleString()} counties, ${pct(unc / total)} of the map`,
     });
   }
   const anchors = (meta.trace_anchors as Record<string, unknown[]> | undefined)?.[year];
   if (anchors) {
     rows.push({
-      label: "Checked against",
-      value: `${String(anchors.length)} anchors from outside the plate, all passing`,
+      label: "External checks",
+      value: `${String(anchors.length)} locations checked against other sources`,
     });
   }
   // Both of the checks below were run on Map IV. Showing a Map IV figure under the 1925
@@ -330,21 +333,21 @@ function holdingsMethod(f: TimelineFrame): {
   const est = meta.trace_error_estimate as Record<string, unknown> | undefined;
   if (est?.year === year && typeof est.served_status_agreement === "number") {
     rows.push({
-      label: "Re-read blind",
-      value: `${pct(est.served_status_agreement)} agreed on served or blank, `
-        + `${pct((est.which_system_compatible as number | undefined) ?? 0)} on which system, `
-        + `over ${String(est.sample_counties)} counties`,
+      label: "Independent second reading",
+      value: `${pct(est.served_status_agreement)} agreement on filled or blank, `
+        + `${pct((est.which_system_compatible as number | undefined) ?? 0)} on the named group, `
+        + `across ${String(est.sample_counties)} counties`,
     });
     if (typeof est.limitation === "string") notes.push(est.limitation);
   }
   const third = meta.trace_third_reader as Record<string, unknown> | undefined;
   if (third?.year === year && typeof third.counties_read === "number") {
     rows.push({
-      label: "Judged by a third reader",
-      value: `${String(third.counties_read)} disputed counties: `
-        + `${pct((third.upheld_primary_share as number | undefined) ?? 0)} upheld this trace, `
-        + `${pct((third.upheld_blind_share as number | undefined) ?? 0)} the second read, `
-        + `${pct((third.third_mark_share as number | undefined) ?? 0)} named neither`,
+      label: "Third review of disagreements",
+      value: `${String(third.counties_read)} counties reviewed: `
+        + `${pct((third.upheld_primary_share as number | undefined) ?? 0)} matched this reading, `
+        + `${pct((third.upheld_blind_share as number | undefined) ?? 0)} matched the second, `
+        + `${pct((third.third_mark_share as number | undefined) ?? 0)} matched neither`,
     });
     if (typeof third.note === "string") notes.push(third.note);
   }
@@ -352,8 +355,7 @@ function holdingsMethod(f: TimelineFrame): {
     { year?: string; state_name?: string; status?: string }[] | undefined;
   const worst = weak?.find((w) => w.year === year && (w.status ?? "").includes("weakest"));
   if (worst?.state_name !== undefined) {
-    notes.push(`Accuracy is not even across the map. ${worst.state_name} is the weakest `
-      + `state on this sheet, and its counties should be read as less settled than the rest.`);
+    notes.push(`${worst.state_name} has the least certain readings on this map. Treat its county assignments with extra caution.`);
   }
   if (rows.length === 0) return null;
   return { rows, notes };
@@ -391,7 +393,7 @@ export function showFrameEvent(id: string): void {
   const e = t?.events[id];
   if (!t || !e) return;
   const excerpt = e.excerpt !== undefined ? t.law_excerpts[e.excerpt] : undefined;
-  const back = t.frames.find((f) => f.id === c.frameId)?.label ?? "the plate";
+  const back = t.frames.find((f) => f.id === c.frameId)?.label ?? "the map";
   setAtlasState({
     card: {
       kind: "event",
@@ -422,12 +424,12 @@ export function showDot(i: number): void {
   setAtlasState({
     card: {
       kind: "dot",
-      kicker: `1900${story ? " · a first worth knowing" : ""}`,
+      kicker: `1900${story ? " · early electricity milestone" : ""}`,
       name: `${d.city}, ${d.state}`,
-      body: story?.body ?? "A city with its own power station, lighting the blocks around it and no further.",
+      body: story?.body ?? "This city had a central power station serving nearby customers. It was one local system among thousands.",
       ...(d.note !== undefined ? { note: d.note } : {}),
       stats,
-      backLabel: "← back to the plate",
+      backLabel: "← back to the map",
     },
   });
 }
@@ -459,11 +461,11 @@ function readingFor(year: string, fips: string): { year: string; plate: string; 
       ? ` · ${subName}`
       : ` · subsidiary ${parsed.numeral}`;
   let statusLine: string;
-  if (parsed.status === "exact") statusLine = (labels[0] ?? "Named holding-company system") + sub;
-  else if (parsed.status === "maybe") statusLine = `Possible: ${labels[0] ?? "named system"}${sub}`;
-  else if (parsed.status === "amb") statusLine = `Ambiguous: ${labels.join(" or ")}${sub}`;
-  else if (parsed.status === "unknown") statusLine = "A principal power group operated here";
-  else statusLine = "No county-level group fill";
+  if (parsed.status === "exact") statusLine = (labels[0] ?? "Named holding-company group") + sub;
+  else if (parsed.status === "maybe") statusLine = `Possible group: ${labels[0] ?? "name unavailable"}${sub}`;
+  else if (parsed.status === "amb") statusLine = `Could be: ${labels.join(" or ")}${sub}`;
+  else if (parsed.status === "unknown") statusLine = "A major holding-company group operated here";
+  else statusLine = "No major group shown for this county";
   const plates = (h.trace.meta.plate_names ?? {}) as Record<string, string>;
   return { year, plate: plates[year] ?? (year === "1925" ? "Map III" : "Map IV"), statusLine };
 }
@@ -484,13 +486,13 @@ export function showHoldingCounty(fips: string): void {
   // changed, or says plainly that nothing did, which is itself a finding.
   let body: string;
   if (readings.length < 2) {
-    body = "The traced hatch on the FTC's own plate places this county for that year. Uncertain reads stay uncertain rather than resolving to an owner.";
+    body = "The hatch pattern on the federal source map assigns this county to a holding-company group for that year. Unclear patterns remain marked as uncertain.";
   } else {
     const first = readings[0]?.statusLine;
     const same = readings.every((r) => r.statusLine === first);
     body = same
-      ? "Both plates read the same here, so this county did not change hands between the two printings."
-      : "The two plates read differently here. Seven years apart, that is the empire growing, shrinking, or changing hands.";
+      ? "Both source maps assign this county to the same group. No change appears between 1925 and 1932."
+      : "The source maps assign this county differently in 1925 and 1932. A group entered, left, or replaced another during those seven years.";
   }
   setAtlasState({
     card: {
@@ -500,8 +502,8 @@ export function showHoldingCounty(fips: string): void {
       statusLine: current.statusLine,
       ...(readings.length > 1 ? { readings } : {}),
       body,
-      note: "Modern county geometry is used to read a historical plate; changed boundaries and separate towns remain limits of the trace.",
-      backLabel: "← back to the plate",
+      note: "The interactive layer uses modern county boundaries to interpret a historical map. Boundary changes and separately served cities limit the comparison.",
+      backLabel: "← back to the map",
     },
   });
 }
@@ -521,12 +523,12 @@ export function showMachine(ic: string): void {
   setAtlasState({
     card: {
       kind: "machine",
-      kicker: unified ? "one of two, this year" : "one of three",
+      kicker: unified ? "one of two synchronized grids this year" : "one of three synchronized grids",
       name: m.name,
       body: m.body,
       ...(m.note !== undefined ? { note: m.note } : {}),
       stats: [],
-      backLabel: "← back to the plate",
+      backLabel: "← back to the map",
     },
   });
 }
@@ -544,11 +546,11 @@ export function showMarket(market: string): void {
   setAtlasState({
     card: {
       kind: "machine",
-      kicker: started ? `running since ${started.when ?? started.date}` : "a market operator",
+      kicker: started ? `operating since ${started.when ?? started.date}` : "regional market operator",
       name: region.name,
       body: region.body,
       stats: [],
-      backLabel: "← back to the plate",
+      backLabel: "← back to the map",
     },
   });
 }
