@@ -56,13 +56,13 @@ export default function AtlasApp() {
       <div className="plate-inner">
         <header className="head">
           <Kicker />
-          <h1>How your electricity works</h1>
-          <p className="dek">Who runs the grid where you live, in five layers. Start wide. Zoom to your zip code. Then scrub back to 1900 and watch it get built.</p>
+          <h1>{copy.ui.site_title}</h1>
+          <p className="dek">{copy.ui.site_dek}</p>
         </header>
 
         <div className="body">
           <nav className="rail" aria-label="Map layers">
-            <h2>The stack</h2>
+            <h2>{copy.ui.stack_heading}</h2>
             <Rail />
           </nav>
 
@@ -75,7 +75,7 @@ export default function AtlasApp() {
             <div className="time-stack">
               <TimelineBar />
             </div>
-            <svg id="map" viewBox="0 0 975 610" role="img" aria-label="Map of the United States electricity system" hidden></svg>
+            <svg id="map" viewBox="0 0 975 610" role="img" aria-label={copy.ui.map_aria} hidden></svg>
             <ZipSearch />
             <ZoomReset />
           </div>
@@ -102,7 +102,7 @@ export default function AtlasApp() {
               aria-haspopup="dialog"
               onClick={() => { setAtlasState({ modalOpen: true }); }}
             >
-              Methodology &amp; about
+              {copy.ui.methodology_button}
             </button>
             <button
               className="tour-start"
@@ -111,10 +111,10 @@ export default function AtlasApp() {
                 if (getAtlasState().ready) tourShow(0);
               }}
             >
-              ▶ 30-second tour
+              {copy.ui.tour_button}
             </button>
           </span>
-          <a className="gh-link" href="https://github.com/a1j9o94/grid-atlas" target="_blank" rel="noopener">Check our work on GitHub ↗</a>
+          <a className="gh-link" href="https://github.com/a1j9o94/grid-atlas" target="_blank" rel="noopener">{copy.ui.github_link}</a>
         </footer>
         <TourPanel />
         <MethodologyModal />
