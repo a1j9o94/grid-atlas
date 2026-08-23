@@ -330,6 +330,11 @@ function paintHoldings(year: string): void {
 export function setHoldingsYear(year: string): void {
   if (!holdingsYears().includes(year)) return;
   paintHoldings(year);
+  // The card's measured lines are per sheet: how many counties that sheet leaves
+  // uncertain, how many anchors it is checked against. Repainting without
+  // rebuilding the card leaves the other sheet's figures under the new map.
+  const f = frameById(ctx().frameId);
+  if (f) showFrame(f);
 }
 
 // What changed between the two sheets, counted. This is the growth story as a
@@ -462,6 +467,12 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
         if (c.dead || c.current !== "history" || c.frameId !== want) return;
         setHidden(c.g.holdings, false);
         paintHoldings(c.holdingsYear ?? holdingsYears()[0] ?? "1925");
+        // Rebuild the card now the trace is in hand. Everything on it that is
+        // measured off the trace rather than written - what moved between the
+        // sheets, how the plate was read, how wrong it might be - reads null
+        // before the fetch lands, so a card built earlier is missing all of it
+        // and nothing else would ever refresh it on a first visit.
+        showFrame(f);
       })
       .catch(() => {
         if (c.dead || c.current !== "history" || c.frameId !== want) return;

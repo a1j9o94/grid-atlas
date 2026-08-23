@@ -363,7 +363,8 @@
    "which_system_compatible": 0.9231,
    "which_system_exact": 0.7564,
    "which_system_note": "Compatible means the two reads name overlapping candidate sets, which is a difference in confidence rather than a disagreement about who served the county. That is the number to quote; exact match understates agreement.",
-   "which_system_scored": 78
+   "which_system_scored": 78,
+   "year": "1932"
   },
   "trace_known_weaknesses": [
    {
@@ -371,6 +372,7 @@
     "declared_uncertain": 64,
     "note": "An independent third reader read 14 of Minnesota's contested counties and named a mark neither existing read had chosen on 6 of them, the highest third-mark rate anywhere. Four were standard-gas where the primary read utilities-power-light and the blind read central-states-electric, so both readers were wrong the same way. Two more read blank. 64 of 87 counties still carry declared uncertainty. This is the state to send a reader at next.",
     "state": "MN",
+    "state_name": "Minnesota",
     "status": "weakest state on the sheet",
     "year": "1932"
    },
@@ -379,6 +381,7 @@
     "declared_uncertain": 15,
     "note": "Shipped as the weakest state because 58 of 77 counties disagreed with the independent read and neither measurement nor a second reader could say which was right. A third reader has now read all 44 contested counties: 22 went to the blind read, 17 to the primary, 5 to a third mark. So the primary was the wrong one here, which is the opposite of Iowa, and the flag was correctly placed. The trace now carries the third reader's verdicts.",
     "state": "OK",
+    "state_name": "Oklahoma",
     "status": "was the weakest state, now adjudicated by a third reader",
     "year": "1932"
    },
@@ -387,6 +390,7 @@
     "declared_uncertain": 14,
     "note": "Agreement with the independent read was 22.2%, which looked like two noisy readers and nearly triggered a full re-read. Two independent checks say otherwise. Measuring lattice orientation against both candidate marks' legend field sites favoured the primary on 40 of 43 decidable counties and the blind read on none. A third reader then read 60 contested counties and favoured the primary on 51, the blind read on 3, and a third mark on 6. Re-reading Iowa would have degraded it.",
     "state": "IA",
+    "state_name": "Iowa",
     "status": "contested but resolved in the primary's favour, twice over",
     "year": "1932"
    }
@@ -407,12 +411,36 @@
    "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
    "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
    "Uncertainty is not uniform across the sheet, and meta.trace_known_weaknesses names where it concentrates. Minnesota is now the weakest state: a third reader named a mark neither existing read had chosen on 6 of the 14 contested counties read there, and 64 of 87 still carry declared uncertainty. Oklahoma was the weakest and has been adjudicated by that reader across all 44 of its contested counties.",
+   "A third reader independently read 288 contested counties, holding the two candidate readings and their provenance hidden from view. On those counties, which are the hardest on the sheet by construction, the primary trace was upheld 62.5% of the time, the independent blind read 25.0%, and a mark neither had chosen 12.5%. That 12.5% is the part no agreement measure between the first two readers could ever have surfaced.",
+   "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
+   "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
+   "Uncertainty is not uniform across the sheet, and meta.trace_known_weaknesses names where it concentrates. Minnesota is now the weakest state: a third reader named a mark neither existing read had chosen on 6 of the 14 contested counties read there, and 64 of 87 still carry declared uncertainty. Oklahoma was the weakest and has been adjudicated by that reader across all 44 of its contested counties.",
+   "A third reader independently read 288 contested counties, holding the two candidate readings and their provenance hidden from view. On those counties, which are the hardest on the sheet by construction, the primary trace was upheld 62.5% of the time, the independent blind read 25.0%, and a mark neither had chosen 12.5%. That 12.5% is the part no agreement measure between the first two readers could ever have surfaced.",
+   "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
+   "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
+   "Uncertainty is not uniform across the sheet, and meta.trace_known_weaknesses names where it concentrates. Minnesota is now the weakest state: a third reader named a mark neither existing read had chosen on 6 of the 14 contested counties read there, and 64 of 87 still carry declared uncertainty. Oklahoma was the weakest and has been adjudicated by that reader across all 44 of its contested counties.",
+   "A third reader independently read 288 contested counties, holding the two candidate readings and their provenance hidden from view. On those counties, which are the hardest on the sheet by construction, the primary trace was upheld 62.5% of the time, the independent blind read 25.0%, and a mark neither had chosen 12.5%. That 12.5% is the part no agreement measure between the first two readers could ever have surfaced.",
+   "Map IV agreement between two independent readers is not a release gate and is not claimed. Two readers do not agree 95% of the time on which of 24 near-identical hatches fills a county at 400 dpi, and one pair is unresolvable at this resolution. What is claimed is complete coverage, declared uncertainty, checkable anchors, and a residual error estimate from a held-out sample. See pipeline/lib/map4-release-standard.md.",
+   "Map IV numerals are recorded as printed even where they decode implausibly. Five such cases are logged rather than quietly corrected.",
+   "Uncertainty is not uniform across the sheet, and meta.trace_known_weaknesses names where it concentrates. Minnesota is now the weakest state: a third reader named a mark neither existing read had chosen on 6 of the 14 contested counties read there, and 64 of 87 still carry declared uncertainty. Oklahoma was the weakest and has been adjudicated by that reader across all 44 of its contested counties.",
    "A third reader independently read 288 contested counties, holding the two candidate readings and their provenance hidden from view. On those counties, which are the hardest on the sheet by construction, the primary trace was upheld 62.5% of the time, the independent blind read 25.0%, and a mark neither had chosen 12.5%. That 12.5% is the part no agreement measure between the first two readers could ever have surfaced."
   ],
   "trace_method": "Human plate trace with independent blind review and preserved uncertainty.",
   "trace_status": {
    "1925": "complete",
    "1932": "complete"
+  },
+  "trace_third_reader": {
+   "counties_read": 288,
+   "method": "Counties where the primary trace and the independent blind read named different marks, presented one at a time with both candidates' provenance hidden and their positions shuffled, each candidate shown as a crop of its own engraving from its confirmed legend site. See pipeline/lib/map4-third-reader-result.md.",
+   "note": "These are the hardest counties on the sheet by construction, so the primary share is not the trace's accuracy. The third-mark share is counties where BOTH earlier reads were wrong, which no agreement measure between those two readers could have surfaced.",
+   "third_mark": 36,
+   "third_mark_share": 0.125,
+   "upheld_blind": 72,
+   "upheld_blind_share": 0.25,
+   "upheld_primary": 180,
+   "upheld_primary_share": 0.625,
+   "year": "1932"
   }
  },
  "rollups": {

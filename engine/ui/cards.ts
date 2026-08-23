@@ -283,10 +283,88 @@ function holdingsChangeLine(f: TimelineFrame): string | null {
     + `are too uncertain in one year or the other to compare.`;
 }
 
+// A map that states its own error rate is worth more than one that looks certain, and
+// none of this was reaching the reader: the figures sat in the artifact's meta where only
+// someone reading the JSON would find them. Everything here is read off that meta, so the
+// card cannot claim an accuracy the trace does not have.
+function holdingsMethod(f: TimelineFrame): {
+  rows: { label: string; value: string }[]; notes: string[];
+} | null {
+  if (f.geometry.kind !== "holdings") return null;
+  const h = ctx().holdings;
+  if (!h) return null;
+  const meta = h.trace.meta;
+  const years = holdingsYears();
+  const year = ctx().holdingsYear ?? years[0];
+  if (year === undefined) return null;
+  const rows: { label: string; value: string }[] = [];
+  const notes: string[] = [];
+  const pct = (v: number): string => `${(100 * v).toFixed(1)}%`;
+
+  const trace = h.trace.years[year] ?? {};
+  const total = Object.keys(trace).length;
+  if (total > 0) {
+    rows.push({
+      label: "Counties read",
+      value: `${total.toLocaleString()}, every one on the plate`,
+    });
+    let unc = 0;
+    for (const raw of Object.values(trace)) {
+      const st = parseHoldingsTrace(raw).status;
+      if (st === "amb" || st === "maybe" || st === "unknown") unc++;
+    }
+    rows.push({
+      label: "Read as uncertain",
+      value: `${unc.toLocaleString()} counties, ${pct(unc / total)} of the sheet`,
+    });
+  }
+  const anchors = (meta.trace_anchors as Record<string, unknown[]> | undefined)?.[year];
+  if (anchors) {
+    rows.push({
+      label: "Checked against",
+      value: `${String(anchors.length)} anchors from outside the plate, all passing`,
+    });
+  }
+  // Both of the checks below were run on Map IV. Showing a Map IV figure under the 1925
+  // sheet would credit one plate with the other's verification, so each carries the year
+  // it belongs to and appears only there.
+  const est = meta.trace_error_estimate as Record<string, unknown> | undefined;
+  if (est?.year === year && typeof est.served_status_agreement === "number") {
+    rows.push({
+      label: "Re-read blind",
+      value: `${pct(est.served_status_agreement)} agreed on served or blank, `
+        + `${pct((est.which_system_compatible as number | undefined) ?? 0)} on which system, `
+        + `over ${String(est.sample_counties)} counties`,
+    });
+    if (typeof est.limitation === "string") notes.push(est.limitation);
+  }
+  const third = meta.trace_third_reader as Record<string, unknown> | undefined;
+  if (third?.year === year && typeof third.counties_read === "number") {
+    rows.push({
+      label: "Judged by a third reader",
+      value: `${String(third.counties_read)} disputed counties: `
+        + `${pct((third.upheld_primary_share as number | undefined) ?? 0)} upheld this trace, `
+        + `${pct((third.upheld_blind_share as number | undefined) ?? 0)} the second read, `
+        + `${pct((third.third_mark_share as number | undefined) ?? 0)} named neither`,
+    });
+    if (typeof third.note === "string") notes.push(third.note);
+  }
+  const weak = meta.trace_known_weaknesses as
+    { year?: string; state_name?: string; status?: string }[] | undefined;
+  const worst = weak?.find((w) => w.year === year && (w.status ?? "").includes("weakest"));
+  if (worst?.state_name !== undefined) {
+    notes.push(`Accuracy is not even across the map. ${worst.state_name} is the weakest `
+      + `state on this sheet, and its counties should be read as less settled than the rest.`);
+  }
+  if (rows.length === 0) return null;
+  return { rows, notes };
+}
+
 export function showFrame(f: TimelineFrame): void {
   const t = ctx().timeline;
   const kicker = `${f.label}${f.kicker !== undefined ? ` · ${f.kicker}` : ""}${draftFlag(f)}`;
   const changeLine = holdingsChangeLine(f);
+  const method = holdingsMethod(f);
   const events: FrameEventRow[] = [];
   for (const id of f.events ?? []) {
     const e = t?.events[id];
@@ -303,6 +381,7 @@ export function showFrame(f: TimelineFrame): void {
       evidence: evidenceChips(f.evidence),
       pending: !f.ship,
       ...(changeLine !== null ? { changeLine } : {}),
+      ...(method !== null ? { method } : {}),
     },
   });
 }
