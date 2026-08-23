@@ -7,7 +7,8 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { createEngine, type Engine } from "../engine";
-import { getAtlasState, setAtlasState } from "../lib/store";
+import { copy } from "../lib/data";
+import { getAtlasState, setAtlasState, useAtlas } from "../lib/store";
 import { tourShow } from "../engine/ui/tour";
 import Rail from "./Rail";
 import Card from "./Card";
@@ -18,6 +19,16 @@ import TourPanel from "./TourPanel";
 import TimelineBar from "./TimelineBar";
 import EvidenceModal from "./EvidenceModal";
 import MethodologyModal from "./MethodologyModal";
+
+// Which of the five the reader is on. It used to read "Plate 1 · An explorable
+// map", written when there was one map and left behind when there were five: it
+// said Plate 1 on all of them. Its own component so a layer change repaints a
+// line of text rather than the whole page, and the words come from the copy
+// deck the rail already uses, so the header and the rail cannot disagree.
+function Kicker() {
+  const l = copy.layers[useAtlas((s) => s.layer)];
+  return <p className="kicker">{l.title} · {l.gloss}</p>;
+}
 
 export default function AtlasApp() {
   const engineRef = useRef<Engine | null>(null);
@@ -44,7 +55,7 @@ export default function AtlasApp() {
     <div className="plate">
       <div className="plate-inner">
         <header className="head">
-          <p className="kicker">Plate 1 · An explorable map</p>
+          <Kicker />
           <h1>How your electricity works</h1>
           <p className="dek">Who runs the grid where you live, in five layers. Start wide. Zoom to your zip code. Then scrub back to 1900 and watch it get built.</p>
         </header>

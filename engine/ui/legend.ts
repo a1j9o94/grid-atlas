@@ -21,6 +21,7 @@ import { colourScale, isColourMeasure, measureSpec } from "../data";
 import { clearHighlights } from "../highlight";
 import type { Scale } from "../scales";
 import { WIRE_GROUPS } from "../wiregroups";
+import { showMachine, showMarket, showRegion } from "./cards";
 import { sizeLegendNote } from "../layers/wires";
 import { shownHoldingsYear } from "../layers/history";
 
@@ -43,6 +44,10 @@ const PLATE_MARKS: Record<string, { groups: readonly GroupKey[]; family: string 
   dots: { groups: ["timeMarks"], family: ".tl-dot" },
 };
 
+// The palette read backwards. A membership row carries the same value the plate
+// painted, so the value is enough to say which market the row is for.
+const MARKET_BY_FILL = new Map(Object.entries(FILL).map(([k, v]) => [v, k]));
+
 // The only characters that can end a quoted attribute value early. No fill in
 // the atlas carries one, but they come out of data files, so escape anyway.
 const q = (v: string): string => `"${v.replace(/["\\]/g, "\\$&")}"`;
@@ -53,7 +58,7 @@ interface KeyMint {
   // marks, which is the swatch except where an HTML swatch cannot say what the
   // SVG paints — SPP West's hatch is a pattern on the plate and a gradient on
   // the strip.
-  row: (k: LegendKey, fill?: string) => LegendKey;
+  row: (k: LegendKey, opts?: { fill?: string; describe?: () => void }) => LegendKey;
   step: (swatch: string) => { swatch: string; match?: string };
   // A row whose identity is not its colour: a hatch, a class, an attribute.
   custom: (k: LegendKey, t: LegendTarget) => LegendKey;
@@ -97,8 +102,11 @@ function beginKeys(plate: string | null): KeyMint {
     if (pick === "") return { dim: [], lit: base };
     return { dim: base.map((x) => `${x}:not(${pick})`), lit: base.map((x) => x + pick) };
   };
-  const byDefault = (swatch: string): string | undefined => {
-    if (marks !== undefined) return token(within(`[fill=${q(swatch)}]`));
+  const byDefault = (swatch: string, describe?: () => void): string | undefined => {
+    if (marks !== undefined) {
+      const t = within(`[fill=${q(swatch)}]`);
+      return token(describe === undefined ? t : { ...t, describe });
+    }
     if (process.env.NODE_ENV !== "production" && !warned) {
       warned = true;
       console.warn(
@@ -114,8 +122,8 @@ function beginKeys(plate: string | null): KeyMint {
       const m = token(t);
       return m === undefined ? k : { ...k, match: m };
     },
-    row: (k, fill) => {
-      const m = byDefault(fill ?? k.swatch);
+    row: (k, opts) => {
+      const m = byDefault(opts?.fill ?? k.swatch, opts?.describe);
       return m === undefined ? k : { ...k, match: m };
     },
     step: (swatch) => {
@@ -261,9 +269,12 @@ function wholesaleLegend(keys: KeyMint): LegendModel {
     .sort((a, b) => b.area - a.area)
     .map(({ rto }) => keys.row(
       { swatch: swatchBackground(rto), label: copy.regions[rto]?.name ?? rto },
-      // SPP West is a pattern on the plate and a gradient on the strip, so the
-      // marks are found by what they were painted, not by what the swatch shows.
-      FILL[rto] ?? "#ccc",
+      {
+        // SPP West is a pattern on the plate and a gradient on the strip, so the
+        // marks are found by what they were painted, not by what the swatch shows.
+        fill: FILL[rto] ?? "#ccc",
+        describe: () => { showRegion(rto); },
+      },
     ));
   return { kind: "swatches", items: [...named, transitionKey(keys)] };
 }
@@ -281,11 +292,16 @@ function seamTarget(keys: KeyMint, f: TimelineFrame, swatch: string): LegendTarg
   const ic = SEAM_IC[swatch];
   if (ic === undefined) return undefined;
   const unified = f.geometry.unified === true;
-  return keys.within(
-    unified && ic === "EASTERN"
-      ? ':is([data-ic="EASTERN"],[data-ic="WESTERN"])'
-      : `[data-ic=${q(ic)}]`,
-  );
+  return {
+    ...keys.within(
+      unified && ic === "EASTERN"
+        ? ':is([data-ic="EASTERN"],[data-ic="WESTERN"])'
+        : `[data-ic=${q(ic)}]`,
+    ),
+    // The row that stands for two machines describes the Eastern one; the card
+    // counts them off the frame, so on that plate it says "one of two" itself.
+    describe: () => { showMachine(ic); },
+  };
 }
 
 // The seam itself is a line, not a region, so its key fades the machines and
@@ -332,10 +348,12 @@ function frameLegend(keys: KeyMint, f: TimelineFrame | undefined): LegendModel {
       return t === undefined ? key : keys.custom(key, t);
     }
     // Market footprints are painted from the same palette the swatch names, so
-    // the default finds them. A market with no shape on this plate — "nobody
-    // running the traffic" is a hole in the map, not a region — mints a key
-    // that lights nothing, and the strip renders it inert.
-    return keys.row(key);
+    // the default finds them, and the same palette says which market it is. A
+    // market with no shape on this plate — "nobody running the traffic" is a
+    // hole in the map, not a region — mints a key that lights nothing, and the
+    // strip renders it inert.
+    const market = MARKET_BY_FILL.get(it.swatch);
+    return keys.row(key, market === undefined ? {} : { describe: () => { showMarket(market); } });
   });
   return {
     kind: "swatches",
