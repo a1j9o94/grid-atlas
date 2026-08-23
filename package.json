@@ -9,8 +9,10 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
+    "validate:holdings": "node tools/validate-holdings.mjs",
     "audit": "node tools/layout-audit.mjs",
-    "probe:history": "node tools/probe-history.mjs"
+    "probe:history": "node tools/probe-history.mjs",
+    "probe:legend": "node tools/probe-legend.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

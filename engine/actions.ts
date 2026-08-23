@@ -9,6 +9,7 @@ import { setAtlasState } from "../lib/store";
 import { HOME_VIEW, READY } from "./constants";
 import { ctx, setHidden } from "./ctx";
 import { isColourMeasure, measureSpec } from "./data";
+import { clearHighlights, clearLegendPin, highlightLegend, pinLegendKey } from "./highlight";
 import { buildParentGroups, ensureWires, morphCircles, renderSizeKey, repaintWires } from "./layers/wires";
 import { repaintRules } from "./layers/rules";
 import { flyToTrivia } from "./layers/wholesale";
@@ -50,7 +51,7 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   setHidden(c.g.you, key !== "you");
   setHidden(c.g.zipoutline, key !== "wires");
   if (key !== "history") hideHistory();
-  c.svg.classList.remove("has-hover");
+  clearHighlights();
   if (key !== "you") {
     animateViewBox(HOME_VIEW, 500);
     setAtlasState({ zoomResetVisible: false });
@@ -241,6 +242,29 @@ export function openEvidenceCard(id: string): void {
 export function showEventCard(id: string): void {
   showFrameEvent(id);
 }
+// The reader running a finger down the legend strip. Every key names marks on
+// the plate; this is how the strip asks the map to show which. `null` on the
+// way out.
+export function hoverLegendKey(token: string | null): void {
+  highlightLegend(token);
+}
+
+// A tap, a click, or Enter on a focused key: the reader asking the plate to
+// keep showing this one while they look at the map. Tapping it again lets go.
+//
+// A reader action, so it stops the auto-advance first, for the same reason
+// pickFrame and walkFrame do: holding a key and then watching the plate change
+// out from under it seven seconds later is the timeline overruling a request.
+export function toggleLegendPin(token: string): void {
+  stopPlay();
+  pinLegendKey(token);
+}
+
+// Escape, or a tap on something that is neither the strip nor the map.
+export function releaseLegendPin(): void {
+  clearLegendPin();
+}
+
 export function backToFrame(): void {
   const c = ctx();
   const f = c.timeline?.frames.find((x) => x.id === c.frameId);

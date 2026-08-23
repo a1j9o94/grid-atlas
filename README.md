@@ -66,7 +66,7 @@ The data pipeline (fetch, simplify, shard, corrections) runs in a companion work
 
 Code is MIT. The underlying data comes from public federal sources (HIFLD, Census, DOE/OpenEI).
 
-## Checking the layout
+## Checking the work
 
 The layout contract is that the page fits the viewport at every size: no scrolling, panels shrink or collapse rather than overlap. That is easy to break and hard to see, so it is asserted rather than eyeballed.
 
@@ -75,12 +75,19 @@ npm install
 npx playwright install chromium   # or set CHROME_PATH to one you have
 npm run build
 npm run audit                     # add -- --shots to also write PNGs
+npm run probe:history             # the plates draw what they claim
+npm run probe:legend              # the strip is wired to the plate
+npm run validate:holdings         # the FTC artifact; no browser or build needed
 ```
 
-The audit starts the production build itself with `next start` and drives that, never the dev server: dev mode double-invokes effects and its overlay logs would trip the console-error check. It first asserts the legacy-link redirect matrix and that junk paths 404, then drives eight viewports across twenty-four views, 192 combinations, and fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, chrome covering more than 22% of the drawn map, a map smaller than 12% of the viewport or under 150px tall, a map clipped by its own panel, a tap target under 28px, text clipped by its own box, an open dialog whose close control is not on screen at every scroll position, an archival plate that overflows its own frame when nobody asked it to, or any console error.
+The audit starts the production build itself with `next start` and drives that, never the dev server: dev mode double-invokes effects and its overlay logs would trip the console-error check. It first asserts the legacy-link redirect matrix and that junk paths 404, then drives eight viewports across twenty-four views, 192 combinations, and fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, chrome covering more than 22% of the drawn map, a map smaller than 12% of the viewport or under 150px tall, a map clipped by its own panel, a tap target under 28px, a legend key a thumb cannot reach, text clipped by its own box, an open dialog whose close control is not on screen at every scroll position, an archival plate that overflows its own frame when nobody asked it to, or any console error.
+
+The two probes assert meaning rather than geometry. `probe:history` checks the plates say the right thing: both FTC sheets draw exactly 3,108 counties with the tallies their trace claims, the 1967 plate paints East and West as one machine, and a market keeps one colour from 1999 to today. `probe:legend` checks the strip and the plate are wired to each other: pointing at a key fades everything it does not name, a key naming something the plate does not draw stays inert, a held key survives a look at the map, and — the assertion the file exists for — every key on every plate has a target, so a future plate that forgets to register in `PLATE_MARKS` fails by name instead of shipping a legend that quietly does nothing.
 
 Every one of those checks was added after a real failure, and the same mistake keeps recurring in a new costume. The audit first reported 66 combinations clean on a build where the controls buried the map on a phone: it had only ever compared chrome against chrome, never chrome against the map. So a coverage check went in. Then it reported 90 combinations clean on a build where a landscape phone showed 88x55 pixels of map, because **a map squeezed to nothing scores a perfect 0% coverage**. Hence the minimum-size check. Then it reported overlaps that were not there, because it measured raw layout rects and an element scrolled out of view inside a clipping box keeps its rect wherever the content put it. Hence measuring the visible rect, intersected with every ancestor that clips. Then it reported 192 combinations clean on a build where the evidence lightbox showed a phone about 5% of a 1190x1600 plate and scrolled its own close button off the screen, because **no check had ever opened a dialog and looked for the way out** — `PANELS` listed the chrome around the map and nothing inside a modal. The first version of the new check still passed, because it measured the ✕ where it rests: the button was only lost once the reader scrolled down to the plate, so the one position it was tested in was the one position that was never broken. It scrolls every dialog to the bottom now.
 
 Assert the property you want, not the absence of the bug you just fixed. And measure what the reader experiences, not what the layout tree says.
 
-Typing and linting are part of the same contract. `npm run typecheck` runs strict TypeScript with `noUncheckedIndexedAccess`, because this codebase is full of keyed registry lookups that would otherwise produce a silent `undefined`. `npm run lint` runs typescript-eslint's type-checked strict presets at zero warnings. Both gate every commit.
+Typing and linting are part of the same contract. `npm run typecheck` runs strict TypeScript with `noUncheckedIndexedAccess`, because this codebase is full of keyed registry lookups that would otherwise produce a silent `undefined`. `npm run lint` runs typescript-eslint's type-checked strict presets at zero warnings.
+
+All six gate every pull request. Typecheck, lint, the holdings validation and the build run in one job and report in about a minute; the audit and the two probes run beside it in a second job with a real Chromium, because a check that only runs when someone remembers is not a contract.
