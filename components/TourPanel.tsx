@@ -15,9 +15,9 @@ export default function TourPanel() {
       <h3 id="tour-title">{step?.title ?? ""}</h3>
       <p className="tour-body" id="tour-body">{step?.body ?? ""}</p>
       <div className="tour-actions">
-        <button id="tour-skip" onClick={tourEnd}>Skip</button>
+        <button id="tour-skip" onClick={tourEnd}>{copy.ui.tour_skip}</button>
         <button id="tour-next" className="primary" onClick={tourNext}>
-          {idx !== null && idx >= copy.tour.length - 1 ? "Explore" : "Next"}
+          {idx !== null && idx >= copy.tour.length - 1 ? copy.ui.tour_finish : copy.ui.tour_next}
         </button>
       </div>
     </div>
