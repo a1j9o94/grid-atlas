@@ -160,9 +160,34 @@ h1 {
 .about-overlay .note:last-child { margin: 0; }
 
 /* map marks */
-.region { stroke: rgba(38, 48, 31, 0.45); stroke-width: 0.7; transition: filter 120ms ease, opacity 120ms ease; }
+.region {
+  stroke: rgba(38, 48, 31, 0.45); stroke-width: 0.7;
+  transition: filter 120ms ease, opacity 120ms ease,
+              fill-opacity 120ms ease, stroke-opacity 120ms ease;
+}
 svg.has-hover .region { opacity: 0.45; }
 svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); }
+
+/* ---- reading the legend back onto the plate ----
+   Pointing at a key on the strip fades everything that key does not name. The
+   engine writes one rule at hover time naming the marks; every value that rule
+   uses is declared here, on the family it belongs to, so how far a family fades
+   stays a decision in this file and not a string in a TypeScript module. A
+   family that declares nothing still fades, on the fallbacks in the rule.
+
+   The fade is fill-opacity rather than opacity on purpose. `opacity` isolates
+   each element into its own compositing layer, which is why the wires branch of
+   the map hover refuses to dim at all: there are 2,907 territories on that
+   plate. Paint alpha costs nothing at that count and looks the same on marks
+   that are a flat fill and a hairline.
+
+   The lit rule sets no opacity of its own, only the emphasis: a `maybe` county
+   carries fill-opacity 0.62 as a confidence signal, and lit marks keep whatever
+   paint they were drawn with.
+
+   Nothing new is needed for reduced motion — the blanket rule above turns off
+   every transition on the page. */
+.region { --lh-dim: 0.30; --lh-emph: brightness(0.92) saturate(1.2); }
 .statelines { fill: none; stroke: rgba(38, 48, 31, 0.28); stroke-width: 0.45; pointer-events: none; }
 .rlabel {
   font: 600 16px var(--mono); letter-spacing: 0.1em; fill: var(--ink);
@@ -260,11 +285,28 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 }
 .lg-item { display: inline-flex; align-items: center; gap: 6px; }
 .lg-swatch { width: 11px; height: 11px; display: inline-block; border: 1px solid rgba(38,48,31,0.35); }
+/* A key that names marks on the plate says so before you point at it. Only the
+   keys the engine could resolve carry the attribute, so a key naming something
+   this plate does not draw — "nobody running the traffic" is a hole in the 1999
+   map rather than a shape on it — stays inert and looks it. Nothing here
+   changes a box, which is what keeps the layout audit green. */
+.lg-item[data-lh], .lg-step[data-lh] { cursor: pointer; }
+.lg-item[data-lh]:hover .lg-swatch { border-color: var(--ink); }
+.lg-item[data-lh]:focus-visible, .lg-step[data-lh]:focus-visible {
+  outline: 2px solid var(--ink); outline-offset: 2px;
+}
 .card .c-note { border-top: 1px solid var(--hair); padding-top: 8px; }
 
 /* wires layer marks: highlight the hovered piece only (2,907 siblings) */
 #g-wires .region { transition: none; }
 #g-wires .region.hov { stroke: var(--ink); stroke-width: 1.5; filter: brightness(0.9) saturate(1.25); }
+/* Two thousand nine hundred territories and as many circles. Reading a key back
+   onto this plate fades harder than it does on a plate of eight regions,
+   because a gentle fade at this count leaves the picture unreadable, and the
+   named marks take no emphasis: a filter on the 1,600 investor-owned
+   territories is 1,600 filters. Both families already opt out of transitions,
+   so the fade is instant, which is also right at this count. */
+#g-wires .region, #g-cartogram circle { --lh-dim: 0.14; --lh-emph: none; }
 
 /* cartogram: circles sized by a measure. Dorling circles touch by design, so
    each carries a paper-coloured ring to keep adjacent same-colour fills apart. */
@@ -865,6 +907,10 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   filter: brightness(0.88) saturate(1.15); stroke: var(--ink);
   stroke-width: 1.15;
 }
+/* 3,108 counties. They fade hard and instantly, for the same reasons the wires
+   do: at this count a gentle fade is unreadable, and the transition above does
+   not cover paint alpha, so nothing animates. */
+.holdings-county { --lh-dim: 0.14; --lh-emph: none; }
 @media (prefers-reduced-motion: reduce) {
   .holdings-county { transition: none; }
 }
@@ -879,7 +925,8 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .sm-region {
   stroke: rgba(38, 48, 31, 0.22); stroke-width: 0.4;
   vector-effect: non-scaling-stroke; cursor: pointer;
-  transition: fill 600ms ease;
+  transition: fill 600ms ease, fill-opacity 120ms ease, stroke-opacity 120ms ease;
+  --lh-dim: 0.28; --lh-emph: brightness(0.94) saturate(1.2);
 }
 .sm-region[data-ic="EASTERN"] { fill: var(--sm-east); }
 .sm-region[data-ic="WESTERN"] { fill: var(--sm-west); }
@@ -892,7 +939,9 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   fill: none; stroke: var(--ink); stroke-width: 1.4;
   stroke-linejoin: round; stroke-linecap: round;
   vector-effect: non-scaling-stroke; pointer-events: none;
-  transition: stroke-width 400ms ease, opacity 400ms ease;
+  transition: stroke-width 400ms ease, opacity 400ms ease, stroke-opacity 120ms ease;
+  /* The seam is a stroke, so only the stroke has alpha to give. */
+  --lh-dim: 0.16; --lh-emph: none;
 }
 #g-seam-lines[data-emphasis="ew"] .sm-line[data-seam="ew"],
 #g-seam-lines[data-emphasis="ercot"] .sm-line[data-seam="ercot"] { stroke-width: 2.6; }
@@ -956,7 +1005,9 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 .ms-region:hover { filter: brightness(0.94) saturate(1.2); }
 
 /* a city with its own station, and darkness between */
-.tl-dot { cursor: pointer; }
+/* Fifty-four lamps. The key that names all of them cannot fade anything, so it
+   turns them up instead. */
+.tl-dot { cursor: pointer; --lh-dim: 0.15; --lh-emph: brightness(1.22); }
 .tl-glow { fill: url(#lampglow); pointer-events: none; }
 .tl-core { fill: #f6e3ae; stroke: #8a6a1e; stroke-width: 0.6; vector-effect: non-scaling-stroke; pointer-events: none; }
 .tl-hit { fill: transparent; }

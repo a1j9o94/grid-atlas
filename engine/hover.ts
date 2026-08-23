@@ -1,20 +1,20 @@
 // ---- hover: one delegated mousemove resolves regions, states, and wires ----
+//
+// The effect itself lives in highlight.ts, next to the legend's way of asking
+// for the same thing. This file is only the arbiter: which mark is under the
+// pointer, and which card that opens.
 import { ctx } from "./ctx";
+import { clearLegendHover, clearMapHover, setHover } from "./highlight";
 import { svgPoint } from "./viewbox";
 import { showRegion, showState, showWire } from "./ui/cards";
-
-function setHover(group: SVGGElement, match: (p: SVGElement) => boolean): void {
-  ctx().svg.classList.add("has-hover");
-  for (const p of group.children) {
-    const el = p as SVGElement;
-    el.classList.toggle("hov", match(el));
-  }
-}
 
 export function bindHover(): void {
   const c = ctx();
   const signal = c.ac.signal;
   c.svg.addEventListener("mousemove", (e) => {
+    // The pointer is on the map, so whatever the legend was showing is over.
+    // A null check rather than a call, because this is the hot path.
+    if (c.legendHover !== null) clearLegendHover();
     const target = e.target as SVGElement;
     const d = target.dataset;
     if (c.current === "wholesale" && d.rto !== undefined) {
@@ -39,13 +39,5 @@ export function bindHover(): void {
       showWire(Number(d.wire));
     }
   }, { signal });
-  c.svg.addEventListener("mouseleave", () => {
-    c.svg.classList.remove("has-hover");
-    for (const grp of [c.g.rto, c.g.transitions, c.g.rules])
-      for (const p of grp.children) p.classList.remove("hov");
-    if (c.hoveredWire) {
-      c.hoveredWire.classList.remove("hov");
-      c.hoveredWire = null;
-    }
-  }, { signal });
+  c.svg.addEventListener("mouseleave", () => { clearMapHover(); }, { signal });
 }

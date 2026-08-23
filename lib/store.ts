@@ -94,11 +94,35 @@ export type CardModel =
       backLabel: string;
     };
 
+// One key on the legend strip. `shape` turns a square swatch into a lamp for
+// the dot plates or a rule for the seam; everything else is a plain background
+// value. `match` is an opaque handle the engine hands back to itself: pointing
+// at this key shows you the marks on the plate it names. The component never
+// reads it, only returns it, so the seam stays plain data and the engine keeps
+// the knowledge of what a key means.
+export interface LegendKey {
+  swatch: string;
+  label: string;
+  shape?: "dot" | "dot-story" | "line" | "line-ghost";
+  match?: string;
+}
+
 export type LegendModel =
-  // `shape` turns a square swatch into a lamp for the dot plates; everything
-  // else is a plain background value
-  | { kind: "swatches"; items: { swatch: string; label: string; shape?: "dot" | "dot-story" | "line" | "line-ghost" }[]; note?: string }
-  | { kind: "ramp"; label: string; steps: readonly string[]; ticks: string[]; notReported: string; note?: string };
+  | { kind: "swatches"; items: LegendKey[]; note?: string }
+  | {
+      kind: "ramp";
+      label: string;
+      // A colour, the handle to the marks wearing it, and the range it stands
+      // for, together rather than in parallel arrays, so a step cannot drift
+      // from what it points at. The band is a bare colour on screen, so the
+      // range is what names it to a reader who arrives by keyboard.
+      steps: readonly { swatch: string; label: string; match?: string }[];
+      ticks: string[];
+      // A key like any other, so every row on the strip renders through one
+      // path and the component has no colour of its own to know.
+      notReported: LegendKey;
+      note?: string;
+    };
 
 export interface ControlOption {
   key: string;

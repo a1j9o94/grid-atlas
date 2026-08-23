@@ -16,6 +16,18 @@ export type GroupKey =
   | "timeBase" | "timeMarks" | "holdings" | "seam" | "seamLines" | "membership";
 
 export interface DragState { x: number; y: number; vb: ViewBox }
+
+// What a legend key points at, written as selectors rather than as a predicate:
+// every key on every plate names a set the browser can find on its own, because
+// the encodings are already in the DOM. `dim` is what fades while the key is
+// pointed at and `lit` is what stays. Two lists rather than one and its
+// complement, because the wholesale key fades the regions and lights the hatch
+// drawn over them, and those are different groups.
+export interface LegendTarget {
+  dim: readonly string[];
+  lit: readonly string[];
+}
+
 export interface ParentGroup { color: string; meters: number; n: number; rank: number }
 
 export interface EngineCtx {
@@ -84,6 +96,17 @@ export interface EngineCtx {
   drag: DragState | null;
   pinch: number | null;
   hoveredWire: Element | null;
+
+  // The legend as an index to the plate: a token per key, rebuilt with the
+  // model on every repaint, so a token can only ever name marks this plate
+  // draws. `legendGen` prefixes the tokens, which is what makes a stale one
+  // inert rather than a handle to whatever key now sits at that index.
+  legendTargets: Map<string, LegendTarget>;
+  legendGen: number;
+  legendHover: string | null;
+  // The one rule the engine writes at runtime. It lives inside the svg, so
+  // destroy takes it away with everything else the engine inked.
+  legendStyle: SVGStyleElement;
 }
 
 let C: EngineCtx | null = null;
@@ -94,6 +117,14 @@ export function ctx(): EngineCtx {
 }
 export function setCtx(c: EngineCtx | null): void {
   C = c;
+}
+
+// The engine may not exist yet, or any more: React renders the chrome before
+// init resolves, and a pointer can be over the legend before the map is drawn
+// or after destroy has cleared it. Callers that can arrive that early ask
+// instead of assuming.
+export function maybeCtx(): EngineCtx | null {
+  return C;
 }
 
 export function setHidden(el: Element, value: boolean): void {

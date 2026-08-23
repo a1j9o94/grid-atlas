@@ -53,7 +53,7 @@ export function createEngine(): Engine {
       if (destroyed) return;
       const svg = req(document.getElementById("map"), "#map") as unknown as SVGSVGElement;
       const projection = geoAlbersUsa().fitExtent(FIT_EXTENT, base.statesFC);
-      const { g, wobbleDisp } = buildScaffold(svg);
+      const { g, wobbleDisp, legendStyle } = buildScaffold(svg);
       const c: EngineCtx = {
         ac: new AbortController(),
         dead: false,
@@ -94,6 +94,10 @@ export function createEngine(): Engine {
         drag: null,
         pinch: null,
         hoveredWire: null,
+        legendTargets: new Map(),
+        legendGen: 0,
+        legendHover: null,
+        legendStyle,
       };
       mine = c;
       setCtx(c);
@@ -120,6 +124,9 @@ export function createEngine(): Engine {
       mine.ac.abort();
       if (mine.viewAnim !== null) cancelAnimationFrame(mine.viewAnim);
       if (mine.morphAnim !== null) cancelAnimationFrame(mine.morphAnim);
+      // The svg element itself is React's, so the classes the engine put on it
+      // outlive the ink unless they are taken off here.
+      mine.svg.classList.remove("has-hover", "has-legend-hover");
       mine.svg.innerHTML = "";
       setCtx(null);
       mine = null;

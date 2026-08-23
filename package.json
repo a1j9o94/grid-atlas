@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "audit": "node tools/layout-audit.mjs",
-    "probe:history": "node tools/probe-history.mjs"
+    "probe:history": "node tools/probe-history.mjs",
+    "probe:legend": "node tools/probe-legend.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",
