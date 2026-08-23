@@ -1,6 +1,6 @@
 {
  "meta": {
-  "version": "2026-08-17",
+  "version": "2026-08-23",
   "reading_level": "5th-6th grade",
   "notes": "Source of truth for the history layer. Frames are snapshots, not a continuous scrub: the archives support dated moments, not annual geometry. Dot anchors are [lon, lat] EPSG:4326 and the site projects them, same as trivia. A frame's verified flag describes the frame's own words; each event card carries its own, so an uncertain detail flags itself without casting doubt on the plate around it. ship:false frames appear on the scrubber and say they are still being inked.",
   "honesty_footnotes": [
@@ -24,10 +24,10 @@
     1882,
     1926
    ],
-   "kicker": "islands of light",
-   "title": "Islands of light",
-   "body": "In 1900 there was no grid. There were thousands of small ones. A power station lit the blocks around it and stopped. If you lived past the last wire, you had no electricity at all. Every glowing dot here is a city with its own station.",
-   "note": "The first stations ran on direct current. It could not travel far before the copper cost more than the electricity was worth, so a station lit the blocks around it and stopped. That one limit is why the map is dots instead of country.",
+   "kicker": "isolated city systems",
+   "title": "Local power stations",
+   "body": "Electricity reached cities before it connected the country. Each glowing dot marks a city with a central power station. Most stations served only nearby blocks. Homes beyond the local wires had no service. The United States had thousands of separate electric systems and no national grid.",
+   "note": "Early direct-current systems could not move electricity far without expensive copper losses. Alternating current and transformers later allowed power to travel farther.",
    "geometry": {
     "kind": "dots",
     "scale": {
@@ -74,9 +74,9 @@
     1920,
     1928
    ],
-   "kicker": "the buying spree",
-   "title": "The buyers start buying the buyers",
-   "body": "The FTC drew this sheet to answer one question: who held what, county by county. A third of the country comes back blank. On 1,173 counties no principal power group operated at all, which is not the same as darkness. Municipal plants and companies too small for the FTC's list are simply not on the map.\n\nWhat is on it got there by buying. A holding company bought operating companies. A bigger holding company bought the holding company. The men at the top never touched a wire, and by 1925 twenty groups had taken the parts of the country worth taking.",
+   "kicker": "utility consolidation",
+   "title": "Holding companies spread",
+   "body": "Local utilities were being gathered into national corporate groups. A holding company owned other companies. An operating utility ran power plants and wires. Each patterned county shows where one of twenty major groups operated a utility in 1925. Blank counties may still have had city utilities or companies omitted from the federal map.",
    "geometry": {
     "kind": "holdings",
     "year": "1925"
@@ -93,7 +93,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "This layer is a hand trace of FTC Map III, printed 1925, read to all 3,108 modern county equivalents. Counties the engraving cannot settle are marked unreadable or ambiguous rather than guessed, and the panel above says how the sheet was read. Modern county geometry is used to read a historical plate, so changed boundaries and separate towns remain limits of the trace.",
+   "note": "This is a hand trace of Federal Trade Commission Map III. The source shows fields of operation: counties where each group ran utilities. It does not show stock ownership or separately served cities. Unclear hatch patterns remain marked as uncertain.",
    "verify_notes": "Map III county trace released with explicit exact, possible, ambiguous, unreadable, and unfilled states."
   },
   {
@@ -104,9 +104,9 @@
     1929,
     1934
    ],
-   "kicker": "the empires",
-   "title": "A handful of men own the lights",
-   "body": "Small companies got bought, then the buyers got bought. At the end of 1930 Samuel Insull's system operated in 32 states out of 48, two thirds of the country, and its rivals overlapped it everywhere. Sixteen systems together made about three quarters of the country's investor-owned power.\n\nSeven years after the earlier sheet the blank third of the country is nearly gone: counties with no principal group fall from 1,173 to 195. It is also the last picture of the empires whole. Middle West Utilities went into receivership in April.",
+   "kicker": "national utility empires",
+   "title": "Holding companies reach most counties",
+   "body": "Holding-company groups operated across most of the country by 1932. Only 195 counties were blank on the federal map, down from 1,173 in 1925. Samuel Insull's system operated in 32 of the 48 states. Sixteen systems produced about three quarters of investor-owned electricity. Middle West Utilities entered receivership that April.",
    "geometry": {
     "kind": "holdings",
     "year": "1932"
@@ -128,7 +128,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "This layer is a hand trace of FTC Map IV, printed 1932, read to all 3,108 modern county equivalents. It carries a circled numeral on many counties naming the operating company inside the group, which the earlier sheet does not. Counties the engraving cannot settle are marked unreadable or ambiguous rather than guessed, and the panel above says how the sheet was read and how wrong the reading might be. Modern county geometry is used to read a historical plate, so changed boundaries and separate towns remain limits of the trace.",
+   "note": "This is a hand trace of Federal Trade Commission Map IV. Some counties also carry a number naming the operating utility inside the larger group. The source omits separately served cities. Unclear hatch patterns remain marked as uncertain.",
    "verify_notes": "Map IV county trace released with explicit exact, possible, ambiguous, unreadable and unfilled states, an expanded machine-checked anchor set, and a published residual error estimate."
   },
   {
@@ -139,9 +139,9 @@
     1935,
     1960
    ],
-   "kicker": "the law arrives",
-   "title": "One afternoon, two laws",
-   "body": "On a single day in August 1935 Roosevelt signed a law with two halves. One broke the holding companies apart. The other gave Washington authority over electricity that crosses a state line. That second half is the reason the map has a Texas-shaped hole in it: within weeks, two Texas companies opened their switches to Oklahoma and stayed inside the state.",
+   "kicker": "federal regulation",
+   "title": "Federal law breaks up utility holding companies",
+   "body": "Roosevelt signed the Public Utility Act on August 26, 1935. One part forced the layered holding companies to simplify. Another gave the federal government authority over interstate electricity sales. Texas utilities separated their system from Oklahoma. That decision helped create today's Texas grid.",
    "geometry": {
     "kind": "seam",
     "unified": false,
@@ -161,7 +161,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "What makes a utility federal is not whether its own electrons cross a border. It is whether its system runs in step with one that does. Courts settled that on a commingling theory decades later, and by the 1960s Texas companies were being told they were federal with no wires crossing the line at all.",
+   "note": "Federal jurisdiction can follow a synchronized grid even when one utility has no wire crossing a state line. Courts settled that principle decades later.",
    "legend": [
     {
      "swatch": "var(--sm-east)",
@@ -177,7 +177,7 @@
     },
     {
      "swatch": "line",
-     "label": "Where one machine ends and the next begins"
+     "label": "Boundary between synchronized grids"
     }
    ]
   },
@@ -189,9 +189,9 @@
     1961,
     1974
    ],
-   "kicker": "one machine, briefly",
-   "title": "The country becomes one machine",
-   "body": "In February 1967 federal engineers closed a handful of weak ties in Montana and Nebraska, and the Eastern and Western grids ran in step for the first time. Engineers had tried three times before and never held it past a couple of hours. This time it held for months.",
+   "kicker": "East and West synchronize",
+   "title": "Eastern and Western grids connect",
+   "body": "The map colors the Eastern and Western grids as one system. In February 1967, federal engineers closed several connections in Montana and Nebraska. Both grids began running in sync for the first time. Earlier tests had lasted only minutes or hours. This connection held for months.",
    "geometry": {
     "kind": "seam",
     "unified": true,
@@ -210,7 +210,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "It did not hold well. The ties were opened again in July, closed again in December, and then pulled themselves apart 381 times over the next eight months. Texas was never in it.",
+   "note": "The connection remained unstable. Utilities opened it in July, closed it again in December, and watched it separate 381 times over the next eight months. The Texas grid remained separate throughout.",
    "legend": [
     {
      "swatch": "var(--sm-east)",
@@ -234,9 +234,9 @@
     1975,
     1995
    ],
-   "kicker": "three machines",
-   "title": "The country settles for three",
-   "body": "The ties were opened for good and left that way. From here the country is three separate machines: the Eastern grid, the Western grid, and Texas. In 1975 the number of working connections between East and West was zero. There is nothing to draw across the seam, and that is the point.",
+   "kicker": "three synchronized grids",
+   "title": "East and West separate again",
+   "body": "Utilities opened the unstable connections between East and West. The country returned to three synchronized grids: Eastern, Western, and Texas. No electricity crossed the East-West boundary in 1975. The blank boundary on this map represents a physical separation.",
    "geometry": {
     "kind": "seam",
     "unified": false,
@@ -257,7 +257,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "Two years later the first converter station opened at Stegall, Nebraska, and the two grids got one small door between them. Everything else you can see crossing the seam today was built after this plate.",
+   "note": "The first converter station opened at Stegall, Nebraska, in 1977. It allowed limited power transfers without forcing both grids to run in sync. Later stations added more crossings.",
    "legend": [
     {
      "swatch": "var(--sm-east)",
@@ -273,7 +273,7 @@
     },
     {
      "swatch": "line",
-     "label": "The seam. Nothing crosses it."
+     "label": "East-West boundary with no active crossing"
     }
    ]
   },
@@ -285,9 +285,9 @@
     1996,
     2003
    ],
-   "kicker": "the referees arrive",
-   "title": "Somebody neutral runs the traffic",
-   "body": "A federal order in 1996 said a company owning transmission had to let competitors use it on the same terms. It did not say who should run the traffic, and it required nobody to hand the job over. Five regions did it anyway, for three different reasons. By the end of 1999 five referees were running and most of the country had none.",
+   "kicker": "regional market operators",
+   "title": "Independent market operators emerge",
+   "body": "The colors now show wholesale markets instead of synchronized grids. A 1996 federal order required transmission owners to give competitors equal access to their high-voltage lines. It encouraged independent operators without requiring utilities to join one. Five regional operators were running by the end of 1999.",
    "geometry": {
     "kind": "membership",
     "frame_key": "f1999"
@@ -308,7 +308,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "Texas and California acted because their own regulators told them to. PJM, New England and New York acted because the 1996 order made tight power pools file one tariff for the whole pool. Order 2000 arrived in December 1999 and required a filing, not a decision.",
+   "note": "Texas and California created operators under state orders. Existing power pools in PJM, New England, and New York reorganized under federal rules. Most of the country still had no regional operator.",
    "legend": [
     {
      "swatch": "var(--r-ercot)",
@@ -332,7 +332,7 @@
     },
     {
      "swatch": "var(--r-none)",
-     "label": "Nobody running the traffic"
+     "label": "No regional market operator"
     }
    ]
   },
@@ -344,9 +344,9 @@
     2004,
     2012
    ],
-   "kicker": "the buildout",
-   "title": "The markets get big",
-   "body": "PJM swallowed the Midwest one utility at a time. Chicago joined in 2004. Then seven American Electric Power companies and Dayton. Then Pittsburgh, then Virginia. MISO opened a five-minute market in 2005, and Southwest Power Pool became a market operator too. This is when the map stops being a few coastal experiments.",
+   "kicker": "markets expand inland",
+   "title": "Regional markets expand",
+   "body": "Each color shows the utilities participating in one wholesale market. PJM expanded west through Chicago, Ohio, Pittsburgh, and Virginia. MISO opened its five-minute energy market in 2005. Southwest Power Pool also became a regional market operator. The markets now covered much of the Midwest and Mid-Atlantic.",
    "geometry": {
     "kind": "membership",
     "frame_key": "f2005"
@@ -367,7 +367,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "Not everyone stayed. Kentucky's two big utilities left MISO in 2006 and have run outside any market since. Ohio's utilities switched from MISO to PJM in 2011 and 2012, moving a market boundary several hundred miles.",
+   "note": "Membership could change. Two Kentucky utilities left MISO in 2006. Ohio utilities moved from MISO to PJM in 2011 and 2012, shifting the market boundary several hundred miles west.",
    "legend": [
     {
      "swatch": "var(--r-pjm)",
@@ -399,7 +399,7 @@
     },
     {
      "swatch": "var(--r-none)",
-     "label": "Nobody running the traffic"
+     "label": "No regional market operator"
     }
    ]
   },
@@ -411,9 +411,9 @@
     2013,
     2025
    ],
-   "kicker": "the big reshuffle",
-   "title": "The largest single day on the map",
-   "body": "At midnight between December 18 and 19, 2013, Entergy and its neighbours joined MISO. Twelve companies moved at once. A market that ran from Minnesota to Indiana suddenly reached the Gulf of Mexico, in a piece that does not touch the rest of it. Nothing else in the modern era moved this much ground on one day.",
+   "kicker": "MISO reaches the Gulf",
+   "title": "MISO expands to the Gulf Coast",
+   "body": "Twelve utilities joined MISO on December 19, 2013. Its wholesale market had stretched from Minnesota to Indiana. It now reached the Gulf of Mexico through a southern region separated from the northern territory. Southwest Power Pool opened its own integrated market three months later.",
    "geometry": {
     "kind": "membership",
     "frame_key": "f2014"
@@ -429,7 +429,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "The plate is dated 2014 by its market events, not by the reshuffle: Southwest Power Pool opened its own market and became a single balancing authority in March 2014. The Gulf expansion belongs to December 2013 and is captioned by its own date.",
+   "note": "The frame is labeled 2014 because Southwest Power Pool opened its integrated market in March of that year. MISO's southern expansion occurred in December 2013.",
    "legend": [
     {
      "swatch": "var(--r-miso)",
@@ -461,7 +461,7 @@
     },
     {
      "swatch": "var(--r-none)",
-     "label": "Nobody running the traffic"
+     "label": "No regional market operator"
     }
    ]
   },
@@ -473,10 +473,10 @@
     2026,
     2026
    ],
-   "kicker": "2026",
-   "title": "Where it landed",
-   "body": "Seven market operators, and about a third of the country with none at all. The three machines are still three. The Eastern and Western grids touch at about seven converter stations that together move on the order of 1,300 megawatts, which is almost nothing against their size. Texas still runs its own grid, which is the 1935 decision still holding.",
-   "note": "This is the same picture as the Wholesale layer, drawn from the same data. Step back through the scrubber and watch it come apart.",
+   "kicker": "today's system",
+   "title": "Seven markets across three physical grids",
+   "body": "The colors show seven regional market operators. About a third of the country has none. Under this market map, the United States still has three synchronized grids: Eastern, Western, and ERCOT. East and West exchange limited power through converter stations. ERCOT remains mostly separate inside Texas.",
+   "note": "This frame uses the same data as the Markets layer. The earlier frames explain how the physical grids and wholesale markets formed.",
    "geometry": {
     "kind": "current"
    },
@@ -1054,7 +1054,7 @@
     "https://archive.org/details/centralelectric00goog",
     "https://iiif.archive.org/iiif/cu31924022815181%2458/full/1600,/0/default.jpg"
    ],
-   "note": "The first Edison station to sell electricity in the United States. Not the first anywhere: his Holborn Viaduct station in London ran earlier the same year. The picture of it in the 1902 Census report is an engraving, not a photograph.",
+   "note": "This was the first Edison station to sell electricity in the United States. His Holborn Viaduct station in London opened earlier that year. The 1902 Census report shows an engraving of Pearl Street.",
    "evidence": [
     "census-1902-pearl-street-station-plate"
    ]
@@ -1070,7 +1070,7 @@
     "https://archive.org/details/cu31924022815181",
     "https://archive.org/download/cu31924022815181/cu31924022815181_hocr_searchtext.txt.gz"
    ],
-   "note": "The first hydroelectric station running Edison's incandescent system for paying customers. The 1902 Census report captions it simply as the first Edison station, which is the loose version of the claim and the reason this card exists. Grand Rapids had been selling water-powered arc light since 1880.",
+   "note": "This was the first hydroelectric station using Edison's incandescent system for paying customers. Grand Rapids had sold water-powered arc lighting since 1880. The 1902 Census caption uses the broader phrase “first Edison station.”",
    "evidence": [
     "census-1902-appleton-first-edison-station-plate"
    ]
@@ -1078,18 +1078,18 @@
   "great-barrington-1886": {
    "date": "1886-03-20",
    "title": "Alternating current works",
-   "body": "William Stanley lit about twenty shops and offices along Main Street in Great Barrington. He sent alternating current down the street at 500 volts and used transformers in the basements to bring it down to 100. That is the trick a grid runs on: push the voltage up to travel, bring it down to use.",
+   "body": "William Stanley lit about twenty shops and offices along Main Street in Great Barrington. He sent alternating current down the street at 500 volts. Transformers in the basements reduced it to 100 volts for use. Modern grids still raise voltage for travel and lower it for customers.",
    "verified": true,
    "sources": [
     "https://ethw.org/Milestones:Alternating_Current_Electrification,_1886",
     "https://berkshirehistory.org/wp-content/uploads/2018/11/Berkshire-History-Vol-VI-No-1-William-Stanley-Lighted-a-Town.pdf"
    ],
-   "note": "An experiment, not a utility. Stanley ran it out of an old rubber mill and shut it down by that summer. The town's electric company came two years later."
+   "note": "Stanley ran this experiment from an old rubber mill and shut it down that summer. The town's permanent electric utility arrived two years later."
   },
   "telluride-1891": {
    "date": "1891-06-19",
    "title": "Power sent over a mountain",
-   "body": "The Ames plant sent 3,000 volts of alternating current 2.6 miles through the San Juan Mountains to a 100-horsepower motor at the Gold King mine. It is the first time anyone generated, moved and then actually used AC to turn machinery.",
+   "body": "The Ames plant sent alternating current 2.6 miles through the San Juan Mountains at 3,000 volts. The electricity powered a 100-horsepower motor at the Gold King mine. This was the first system to generate, transmit, and use alternating current for an industrial motor.",
    "verified": true,
    "sources": [
     "https://www.loc.gov/item/co0030/",
@@ -1097,7 +1097,7 @@
     "https://www.historynet.com/l-l-nunn-made-mine-profitable-running-mill-ac-power.htm"
    ],
    "when": "June 1891",
-   "note": "The day is disputed: June 19 is the date usually given, and one local account says June 21. Longer AC lines already existed, at Willamette Falls in Oregon. What was new here is the industrial motor at the far end."
+   "note": "Sources disagree on the day. June 19 is most common, while one local account gives June 21. Longer alternating-current lines already existed at Willamette Falls in Oregon. The industrial motor made Ames distinct."
   },
   "niagara-buffalo-1896": {
    "date": "1896-11-16",
@@ -1112,8 +1112,8 @@
   },
   "pjm-pool-1927": {
    "date": "1927-09-01",
-   "title": "The first power pool",
-   "body": "Philadelphia Electric, Pennsylvania Power and Light, and Public Service of New Jersey tied their systems together and agreed to run their plants as one. It is the first large, fully integrated, high-voltage power pool in North America, and it has run continuously ever since. PJM still carries their initials.",
+   "title": "Utilities form a power pool",
+   "body": "Philadelphia Electric, Pennsylvania Power and Light, and Public Service of New Jersey connected their systems. They agreed to coordinate their power plants as one pool. It became North America's first large integrated high-voltage power pool. PJM still carries their initials.",
    "verified": true,
    "sources": [
     "https://www.loc.gov/item/nj1840/",
@@ -1121,12 +1121,12 @@
     "https://www.pjm.com/about-pjm/who-we-are/pjm-history"
    ],
    "when": "September 1927",
-   "note": "Not the first pooling of any kind. Connecticut and Massachusetts utilities had shared power in 1922."
+   "note": "Connecticut and Massachusetts utilities had shared power in 1922. The PJM pool integrated operations on a larger scale and continued running."
   },
   "insull-collapse-1932": {
    "date": "1932-04-15",
-   "title": "The biggest empire falls over",
-   "body": "A federal judge in Chicago put Middle West Utilities into receivership, the largest receivership in American business history to that point. The company could not pay 10 million dollars of notes coming due on June 1. The court acted on a friendly petition filed over a claim of 8,000 dollars, and named Samuel Insull himself as one of three receivers.",
+   "title": "Middle West Utilities enters receivership",
+   "body": "A federal judge in Chicago placed Middle West Utilities into receivership. It was the largest receivership in American business history at the time. The company could not pay $10 million in notes due June 1. Samuel Insull became one of three court-appointed receivers.",
    "verified": true,
    "sources": [
     "https://www.loc.gov/resource/sn82015313/1932-04-15/ed-1/?sp=1",
@@ -1134,12 +1134,12 @@
     "https://www.loc.gov/resource/sn85042243/1932-04-14/ed-1/?sp=1",
     "https://www.loc.gov/resource/sn82015313/1932-04-22/ed-1/?sp=17"
    ],
-   "note": "Only the holding companies failed. The operating companies kept running and kept the lights on, so nothing went dark in those 32 states."
+   "note": "The holding companies failed while their operating utilities kept delivering electricity. Service continued across the system's 32 states."
   },
   "northeast-blackout-1965": {
    "date": "1965-11-09",
    "title": "The lights go out in the Northeast",
-   "body": "One relay at a station in Ontario tripped, and about 30 million people lost power across the Northeast. Connecting grids to each other had made a new kind of failure possible.",
+   "body": "A relay at a station in Ontario tripped. The disturbance spread through connected systems, and about 30 million people lost electricity across the Northeast. Large interconnections allowed one failure to travel farther.",
    "verified": true,
    "sources": [
     "https://www.ferc.gov/sites/default/files/2020-05/ch7-10.pdf",
@@ -1149,8 +1149,8 @@
   },
   "golden-spike-1967": {
    "date": "1967-02-07",
-   "title": "East meets West",
-   "body": "Federal engineers closed a handful of weak ties in Montana and western Nebraska, and the Eastern and Western grids ran in step. Engineers had tried this three times before and failed: under six minutes in 1957, about two hours across nine tests in 1962, and two hours and five minutes across eleven tests in 1963. February 1967 was the first closure that held for months.",
+   "title": "Eastern and Western grids synchronize",
+   "body": "Federal engineers closed several connections in Montana and western Nebraska. The Eastern and Western grids began running in sync. Earlier tests in 1957, 1962, and 1963 had lasted only minutes or hours. The February 1967 connection held for months.",
    "verified": false,
    "verify_notes": "The exact number and location of the ties is contested. One archival account says four were planned, two in each state; the Federal Power Commission's own 1970 survey counts three in early 1967. The card hedges to a handful on purpose.",
    "sources": [
@@ -1159,15 +1159,15 @@
     "https://overbye.engr.tamu.edu/wp-content/uploads/sites/146/2021/09/EastWest_HICSS_CommentsSept15_FinalWithNames_Ack_WithFooter.pdf",
     "https://documents.pserc.wisc.edu/documents/publications/reports/2021_reports/S_92G_Final_Report.pdf"
    ],
-   "note": "It did not hold cleanly. Oscillations built through the spring, and the utilities used a pre-agreed right to open the ties again in late July. They were closed again on December 3, and the link pulled itself apart 381 times over the following eight months. Texas was never part of this: ERCOT stayed separate throughout.",
+   "note": "Oscillations grew through the spring, so utilities opened the connections in late July. They closed them again on December 3. The grids separated automatically 381 times over the next eight months. ERCOT remained separate throughout.",
    "evidence": [
     "fpc-1964-nps-principal-transmission-1962"
    ]
   },
   "nerc-1968": {
    "date": "1968-06-01",
-   "title": "The utilities write themselves rules",
-   "body": "After the blackout the industry set up a council to write reliability rules, with nine regional groups under it. Following the rules was voluntary. They did not become law for another forty years.",
+   "title": "Utilities create reliability rules",
+   "body": "After the 1965 blackout, the industry created a council to write reliability rules. Nine regional groups operated under it. Compliance remained voluntary until 2007.",
    "verified": true,
    "sources": [
     "https://www.nerc.com/globalassets/standards/resources/documents/milestones_nerc_reliability_standards.pdf",
@@ -1178,8 +1178,8 @@
   },
   "purpa-1978": {
    "date": "1978-11-09",
-   "title": "Somebody else is allowed to build a power plant",
-   "body": "PURPA told the federal commission to write rules making utilities both sell power to small independent generators and buy power from them. Before this, a utility could simply refuse.",
+   "title": "Independent generators gain market access",
+   "body": "The Public Utility Regulatory Policies Act required new federal rules for small independent generators. Utilities had to sell electricity to qualifying generators and buy electricity from them. Utilities could no longer refuse every transaction.",
    "verified": true,
    "excerpt": "purpa-1978",
    "sources": [
@@ -1191,8 +1191,8 @@
   },
   "epact-1992": {
    "date": "1992-10-24",
-   "title": "Wholesale competition, on paper",
-   "body": "The Energy Policy Act let independent generators sell power wholesale and let them ask for transmission access. Asking was still not the same as getting.",
+   "title": "Congress permits wholesale competition",
+   "body": "The Energy Policy Act allowed independent generators to sell electricity in wholesale markets. It also allowed them to request access to utility-owned transmission lines. Transmission owners still controlled whether access worked in practice.",
    "verified": true,
    "sources": [
     "https://www.govinfo.gov/content/pkg/STATUTE-106/pdf/STATUTE-106-Pg2776.pdf",
@@ -1202,8 +1202,8 @@
   },
   "order-888-1996": {
    "date": "1996-04-24",
-   "title": "Open the wires",
-   "body": "FERC ordered every utility that owns transmission to publish an open tariff, so a competitor could move power on the same terms as the owner. It set out principles for what an independent operator should look like. It did not require anyone to create one.",
+   "title": "Transmission opens to competitors",
+   "body": "The Federal Energy Regulatory Commission ordered transmission owners to publish open-access prices and terms. Competitors could move wholesale electricity over the same lines on the same terms as the owner. The order described independent operators without requiring utilities to create one.",
    "verified": true,
    "excerpt": "order-888-1996",
    "sources": [
@@ -1214,8 +1214,8 @@
   },
   "ercot-iso-1996": {
    "date": "1996-08-21",
-   "title": "Texas goes first",
-   "body": "Texas regulators designated ERCOT as an independent system operator, and it began acting as one that September. The label came years before the substance: ten separate utility control areas kept running the grid until they were merged into one on July 31, 2001.",
+   "title": "Texas designates an independent operator",
+   "body": "Texas regulators designated ERCOT as an independent system operator. It began that role in September 1996. Ten utility control areas continued operating the physical grid until ERCOT combined them into one control area on July 31, 2001.",
    "verified": true,
    "sources": [
     "https://www.sunset.texas.gov/public/uploads/files/reports/ERCOT%20SER%2082%20Leg.pdf",
@@ -1226,8 +1226,8 @@
   },
   "caiso-1998": {
    "date": "1998-03-31",
-   "title": "California opens a market",
-   "body": "California's independent operator and its power exchange started trading. Two years later the market failed badly enough to end retail choice in the state.",
+   "title": "California opens wholesale trading",
+   "body": "California's independent grid operator and power exchange began wholesale trading. The state also opened retail electricity sales. A severe market crisis two years later led California to restrict retail choice.",
    "verified": true,
    "sources": [
     "https://www.caiso.com/documents/isoarticles-incorporation.pdf",
@@ -1239,8 +1239,8 @@
   },
   "nyiso-1999": {
    "date": "1999-11-18",
-   "title": "Five referees",
-   "body": "New York's operator started, taking over from the pool formed after the 1965 blackout. That made five running: Texas, New England, PJM, California and New York. Most of the country had none, and about a third still does not.",
+   "title": "New York creates the fifth operator",
+   "body": "New York's independent operator took over from the power pool formed after the 1965 blackout. Five regional operators were now running in Texas, New England, PJM, California, and New York. Most of the country remained outside them.",
    "verified": true,
    "sources": [
     "https://www.govinfo.gov/content/pkg/FR-1999-11-22/html/99-30364.htm",
@@ -1251,8 +1251,8 @@
   },
   "order-2000-1999": {
    "date": "1999-12-20",
-   "title": "FERC asks everyone to join one",
-   "body": "Order 2000 told every transmission owner to file either a proposal for a regional operator or an explanation of why they had not. Filing was required. Joining was not. That is why a third of the map still has no market.",
+   "title": "Federal regulators request regional operator plans",
+   "body": "Order 2000 required every transmission owner to file a proposal for a regional operator or explain its progress toward joining one. The filing was mandatory. Membership remained voluntary. About a third of the country still has no regional market operator.",
    "verified": true,
    "excerpt": "order-2000-1999",
    "sources": [
@@ -1264,7 +1264,7 @@
   "comed-2004": {
    "date": "2004-05-01",
    "title": "Chicago joins PJM",
-   "body": "Commonwealth Edison moved into PJM, which put a piece of PJM about 300 miles west of the rest of it.",
+   "body": "Commonwealth Edison joined PJM. Its Chicago territory sat about 300 miles west of PJM's existing market, creating a temporary island on the map.",
    "verified": true,
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/1109357/000095012904005673/h17422exv99wev1.htm",
@@ -1274,7 +1274,7 @@
   "aep-dayton-2004": {
    "date": "2004-10-01",
    "title": "AEP and Dayton join PJM",
-   "body": "Seven American Electric Power companies and Dayton Power and Light joined on the same day. The gap between Chicago and the east filled in, and PJM became the biggest market in the country.",
+   "body": "Seven American Electric Power utilities and Dayton Power and Light joined PJM on the same day. Their territories connected Chicago to PJM's eastern region. PJM became the country's largest wholesale market.",
    "verified": true,
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/4904/000101540205001007/aep10k04.htm",
@@ -1285,7 +1285,7 @@
   "dominion-2005": {
    "date": "2005-05-01",
    "title": "Virginia joins PJM",
-   "body": "Dominion brought PJM to the Atlantic south of Washington.",
+   "body": "Dominion joined PJM. Its Virginia territory extended the market to the Atlantic coast south of Washington, DC.",
    "verified": true,
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/103682/000119312505085322/d8k.htm",
@@ -1295,7 +1295,7 @@
   "miso-market-2005": {
    "date": "2005-04-01",
    "title": "MISO starts trading",
-   "body": "MISO opened a market where power is bought and sold every five minutes. Its reliability room had opened in December 2001, and it began billing for transmission on February 1, 2002.",
+   "body": "MISO opened a wholesale energy market that calculates prices every five minutes. It had begun coordinating reliability in December 2001 and billing for transmission service in February 2002.",
    "verified": true,
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/107815/000010781505000155/we10q205.htm",
@@ -1303,12 +1303,12 @@
     "https://www.sec.gov/Archives/edgar/data/1002910/000095012004000259/exd_3.txt",
     "https://www.sec.gov/Archives/edgar/data/1317630/000104746905008141/a2152821zs-1.htm"
    ],
-   "note": "February 2002 is the day the billing started, not the day MISO started running the grid."
+   "note": "MISO took on different functions at different times. Transmission billing began in 2002. The five-minute energy market began in 2005."
   },
   "spp-nebraska-2009": {
    "date": "2009-04-01",
    "title": "Nebraska joins SPP",
-   "body": "The only state where every utility is publicly owned put its power into a market run from Arkansas.",
+   "body": "Nebraska's major public utilities joined Southwest Power Pool. Nebraska is the only state where every electricity utility is publicly owned.",
    "verified": true,
    "sources": [
     "https://www.tdworld.com/home/article/20967910/three-nebraska-utilities-complete-transition-to-southwest-power-pool",
@@ -1320,7 +1320,7 @@
   "miso-south-2013": {
    "date": "2013-12-19",
    "title": "MISO reaches the Gulf",
-   "body": "At the midnight boundary between December 18 and 19, Entergy's six operating companies and six neighbours joined MISO. MISO's own list names twelve. A market that ran from Minnesota to Indiana suddenly reached the Gulf of Mexico, in a piece that does not touch the rest of it.",
+   "body": "Entergy's six operating utilities and six neighboring companies joined MISO at midnight on December 19. The market expanded from the Upper Midwest to the Gulf of Mexico. Its new southern region did not touch the northern territory.",
    "verified": true,
    "sources": [
     "https://www.prnewswire.com/news-releases/miso-completes-largest-ever-power-grid-integration-236543931.html",
@@ -1328,25 +1328,24 @@
     "https://www.sec.gov/Archives/edgar/data/1089819/000108981914000006/cnl-12312013x10k.htm",
     "https://www.utilitydive.com/news/miso-adds-40000-mw-in-expansion/208230/"
    ],
-   "note": "MISO called it the largest grid integration ever done, and reported 65,280 miles of transmission and about 196,000 megawatts of generating capacity across 15 states and Manitoba afterwards. Entergy had run its own control area and belonged to no market before this."
+   "note": "After the expansion, MISO reported 65,280 miles of transmission and about 196,000 megawatts of generating capacity across 15 states and Manitoba. Entergy had previously run its own control area outside any regional market."
   },
   "integrated-system-2015": {
    "date": "2015-10-01",
    "title": "The federal dams join a market",
-   "body": "Western Area Power Administration's upper plains system, Basin Electric and Heartland moved into SPP, bringing the Missouri River dams with them.",
-   "verified": false,
+   "body": "Western Area Power Administration's Upper Great Plains system, Basin Electric, and Heartland joined Southwest Power Pool. Their membership brought electricity from federal Missouri River dams into the regional market.",
+   "verified": true,
    "sources": [
     "https://heartlandenergy.com/heartland-integrated-system-join-southwest-power-pool/",
     "https://www.federalregister.gov/documents/2016/02/18/2016-03362/pick-sloan-missouri-basin-program-eastern-division",
     "https://www.federalregister.gov/documents/2015/07/27/2015-18240/pick-sloan-missouri-basin-program-eastern-division-rate-order-no-wapa-170",
     "https://www.federalregister.gov/documents/2013/11/01/2013-26079/recommendation-from-the-western-area-power-administration-to-pursue-regional-transmission"
-   ],
-   "verify_notes": "Often called the first time a federal power marketing agency operated inside an RTO. That superlative was left unresolved by the research and should not be stated flatly."
+   ]
   },
   "spp-west-2026": {
    "date": "2026-04-01",
-   "title": "One referee, both grids",
-   "body": "A group of western utilities switched on a second SPP market, this one on the Western grid. The same operator now runs markets on both sides of the seam, across 17 states.",
+   "title": "SPP opens a western market",
+   "body": "A group of western utilities opened a second wholesale market run by Southwest Power Pool. SPP now operates markets on both the Eastern and Western grids across parts of 17 states. The physical grids remain separate.",
    "verified": true,
    "sources": [
     "https://spp.org/news-list/spp-and-member-utilities-successfully-complete-historic-western-expansion/",
@@ -1358,7 +1357,7 @@
   "caldwell-2026": {
    "date": "2026-03-12",
    "title": "A town changes grids",
-   "body": "Caldwell, Texas had been an Eastern-grid island inside Texas. New lines were built and it joined ERCOT.",
+   "body": "Caldwell, Texas, had been a small Eastern-grid island inside the ERCOT region. New transmission lines connected the city to ERCOT in March 2026.",
    "verified": true,
    "sources": [
     "https://www.ercot.com/news/release/03122026-ercot-welcomes-the"
@@ -1368,8 +1367,8 @@
    "date": "1930-12-31",
    "when": "1930",
    "title": "Insull's system reaches 32 states",
-   "body": "Samuel Insull's Middle West Utilities controlled more than 85 utility companies. The FTC put its field of operation at 32 states and Canada at the end of 1930. More than five thousand communities were served, with a population above six and a half million.",
-   "note": "Every number on this plate carries its own year, because the empires grew fast. The same company said fifteen states in 1923 and twenty-nine in 1929.",
+   "body": "Samuel Insull's Middle West Utilities controlled more than 85 utility companies. The Federal Trade Commission found that the group operated in 32 states and Canada at the end of 1930. It served more than 5,000 communities with over 6.5 million residents.",
+   "note": "The system expanded quickly. Company reports named 15 states in 1923 and 29 in 1929. Each figure on this map keeps the year of its source.",
    "sources": [
     "https://archive.org/details/americasnewfront00midd_1",
     "https://archive.org/details/essentialservice00midd",
@@ -1386,9 +1385,9 @@
   "ebasco-1930": {
    "date": "1930-12-31",
    "when": "1930",
-   "title": "And so does Electric Bond and Share",
-   "body": "General Electric set up Electric Bond and Share in 1905, and by the 1930s it was the largest utility holding company in the country. It sat at the top of five subholding companies, which together sat above roughly 237 subsidiaries at the bottom.",
-   "note": "Bond and Share's own system reached 32 states too, which the Supreme Court recorded in 1938: the electric operations of its subsidiaries were conducted in thirty-two states. Two rival empires arriving at the same count is the fact worth keeping. A 32-state reach was not what made either one unusual. The count only closes by including American Gas and Electric, which Bond and Share held through a minority stake, so it is a judgment about what reaching into a state means rather than a gap in the record.",
+   "title": "Electric Bond and Share reaches 32 states",
+   "body": "General Electric created Electric Bond and Share in 1905. By the early 1930s it was the country's largest utility holding company. Five subholding companies sat beneath it. Those companies controlled roughly 237 subsidiaries.",
+   "note": "The Supreme Court recorded operations in 32 states. That count includes American Gas and Electric, which Bond and Share influenced through a minority stake. The number depends on how the source defines control.",
    "sources": [
     "https://www.law.cornell.edu/supremecourt/text/329/90",
     "https://caselaw.findlaw.com/court/us-supreme-court/303/419.html",
@@ -1400,9 +1399,9 @@
   "concentration-1930": {
    "date": "1930-06-30",
    "when": "1930",
-   "title": "Sixteen systems, three quarters of the power",
-   "body": "The FTC counted sixteen holding-company systems and added up what they generated. In 1930 they made 75.8 percent of the electricity produced by investor-owned utilities. The same table gives 80.2 percent for 1929 and 76.4 percent for 1932. A reader who wants one number for how concentrated this industry was should use the year they mean.",
-   "note": "The FTC says under its own table that these percentages understate the case, and gives the example: the United Corporation controlled Consolidated Gas Electric Light and Power of Baltimore on a 2.8 percent minority interest in its voting stock. The individual empires still cannot be added up or ranked against each other. The percentages in the record sit on different denominators and several of them count the same kilowatt hours twice.",
+   "title": "Sixteen systems produce three quarters of the power",
+   "body": "The Federal Trade Commission counted electricity generated by sixteen holding-company systems. They produced 75.8% of all investor-owned electricity in 1930. The same table reports 80.2% in 1929 and 76.4% in 1932.",
+   "note": "The commission said these percentages understated corporate control because small voting stakes could still produce control. The records use different denominators and sometimes count the same electricity twice, so the individual systems cannot be added or ranked cleanly.",
    "sources": [
     "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
     "https://www.sec.gov/news/studies/puhc.txt",
@@ -1418,7 +1417,7 @@
   "ftc-investigation-1928": {
    "date": "1928-02-15",
    "title": "Congress orders an investigation",
-   "body": "Senate Resolution 83 told the Federal Trade Commission to take the utility holding companies apart on paper. The hearings ran for years. The finished record fills 95 printed volumes.",
+   "body": "Senate Resolution 83 ordered the Federal Trade Commission to investigate utility holding companies. The commission examined their ownership, finances, and operations for years. The final record filled 95 printed volumes.",
    "sources": [
     "https://www.ftc.gov/sites/default/files/documents/reports_annual/annual-report-1929/ar1929_0.pdf",
     "https://www.govinfo.gov/content/pkg/SERIALSET-08858_57_02/pdf/SERIALSET-08858_57_02.pdf",
@@ -1433,8 +1432,8 @@
   "public-utility-act-1935": {
    "date": "1935-08-26",
    "title": "Roosevelt signs the Public Utility Act",
-   "body": "Roosevelt signed the Public Utility Act of 1935. Title I is the Public Utility Holding Company Act, which forced the pyramids apart. Title II rewrote the 1920 water power law and renamed it the Federal Power Act, which gave a federal commission authority over electricity sold across state lines. One signing, two titles, and both of them still shape the map.",
-   "note": "Congress said plainly that it was acting on the Federal Trade Commission's reports. The law's own section 11(b)(2) is the part that cut the stacks down: a company could sit one layer above a holding company, but not two.",
+   "body": "Roosevelt signed the Public Utility Act of 1935. Title I forced utility holding companies to simplify. Title II became the Federal Power Act and gave a federal commission authority over interstate electricity sales. Both sections still shape the map.",
+   "note": "Congress cited the Federal Trade Commission investigation. Section 11(b)(2) limited the corporate stack: one company could sit above a holding company, while deeper holding-company layers had to go.",
    "excerpt": "puhca-1935",
    "sources": [
     "https://www.govinfo.gov/content/pkg/STATUTE-49/pdf/STATUTE-49-Pg803.pdf",
@@ -1450,9 +1449,9 @@
   "texas-opens-switches-1935": {
    "date": "1935-08-01",
    "when": "August 1935",
-   "title": "Two Texas companies open a switch",
-   "body": "Weeks before the new law took effect, two Texas utilities cut their connections to Oklahoma. Staying inside one state kept them clear of the new federal commission. Others followed the same logic for decades, and it is why most of Texas runs on its own grid today.",
-   "note": "Isolation was not settled in 1935. It was nearly lost during the war, and the real test of it came much later.",
+   "title": "Texas utilities disconnect from Oklahoma",
+   "body": "Two Texas utilities opened their connections to Oklahoma before the new federal law took effect. Keeping their synchronized system inside one state reduced federal jurisdiction. Other Texas utilities followed the same strategy. It helped create today's separate ERCOT grid.",
+   "note": "The separation remained incomplete in 1935. Wartime connections and later court cases tested whether Texas had stayed outside interstate electricity sales.",
    "sources": [
     "https://static.case.law/f-supp/470/cases/0798-01.json",
     "https://case-law.vlex.com/vid/west-texas-utilities-co-891133194",
@@ -1464,9 +1463,9 @@
   "texas-interconnects": {
    "date": "1941-01-01",
    "when": "the early 1940s",
-   "title": "Texas wires itself together",
-   "body": "Texas companies had begun tying their systems to each other as early as 1924. A north Texas group formed first. A south Texas group grew out of the war, when Houston Lighting and Power ran continuously connected to its neighbours to cover wartime shortages. A statewide system was organised informally in the early 1940s and put on formal footing in 1967.",
-   "note": "The war filled Texas with plants that needed power: shipyards, refineries, steel, a magnesium works, aircraft factories. Manufacturing output roughly quadrupled between 1939 and 1944.",
+   "title": "Texas utilities connect to each other",
+   "body": "Texas utilities had begun connecting their systems by 1924. A northern group formed first. A southern group expanded during World War II as utilities shared power for wartime factories. A statewide system emerged informally in the early 1940s and gained a formal organization in 1967.",
+   "note": "Shipyards, refineries, steel mills, a magnesium plant, and aircraft factories increased wartime electricity needs. Texas manufacturing output roughly quadrupled between 1939 and 1944.",
    "verified": false,
    "verify_notes": "The load driver is sourced as the scale of the buildout, not as an electricity figure. Do not restate it as demand growth without a source.",
    "sources": [
@@ -1479,8 +1478,8 @@
   "puhca-breakup": {
    "date": "1949-01-01",
    "when": "1945 to 1950",
-   "title": "The empires are broken up",
-   "body": "The Securities and Exchange Commission made the holding companies simplify. Pieces of them became the utilities people know now. Texas Utilities came apart in 1945, Middle South in 1949, Florida Power and Light and Pacific Power in 1950.",
+   "title": "Holding companies simplify",
+   "body": "The Securities and Exchange Commission enforced the 1935 law by simplifying utility holding companies. Their operating utilities became many of the regional companies known today. Major restructurings occurred between 1945 and 1950.",
    "sources": [
     "https://www.fundinguniverse.com/company-histories/texas-utilities-company-history/",
     "https://www.fundinguniverse.com/company-histories/fpl-group-inc-history/",
@@ -1495,8 +1494,8 @@
   "wscc-1967": {
    "date": "1967-01-01",
    "when": "1967",
-   "title": "The West organises too",
-   "body": "Western utilities formed their own coordinating council the same year, covering the whole Western grid.",
+   "title": "Western utilities form a council",
+   "body": "Western utilities created a coordinating council in 1967. It covered the full Western grid and developed regional reliability practices.",
    "sources": [
     "https://www.nerc.com/globalassets/programs/organization-certification/approved-certification-final-reports/wecc_ct_final_report_r2_public.pdf",
     "https://www.wecc.org/about/about-wecc"
@@ -1506,8 +1505,8 @@
   "ac-ties-opened": {
    "date": "1975-01-01",
    "when": "1975",
-   "title": "The ties are opened for good",
-   "body": "The ties between East and West were opened for good. They were not dismantled, just left open. From here the country runs as three separate machines: the Eastern grid, the Western grid, and Texas. In 1975 the number of working connections between East and West was zero.",
+   "title": "East and West separate again",
+   "body": "Utilities opened the unstable alternating-current connections between the Eastern and Western grids. The lines remained in place without carrying power. The country returned to three synchronized grids: Eastern, Western, and Texas. No active connection crossed the East-West boundary in 1975.",
    "sources": [
     "https://overbye.engr.tamu.edu/wp-content/uploads/sites/146/2021/09/EastWest_HICSS_CommentsSept15_FinalWithNames_Ack_WithFooter.pdf",
     "https://www.bakerinstitute.org/research/when-grid-was-grid-history-north-americas-brief-coast-coast-interconnected-machine",
@@ -1522,9 +1521,9 @@
   "stegall-1977": {
    "date": "1977-01-01",
    "when": "1977",
-   "title": "A different kind of connection",
-   "body": "Two years later the first link between the two grids opened at Stegall, Nebraska. It converts alternating current to direct current and back, which lets power cross without the two sides having to run in step. It was rated 100 megawatts, and a co-op built it.",
-   "note": "A widely repeated claim gives this first to the Virginia Smith station of 1988. Its own engineering award never says first.",
+   "title": "A converter reconnects East and West",
+   "body": "A cooperative opened a 100-megawatt converter station at Stegall, Nebraska. It converted alternating current to direct current and back. Electricity could cross while the Eastern and Western grids continued running separately.",
+   "note": "Some later accounts identify the 1988 Virginia Smith station as the first East-West converter. Its engineering award does not make that claim. The Stegall record dates this earlier connection to 1977.",
    "sources": [
     "https://www.eia.gov/analysis/studies/electricity/hvdctransmission/pdf/transmission.pdf",
     "https://www.niskanencenter.org/boosting-reliability-how-hvdc-back-to-backs-improve-power-sharing-between-grids/",
@@ -1536,9 +1535,9 @@
   "midnight-connection-1976": {
    "date": "1976-05-04",
    "when": "May 1976",
-   "title": "Somebody wires Texas to the east",
-   "body": "A Texas utility briefly closed a switch to Oklahoma in the middle of the night. It connected the Texas grid to the rest of the country, and it started a fight about whether that put Texas under federal authority. The courts were still working through it in 1979.",
-   "note": "This is the proof that the isolation was deliberate and understood, rather than an accident of geography.",
+   "title": "A midnight connection tests Texas",
+   "body": "A Texas utility briefly closed a switch to Oklahoma in the middle of the night. The connection synchronized part of Texas with the Eastern grid. It triggered a legal fight over federal authority that continued through 1979.",
+   "note": "The dispute shows that Texas utilities understood and deliberately maintained the grid's separation.",
    "sources": [
     "https://static.case.law/f-supp/470/cases/0798-01.json",
     "https://law.justia.com/cases/federal/district-courts/FSupp/470/798/1362924/",
@@ -1549,8 +1548,8 @@
   },
   "iso-ne-1997": {
    "date": "1997-07-01",
-   "title": "New England activates one",
-   "body": "ISO New England took over from the pool that six New England states had shared since 1971.",
+   "title": "ISO New England begins operating",
+   "body": "ISO New England took over regional coordination from the power pool shared by six New England states since 1971.",
    "sources": [
     "https://www.govinfo.gov/content/pkg/FR-1999-06-24/html/99-16082.htm",
     "https://www.eia.gov/electricity/archive/056200.pdf",
@@ -1561,9 +1560,9 @@
   },
   "pjm-iso-1997": {
    "date": "1997-11-25",
-   "title": "The old pool becomes a referee",
-   "body": "FERC approved the Pennsylvania, New Jersey and Maryland pool's plan to restructure itself into an independent operator, and it began work on January 1, 1998. FERC approved a plan the members had filed. It did not order them to file it.",
-   "note": "PJM became a regional transmission organisation in two steps after that, provisionally in July 2001 and fully in December 2002.",
+   "title": "PJM becomes an independent operator",
+   "body": "Federal regulators approved the Pennsylvania-New Jersey-Maryland power pool's plan to become an independent operator. PJM began the new role on January 1, 1998. Its member utilities had proposed the change.",
+   "note": "PJM gained provisional regional transmission organization status in July 2001 and full approval in December 2002.",
    "sources": [
     "https://www.pjm.com/about-pjm/who-we-are/pjm-history",
     "https://www.sec.gov/Archives/edgar/data/78100/0000950159-98-000059.txt",
@@ -1574,8 +1573,8 @@
   },
   "spp-rto-2004": {
    "date": "2004-10-01",
-   "title": "Southwest Power Pool becomes an RTO",
-   "body": "A pool that had coordinated the middle of the country since the war became a regional transmission organisation.",
+   "title": "Southwest Power Pool becomes a regional market operator",
+   "body": "A power pool that had coordinated central utilities since World War II became a regional transmission organization. The new status formalized its independent role under federal rules.",
    "sources": [
     "https://www.federalregister.gov/documents/2004/01/22/04-1497/sunshine-act-meeting-notice",
     "https://www.federalregister.gov/documents/2004/09/14/04-20821/sunshine-act-notice",
@@ -1587,7 +1586,7 @@
   "duquesne-2005": {
    "date": "2005-01-01",
    "title": "Duquesne joins PJM",
-   "body": "Pittsburgh's utility joined. It later tried to leave for MISO, got approval, and settled the matter instead in January 2009.",
+   "body": "Duquesne Light, the utility serving Pittsburgh, joined PJM. It later received approval to move to MISO. A 2009 settlement kept the utility in PJM.",
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/30573/000119312505061994/d10k.htm",
     "https://www.sec.gov/Archives/edgar/data/1031296/000103129609000011/main_10q.htm",
@@ -1598,8 +1597,8 @@
   },
   "lge-ku-2006": {
    "date": "2006-09-01",
-   "title": "Kentucky leaves",
-   "body": "Louisville Gas and Electric and Kentucky Utilities left MISO after four years, paying about 27 million dollars net to get out. They have run outside any market ever since.",
+   "title": "Two Kentucky utilities leave MISO",
+   "body": "Louisville Gas and Electric and Kentucky Utilities left MISO after four years. Their net exit payment was about $27 million. Both have remained outside a regional wholesale market.",
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/60549/000086138806000010/q10q0906.txt",
     "https://www.sec.gov/Archives/edgar/data/60549/000110465906046774/a06-16020_18k.htm",
@@ -1611,7 +1610,7 @@
   "atsi-2011": {
    "date": "2011-06-01",
    "title": "FirstEnergy switches markets",
-   "body": "Three Ohio utilities moved from MISO to PJM after seven years and eight months inside MISO. A market boundary that had held since 2003 moved several hundred miles west.",
+   "body": "Three FirstEnergy utilities in Ohio moved from MISO to PJM after nearly eight years. Their transfer shifted the wholesale market boundary several hundred miles west.",
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/1031296/000103129614000044/a991atsifinancialstatements.htm",
     "https://www.sec.gov/Archives/edgar/data/1031296/000103129603000070/fe_10k.txt",
@@ -1622,10 +1621,9 @@
   },
   "deok-2012": {
    "date": "2012-01-01",
-   "title": "Duke's Ohio and Kentucky follow",
-   "body": "Duke Energy Ohio and Duke Energy Kentucky made the same move a year later.",
-   "verified": false,
-   "verify_notes": "Duke's own filings also record December 31, 2011. Both dates describe the same cutover.",
+   "title": "Duke utilities move to PJM",
+   "body": "Duke Energy Ohio and Duke Energy Kentucky moved from MISO to PJM at the start of 2012. Their transfer continued the market boundary's westward shift.",
+   "verified": true,
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/20290/000119312512220901/d328186d10q.htm",
     "https://www.monitoringanalytics.com/reports/PJM_State_of_the_Market/2019/2019-som-pjm-volume2-appendix.pdf"
@@ -1633,16 +1631,18 @@
   },
   "nerc-enforceable-2007": {
    "date": "2007-06-18",
-   "title": "The voluntary rules become law",
-   "body": "The reliability rules the industry wrote for itself in 1968 finally became enforceable. The 2005 Energy Policy Act set it up. FERC certified the council in 2006 and approved 83 standards in March 2007. They took effect that June.",
-   "verified": false,
-   "verify_notes": "Chain assembled from the cross-plate reconciliation rather than from a single sourced finding. Verify each of the four dates before this loses its draft flag.",
-   "sources": []
+   "title": "Reliability rules become enforceable",
+   "body": "Federal law made the industry's reliability rules enforceable. The 2005 Energy Policy Act created the authority. Federal regulators certified the reliability organization in 2006 and approved 83 standards in March 2007. The standards took effect that June.",
+   "verified": true,
+   "sources": [
+    "https://www.ferc.gov/sites/default/files/2020-05/E-5_51.pdf",
+    "https://www.ferc.gov/sites/default/files/2020-05/E-6_45.pdf"
+   ]
   },
   "spp-marketplace-2014": {
    "date": "2014-03-01",
-   "title": "SPP opens a real market",
-   "body": "Southwest Power Pool launched its Integrated Marketplace and became a single balancing authority on the same day.",
+   "title": "SPP opens its integrated market",
+   "body": "Southwest Power Pool launched its Integrated Marketplace. It also combined participating utility control areas into one regional balancing authority that day.",
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/74145/000007414514000014/q12014oge10-q.htm",
     "https://www.sec.gov/Archives/edgar/data/32689/000110465914036691/a14-9635_110q.htm",
@@ -1653,7 +1653,7 @@
   "lubbock-2023": {
    "date": "2023-12-11",
    "title": "A city changes grids",
-   "body": "Lubbock moved its wires from the Eastern grid into ERCOT, finishing in December 2023. Its customers could shop for power for the first time in March 2024. About 70 percent of the city's load moved first, in 2021.",
+   "body": "Lubbock moved its local system from the Eastern grid into ERCOT. About 70% of the city's electricity demand moved in 2021, and the remaining connection finished in December 2023. Households gained the ability to choose a seller in March 2024.",
    "sources": [
     "https://www.sec.gov/Archives/edgar/data/1193311/000119331122000004/c311-20211231x10k.htm",
     "https://www.sec.gov/Archives/edgar/data/1193311/000119331120000013/c311-20191231x10k.htm",
@@ -1665,9 +1665,9 @@
   "dc-ties-today": {
    "date": "2026-01-01",
    "when": "today",
-   "title": "Seven doors between two grids",
-   "body": "The Eastern and Western grids are joined at about seven converter stations, which together move on the order of 1,300 megawatts. Set that against two grids serving hundreds of thousands of megawatts and the two halves of the country are barely connected at all.",
-   "note": "Counts differ. One federal table puts it at six by classing one station differently, and an independent history also counts six. Adding up nameplate ratings is also not the same as how much can actually flow at once.",
+   "title": "Converters link the Eastern and Western grids",
+   "body": "About seven converter stations connect the Eastern and Western grids. Together they can transfer roughly 1,300 megawatts. Both grids serve hundreds of thousands of megawatts, so the connection remains small relative to their size.",
+   "note": "Sources count six or seven stations depending on how they classify one site. Adding nameplate ratings also overstates the power that can move at the same time.",
    "sources": [
     "https://www.osti.gov/biblio/1832179",
     "https://docs.nlr.gov/docs/fy21osti/76850.pdf",
@@ -1679,9 +1679,9 @@
   "ercot-federal-reach": {
    "date": "2026-01-01",
    "when": "today",
-   "title": "What being separate does and does not buy",
-   "body": "ERCOT is the only one of the three grids that sits entirely inside one state, and it carries about 90 percent of Texas's electricity. El Paso, the Panhandle and part of East Texas are on the other two grids. Staying inside Texas keeps most federal rate and transmission rules off its utilities.",
-   "note": "It does not put Texas outside federal law, which is the most repeated myth about the American grid. The federal reliability statute exempts only Alaska and Hawaii. ERCOT pays the reliability organisation's fee, gets audited by the regional entity, and federal law contemplates FERC ordering transmission service inside ERCOT.",
+   "title": "ERCOT remains mostly under Texas authority",
+   "body": "ERCOT is the only major synchronized grid contained within one state. It carries about 90% of Texas electricity. El Paso, the Panhandle, and part of East Texas use the other two grids. Staying within Texas limits federal authority over rates and transmission service.",
+   "note": "ERCOT still follows federal reliability law. It pays reliability-organization fees, undergoes regional audits, and remains subject to specific federal transmission powers. Only Alaska and Hawaii are exempt from the federal reliability statute.",
    "sources": [
     "https://www.law.cornell.edu/uscode/text/16/824k",
     "https://www.ercot.com/files/docs/2022/04/29/Sunset_Overview_Programs_Final.pdf",
@@ -1693,8 +1693,8 @@
   "pacific-intertie": {
    "date": "1970-01-01",
    "when": "1970",
-   "title": "The long line down the West",
-   "body": "The Pacific direct current intertie runs from the Columbia River to Los Angeles. It moves surplus hydroelectricity south in the spring and helps the Northwest through winter.",
+   "title": "The Pacific Intertie connects north and south",
+   "body": "The Pacific direct-current intertie runs from the Columbia River region to Los Angeles. It carries surplus hydroelectricity south during spring runoff and can send other power north during winter demand.",
    "verified": false,
    "verify_notes": "Length, voltage and capacity were all corrected during research and the figures have grown over time with upgrades. Do not print a capacity without checking which year it belongs to.",
    "sources": [
@@ -1710,16 +1710,16 @@
    "label": "The 1935 Act, section 11(b)(2)",
    "citation": "Public Utility Act of 1935, ch. 687, 49 Stat. 803, section 11(b)(2).",
    "quote": "cease to be a holding company with respect to each of its subsidiary companies which itself has a subsidiary company which is a holding company",
-   "gloss": "In plain words: you may sit one layer above a holding company, but not two. The stack gets cut down.",
+   "gloss": "The law allowed one corporate layer above a holding company. Deeper holding-company stacks had to be removed.",
    "source_url": "https://www.govinfo.gov/content/pkg/STATUTE-49/pdf/STATUTE-49-Pg803.pdf",
    "verified": true,
-   "note": "The quotation this project showed before was not in the law at all. The phrase \"first registration period\" appears nowhere in the Act."
+   "note": "This quotation comes directly from section 11(b)(2) of the enacted law."
   },
   "purpa-1978": {
    "label": "PURPA, 1978, section 210",
    "citation": "Public Utility Regulatory Policies Act of 1978, 92 Stat. 3144, section 210(a).",
    "quote": "the Commission shall prescribe, and from time to time thereafter revise, such rules as it determines necessary to encourage cogeneration and small power production which rules require electric utilities to offer to (1) sell electric energy to qualifying cogeneration facilities and qualifying small power production facilities and (2) purchase electric energy from such facilities",
-   "gloss": "In plain words: if somebody else makes power, the utility has to buy it, and sell to them too. Before this a utility could simply refuse.",
+   "gloss": "Utilities had to buy electricity from qualifying independent generators and sell electricity to them when needed.",
    "source_url": "https://www.govinfo.gov/content/pkg/STATUTE-92/pdf/STATUTE-92-Pg3117.pdf",
    "verified": true
   },
@@ -1727,7 +1727,7 @@
    "label": "FERC Order 888, 1996",
    "citation": "FERC Order No. 888, Docket Nos. RM95-8-000 and RM94-7-001, issued April 24, 1996.",
    "quote": "issuing a Final Rule requiring all public utilities that own, control or operate facilities used for transmitting electric energy in interstate commerce to have on file open access non-discriminatory transmission tariffs that contain minimum terms and conditions of non-discriminatory service",
-   "gloss": "In plain words: you cannot own the only road and refuse to let competitors drive on it. The order set out what an independent operator should look like and required nobody to create one.",
+   "gloss": "Transmission owners had to offer competitors the same access terms they used themselves. The order described independent operators without requiring one.",
    "source_url": "https://www.govinfo.gov/content/pkg/FR-1996-05-10/html/96-10694.htm",
    "verified": true
   },
@@ -1735,7 +1735,7 @@
    "label": "FERC Order 2000, 1999",
    "citation": "FERC Order No. 2000, Docket No. RM99-2-000, issued December 20, 1999.",
    "quote": "all public utilities... that own, operate or control interstate transmission facilities must file with the Commission by October 15, 2000, a proposal for an RTO... or, alternatively, a description of efforts to participate in an RTO, any existing obstacles to RTO participation, and any plans to work toward RTO participation",
-   "gloss": "In plain words: join a regional operator, or write us a letter about why you have not. The filing was required. Joining never was.",
+   "gloss": "Transmission owners had to propose a regional operator or explain their progress toward joining one. Membership remained voluntary.",
    "source_url": "https://www.govinfo.gov/content/pkg/FR-2000-01-06/html/00-2.htm",
    "verified": true
   }
@@ -1746,7 +1746,7 @@
    "title": "Central Electric Light and Power Stations, 1902",
    "archive": "U.S. Census Bureau",
    "citation": "U.S. Bureau of the Census, Special Reports: Central Electric Light and Power Stations, 1902. Government Printing Office, 1905. Public domain.",
-   "note": "The first national count found 3,620 stations: 2,805 owned by companies and 815 owned by towns. Three quarters of them were in places with fewer than 5,000 people. That is why this plate is drawn as dots. There was no network to draw, only stations and the blocks around them. The count leaves out plants a factory or hotel built for its own use, so the number of generators in the country was higher still.",
+   "note": "The first national count found 3,620 central power stations. Companies owned 2,805 and towns owned 815. Three quarters served places with fewer than 5,000 residents. The report excludes private plants built by factories and hotels.",
    "source_url": "https://archive.org/details/centralelectric00goog",
    "rights": "U.S. government publication; public domain.",
    "verified": true
@@ -1767,7 +1767,7 @@
    "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
    "rights": "United States federal government publication, public domain",
    "verified": true,
-   "note": "Each county is shaded for the group operating in it, and the legend names the groups. The shading is hatch pattern rather than colour, so a county is read by its texture. This 1925 sheet is the source of the interactive county layer.",
+   "note": "The map uses hatch patterns to show which major holding-company group operated utilities in each county. It is the source for the interactive 1925 county layer.",
    "files": {
     "full": "/evidence/ftc-72a-map3-fields-of-operation-1925.webp",
     "thumb": "/evidence/ftc-72a-map3-fields-of-operation-1925.thumb.webp"
@@ -1781,7 +1781,7 @@
    "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
    "rights": "United States federal government publication, public domain",
    "verified": true,
-   "note": "This is the original 1932 source plate, presented as a pan-and-zoom scan rather than a modern county overlay. Its printed note says that separate cities and towns served are not shown. Independent georeference validation did not clear the threshold required to assign these hatch fields to modern county polygons, so the site does not imply county-level precision that the scan cannot support.",
+   "note": "The 1932 map uses hatch patterns to show major holding-company operations. It is the source for the interactive 1932 county layer. Its printed note says separately served cities and towns are omitted, and uncertain county readings stay marked as uncertain.",
    "files": {
     "full": "/evidence/ftc-72a-map4-fields-of-operation-1932.webp",
     "thumb": "/evidence/ftc-72a-map4-fields-of-operation-1932.thumb.webp"
@@ -1789,13 +1789,13 @@
   },
   "ftc-72a-map1-transmission-lines-1932": {
    "kind": "map",
-   "title": "Map I: Electric transmission lines, by holding company groups, 1932 (FTC Utility Corporations, Part 72-A)",
+   "title": "Electric transmission lines by holding-company group, 1932",
    "archive": "govinfo (GPO), U.S. Congressional Serial Set",
    "citation": "Federal Trade Commission, Utility Corporations, S. Doc. No. 92, pt. 72-A, 70th Cong., 1st Sess. (1935), map I, opposite p. 40.",
    "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
    "rights": "United States federal government publication, public domain",
    "verified": true,
-   "note": "A national map of high-voltage transmission colour-coded by holding-company group. Useful as an early picture of the grid taking shape. I confirmed the plate is on this page by reading its OCR heading, 'ELECTRIC TRANSMISSION LINES, BY'.",
+   "note": "This national map assigns high-voltage transmission lines to holding-company groups. It shows the physical grid growing beneath the corporate empires.",
    "files": {
     "full": "/evidence/ftc-72a-map1-transmission-lines-1932.webp",
     "thumb": "/evidence/ftc-72a-map1-transmission-lines-1932.thumb.webp"
@@ -1809,7 +1809,7 @@
    "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
    "rights": "United States federal government publication, public domain",
    "verified": true,
-   "note": "Company-by-company generation, ranked. This is the table to cite for any statement about how much of the country's electricity a named holding-company group actually produced. Table 11 on the preceding pages gives the 1924 distribution of control, and the surrounding text notes that large local corporations held about 30 percent.",
+   "note": "This table ranks holding-company groups by electricity generated in 1929, 1930, and 1932. It supports the concentration figures used in the 1932 history frame.",
    "files": {
     "full": "/evidence/ftc-72a-table12-generation-by-group.webp",
     "thumb": "/evidence/ftc-72a-table12-generation-by-group.thumb.webp"
@@ -1823,7 +1823,7 @@
    "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
    "rights": "United States federal government publication, public domain",
    "verified": true,
-   "note": "Operating companies sorted under their parent group, with ledger assets, revenues and pre-tax income. The nearest thing in the set to a company-by-company holdings table. Table 16, on PDF page 82, adds gas volumes moved across state lines by group in 1930.",
+   "note": "This table lists 91 operating utilities under their parent holding-company groups. It records assets, operating revenue, and pretax income for each company.",
    "files": {
     "full": "/evidence/ftc-72a-table19-operating-companies-by-group.webp",
     "thumb": "/evidence/ftc-72a-table19-operating-companies-by-group.thumb.webp"
@@ -1837,7 +1837,7 @@
    "source_url": "https://www.govinfo.gov/app/details/STATUTE-49/STATUTE-49-Pg803",
    "rights": "United States federal government publication, public domain",
    "verified": true,
-   "note": "The opening page carries the chapter number, the bill number S. 2796, the marginal note '[Public, No. 333.]', the date August 26, 1935, and section 1(b), where Congress says it is acting on the Federal Trade Commission's reports under S. Res. 83. A clean single image that links the investigation to the law.",
+   "note": "The opening page dates the law to August 26, 1935. Section 1(b) states that Congress acted on the Federal Trade Commission investigation ordered by Senate Resolution 83.",
    "files": {
     "full": "/evidence/puhca-statute-49-stat-803.webp",
     "thumb": "/evidence/puhca-statute-49-stat-803.thumb.webp"
@@ -1845,13 +1845,13 @@
   },
   "puhca-section-11-49-stat-820-821": {
    "kind": "document",
-   "title": "PUHCA section 11, the death sentence clause, 49 Stat. 820 to 821",
+   "title": "Public Utility Holding Company Act, section 11",
    "archive": "govinfo (GPO), United States Statutes at Large",
    "citation": "Act of Aug. 26, 1935, ch. 687, sec. 11, 49 Stat. 803, 820-21.",
    "source_url": "https://www.govinfo.gov/app/details/STATUTE-49/STATUTE-49-Pg803",
    "rights": "United States federal government publication, public domain",
    "verified": true,
-   "note": "Section 11(b)(1) with the single integrated system rule and the adjoining-states test is on the page numbered 820. Section 11(b)(2), the clause that cuts a holding company off from any subsidiary that is itself a holding company over another holding company, is on the page numbered 821. Use this page rather than the fabricated quotation.",
+   "note": "Section 11(b)(1) limited each holding company to an integrated utility system. Section 11(b)(2) removed deeper layers of holding companies from the corporate stack.",
    "files": {
     "full": "/evidence/puhca-section-11-49-stat-820-821.webp",
     "thumb": "/evidence/puhca-section-11-49-stat-820-821.thumb.webp"
@@ -1859,10 +1859,10 @@
   },
   "ftc-annual-report-1938-volume-list": {
    "kind": "document",
-   "title": "The FTC counts its own investigation, 1938",
+   "title": "Federal Trade Commission account of the investigation, 1938",
    "archive": "FRASER, Federal Reserve Bank of St. Louis",
    "quote": "are included in 84 printed volumes which, with 11 summary, final, index and appendix volumes, or a total of 95 were published as Senate Document No. 92, Seventieth Congress, first session, under the general title, Utility Corporations. … During the Investigation, the Commission's accountants, engineers, and economists examined 29 holding companies having total assets of $6,108,128,713; 70 subholding companies with total assets of $5,685,463,201, and 278 operating companies with total assets of $7,245,106,464.",
-   "note": "This is the Commission's own account of the size of the inquiry, printed three years after it ended. Ninety-five volumes, and 377 companies opened up. The 1935 law says on its face that Congress acted on these reports.",
+   "note": "The commission reported 95 printed volumes and examinations of 377 holding, subholding, and operating companies. Congress cited this investigation in the 1935 law.",
    "citation": "Annual Report of the Federal Trade Commission for the Fiscal Year Ended June 30, 1938 (Washington: GPO, 1938), 193.",
    "source_url": "https://fraser.stlouisfed.org/files/docs/publications/ftc/ftc_ar_1938.pdf",
    "rights": "Public domain, work of the United States Government.",
@@ -1876,7 +1876,7 @@
    "source_url": "https://archive.org/details/nationalpowersur00unit/page/n236",
    "rights": "Public domain in the United States as a work of the US Government (17 U.S.C. 105). Author on title page: United States. Federal Power Commission. archive.org supplies no rights statement for this item, so the public-domain basis is statutory rather than asserted by the archive. HathiTrust independently marks all five copies of this title rightsCode pd. Suggested credit: Federal Power Commission, National Power Survey, Part I (Washington: GPO, October 1964), p. 210.",
    "verified": true,
-   "note": "CONFIRMED by retrieving bytes: HTTP 200, content-type image/jpeg, 361,450 bytes, 1600x2148 pixels. Visually verified at full size. This is the single best 1964 asset. One page carries two full-width US maps stacked vertically, red transmission lines on a cream ground, black state and region boundaries, tick marks for number of circuits. The 161 Kv map (top) shows a dense mesh across the Tennessee ",
+   "note": "Two national maps show major transmission lines in 1962. The upper map includes lines rated 161 kilovolts and above. The lower map raises the threshold to 230 kilovolts, revealing the country's strongest long-distance network.",
    "files": {
     "full": "/evidence/fpc-1964-nps-principal-transmission-1962.webp",
     "thumb": "/evidence/fpc-1964-nps-principal-transmission-1962.thumb.webp"
@@ -1890,7 +1890,7 @@
    "source_url": "https://archive.org/details/nationalpowersur00unit/page/n242",
    "rights": "Public domain, US Government work. Same basis and credit line as the 1962 plate above.",
    "verified": true,
-   "note": "CONFIRMED: HTTP 200, image/jpeg, 363,379 bytes, 1600x2148. Visually verified. Two-page fold-out; leaf 242 is the western half and carries the whole legend, which is why it stands alone better than most spread halves. Legend keys 230 KV AC, 345 and 287 KV AC, 500 KV AC, 700 KV AC, DC, plus or minus 500 to 750 KV DC or 700 KV AC, number of circuits, and a generation-additions key with four symbol sh",
+   "note": "This 1964 projection shows the western transmission network federal planners expected by 1980. Its legend distinguishes voltage levels, alternating-current lines, direct-current lines, and planned generation additions.",
    "files": {
     "full": "/evidence/fpc-1964-nps-1980-projection-west.webp",
     "thumb": "/evidence/fpc-1964-nps-1980-projection-west.thumb.webp"
@@ -1904,7 +1904,7 @@
    "source_url": "https://archive.org/details/1970nationalpowe01unit/page/n92",
    "rights": "Public domain, US Government work. Credit: Federal Power Commission, The 1970 National Power Survey, Part I (Washington: GPO, December 1971), p. I-3-16.",
    "verified": true,
-   "note": "CONFIRMED: HTTP 200, image/jpeg, 440,383 bytes, 1600x2210. Visually verified. Clean black-and-white US map dividing the country into 6 heavy-outlined survey regions (Northeast, East Central, Southeast, West Central, South Central, West) and 48 numbered power supply areas in thinner line. Bold display type, high contrast, reproduces well small. This is the most legible single plate in the whole 197",
+   "note": "This federal survey divides the country into six planning regions and 48 numbered power-supply areas. It shows how planners organized the national system before today's regional markets existed.",
    "files": {
     "full": "/evidence/fpc-1970-nps-regions-and-power-supply-areas.webp",
     "thumb": "/evidence/fpc-1970-nps-regions-and-power-supply-areas.thumb.webp"
@@ -1918,7 +1918,7 @@
    "source_url": "https://archive.org/details/1970nationalpowe01unit/page/n272",
    "rights": "Public domain, US Government work. Same credit as Figure 3.6.",
    "verified": true,
-   "note": "CONFIRMED both halves: leaf 272 HTTP 200, image/jpeg, 281,258 bytes, 1600x2147; leaf 273 HTTP 200, image/jpeg, 322,754 bytes, 1600x2150. Visually verified. Colour plate: black dashed 230 KV AC, black solid 345 KV AC, green 500 KV AC, red 765 KV AC, red dashed plus or minus 400 KV DC, with circuit tick marks. Cities labelled (Seattle, Portland, Boise, Billings, Bismarck, Denver, Phoenix, Chicago, D",
+   "note": "This two-page map shows the 1970 high-voltage transmission system. Line color and pattern distinguish voltage levels and direct-current links. It documents the physical network around the time East and West separated again.",
    "files": {
     "full": "/evidence/fpc-1970-nps-transmission-system-figure-13-1.webp",
     "thumb": "/evidence/fpc-1970-nps-transmission-system-figure-13-1.thumb.webp"
@@ -1932,7 +1932,7 @@
    "source_url": "https://archive.org/details/1970nationalpowe02unit/page/n167",
    "rights": "Public domain, US Government work. Credit: Federal Power Commission, The 1970 National Power Survey, Part II (Washington: GPO, 1971), p. II-1-135.",
    "verified": true,
-   "note": "CONFIRMED: HTTP 200, image/jpeg, 239,483 bytes, 1601x1329. Visually verified and this is the richest plate found. Landscape fold-out. Left third is a printed table of major generating stations of 400 MW and over, coded A through BD, with 1970, 1980 and 1990 capacity columns by category (conventional hydroelectric, pumped storage hydroelectric, nuclear fueled steam-electric, conventional steam-elec",
+   "note": "This regional foldout combines a Northeast transmission map with a table of major power plants. It records existing 1970 capacity and projections for 1980 and 1990.",
    "files": {
     "full": "/evidence/fpc-1970-nps-principal-electric-facilities-region-1.webp",
     "thumb": "/evidence/fpc-1970-nps-principal-electric-facilities-region-1.thumb.webp"
@@ -1946,7 +1946,7 @@
    "source_url": "https://archive.org/details/essentialservice00midd/page/n28",
    "rights": "Published 1923, therefore public domain in the United States (all works published before 1929 are out of copyright as of 2026, regardless of renewal). archive.org supplies no rights field. Credit: Middle West Utilities Company, Essential Service in Fifteen States (Chicago, 1923), pp. 24-25; digitized by the University of Illinois Urbana-Champaign.",
    "verified": true,
-   "note": "CONFIRMED: HTTP 200, image/jpeg, 391,095 bytes, 1600x2168. Visually verified. Blue-and-black lithographed map with an art-nouveau border, running heads \"MIDDLE WEST UTILITIES COMPANY\" and \"ESSENTIAL SERVICE IN FIFTEEN STATES\". The legend lists 18 numbered principal operating companies: Illinois Northern Utilities, McHenry County Light and Power, Central Illinois Public Service, Central Power, Miss",
+   "note": "Middle West Utilities published this map in 1923 to show properties across fifteen states. Its legend names eighteen principal operating utilities inside the larger holding-company system.",
    "files": {
     "full": "/evidence/middle-west-utilities-1923-properties-map.webp",
     "thumb": "/evidence/middle-west-utilities-1923-properties-map.thumb.webp"
@@ -1960,7 +1960,7 @@
    "source_url": "https://archive.org/details/cu31924022815181/page/n58",
    "rights": "Public domain in the United States: a work of the US Government (Bureau of the Census), published 1906, and pre-1929 in any case. archive.org supplies no rights field for this Cornell scan; the closely related Google scan of the same report carries possible-copyright-status NOT_IN_COPYRIGHT. Credit: U.S. Bureau of the Census, Electrical Industries: 1902 (Washington: Government Printing Office, 1906), plate facing p. 34.",
    "verified": true,
-   "note": "CONFIRMED: HTTP 200, image/jpeg, 714,135 bytes, 1600x2136. Visually verified and it is excellent. One plate holding three fine-line engravings. Top and largest: the dynamo room, showing six men among a row of Jumbo dynamos direct-connected to steam engines, overhead belting and gas-style lamps, wooden plank floor. Lower left: the test battery of 1,000 incandescent lamps mounted on a wall frame wit",
+   "note": "This Census plate contains three engravings from Edison's Pearl Street station. They show the dynamo room, a test wall holding 1,000 lamps, and the station's regulating equipment.",
    "files": {
     "full": "/evidence/census-1902-pearl-street-station-plate.webp",
     "thumb": "/evidence/census-1902-pearl-street-station-plate.thumb.webp"
@@ -1974,7 +1974,7 @@
    "source_url": "https://archive.org/details/cu31924022815181/page/n42",
    "rights": "Public domain, US Government work published 1906. Same credit line as the Pearl Street plate.",
    "verified": true,
-   "note": "CONFIRMED: HTTP 200, image/jpeg, 585,363 bytes, 1600x2136. Visually verified. Top: a photographic halftone of a small vertical-board wooden shed with a single window and door, snow-dusted ground, another building behind. Bottom: a cutaway engraving showing the shed's interior with a belt-driven dynamo, a bank of resistance coils, a switchboard and a small lamp cluster, marked \"Scale 1-24\". Printed",
+   "note": "The upper image shows the small wooden Appleton station. The lower cutaway shows its belt-driven dynamo, resistance coils, switchboard, and lamps.",
    "files": {
     "full": "/evidence/census-1902-appleton-first-edison-station-plate.webp",
     "thumb": "/evidence/census-1902-appleton-first-edison-station-plate.thumb.webp"
@@ -1988,7 +1988,7 @@
    "source_url": "https://www.loc.gov/item/2016844562/",
    "rights": "rights_advisory: \"No known restrictions on publication. For more information, see National Photo Company Collection - Rights and Restrictions Information https://www.loc.gov/rr/print/res/275_npco.html\". LOC also states it does not itself own rights and cannot grant or deny permission, so the researcher carries the assessment. Credit: Library of Congress, Prints and Photographs Division, National Photo Company Collection.",
    "verified": true,
-   "note": "CONFIRMED: HTTP 200, image/jpeg, 88,868 bytes, 1024x836, single-channel greyscale. Visually verified and it is a genuinely strong period image. Four men in bowler hats and caps stand on and beside an enormous engine flywheel inside a fire-damaged generating hall; overhead a tangle of buckled conduit and collapsed roof steel, a tall boiler drum at left, a row of arched windows receding at right. Th",
+   "note": "Four workers stand beside a large engine flywheel inside a Baltimore railway power house damaged by the 1904 fire. The image shows the industrial scale of an early urban generating station.",
    "files": {
     "full": "/evidence/loc-1904-electric-railway-power-house-interior.webp",
     "thumb": "/evidence/loc-1904-electric-railway-power-house-interior.thumb.webp"
@@ -1998,7 +1998,7 @@
    "kind": "map",
    "title": "Chart IX: the whole Insull group on one sheet, January 1932",
    "archive": "govinfo, U.S. Congressional Serial Set",
-   "note": "Hundreds of companies in nested boxes, on a fold-out that scans at 6,919 by 9,306 pixels. Four line styles carry the relationships: interest through Corporation Securities Co. of Chicago, interest through Insull Utility Investments, main subsidiary relations, and lesser ones. The chart's own footnote says the controlling stakes were minorities, and says why they still worked: intercompany holdings of other minorities, plus Samuel Insull, Martin J. Insull and Samuel Insull Jr. holding key executive positions throughout the group.",
+   "note": "Hundreds of companies appear in nested boxes connected by four kinds of ownership line. The chart shows how minority stakes and shared Insull executives produced control across the full group.",
    "citation": "Federal Trade Commission, Utility Corporations, Sen. Doc. No. 92, 70th Cong., 1st Sess., Part 72-A (Washington: GPO, 1935), Chart IX, facing p. 136.",
    "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
    "rights": "Public domain, work of the United States Government.",
@@ -2012,7 +2012,7 @@
    "kind": "map",
    "title": "Chart X: one chain through the pyramid, December 31, 1930",
    "archive": "govinfo, U.S. Congressional Serial Set",
-   "note": "Seven layers, drawn as one column. Insull Interests, not incorporated, holding 69.3 per cent of Corporation Securities Co. of Chicago, which with Insull Utility Investments held 28.1 per cent of the voting stock of Middle West Utilities. Middle West held 99 per cent of National Electric Power, which held 93 per cent of National Public Service, which held all of Seaboard Public Service, which held all of Florida Power Corp, which held all of West Florida Power Co. and its $100,200 of common stock. The chart is dated the last day of 1930, and the FTC notes it is drawn before the receivership.",
+   "note": "The chart follows one seven-layer ownership chain from the Insull interests to West Florida Power. It shows how control passed through minority and majority stakes before the 1932 receivership.",
    "citation": "Federal Trade Commission, Utility Corporations, Sen. Doc. No. 92, 70th Cong., 1st Sess., Part 72-A (Washington: GPO, 1935), Chart X, facing p. 160.",
    "source_url": "https://www.govinfo.gov/app/details/SERIALSET-08858_57_02",
    "rights": "Public domain, work of the United States Government.",
@@ -2026,8 +2026,8 @@
  "seam_machines": {
   "EASTERN": {
    "name": "The Eastern grid",
-   "body": "Everything from the Atlantic to a line running down through Montana, the Dakotas, Nebraska and eastern New Mexico. It all turns in step, all the time, which is what makes it one machine rather than a region.",
-   "note": "It is the largest of the three by a wide margin.",
+   "body": "The Eastern grid reaches from the Atlantic to a boundary through Montana, the Dakotas, Nebraska, and eastern New Mexico. Generators across this area run in sync, making it one physical system.",
+   "note": "It is the largest of the three synchronized grids in the continental United States.",
    "sources": [
     "https://overbye.engr.tamu.edu/wp-content/uploads/sites/146/2021/09/EastWest_HICSS_CommentsSept15_FinalWithNames_Ack_WithFooter.pdf",
     "https://www.eia.gov/analysis/studies/electricity/hvdctransmission/pdf/transmission.pdf"
@@ -2035,7 +2035,7 @@
   },
   "WESTERN": {
    "name": "The Western grid",
-   "body": "The other side of the line, out to the Pacific, plus parts of Canada and Mexico. Its machines turn in step with each other and not with the East.",
+   "body": "The Western grid reaches from the East-West boundary to the Pacific and includes parts of Canada and Mexico. Its generators run in sync with each other and separately from the Eastern grid.",
    "sources": [
     "https://overbye.engr.tamu.edu/wp-content/uploads/sites/146/2021/09/EastWest_HICSS_CommentsSept15_FinalWithNames_Ack_WithFooter.pdf",
     "https://www.eia.gov/analysis/studies/electricity/hvdctransmission/pdf/transmission.pdf"
@@ -2043,8 +2043,8 @@
   },
   "ERCOT": {
    "name": "The Texas grid",
-   "body": "Most of Texas, and nothing else in the country. It runs alone on purpose, and the reason is the 1935 plate: staying inside one state kept it clear of the new federal commission.",
-   "note": "El Paso is on the Western grid, Beaumont and Amarillo are on the Eastern one. Texas is not the same shape as the Texas grid.",
+   "body": "The ERCOT grid covers most of Texas. Texas utilities maintained a separate synchronized system after the 1935 expansion of federal authority over interstate electricity sales.",
+   "note": "The grid does not follow the state border. El Paso uses the Western grid. Amarillo, Beaumont, and other areas use the Eastern grid.",
    "sources": [
     "https://www.ercot.com/files/docs/2022/04/29/Sunset_Overview_Programs_Final.pdf",
     "https://www.eia.gov/analysis/studies/electricity/hvdctransmission/pdf/transmission.pdf"
