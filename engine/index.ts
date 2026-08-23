@@ -74,6 +74,7 @@ export function createEngine(): Engine {
         variantOf: {},
         zip: null,
         routeToken: 0,
+        layerDrawn: false,
         wiresFeatures: null,
         wiresCounts: null,
         measures: null,
