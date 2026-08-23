@@ -4,9 +4,9 @@ import "./globals.css";
 import AtlasApp from "../components/AtlasApp";
 
 export const metadata: Metadata = {
-  title: "How your electricity works — an explorable map",
+  title: "How electricity reaches you: an explorable map",
   description:
-    "Who runs the grid where you live, in four layers. An explorable map of America's electricity system.",
+    "See who coordinates wholesale markets, who sets state rules, and who owns local wires. Explore five layers of America's electricity system.",
   icons: {
     icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
   },
