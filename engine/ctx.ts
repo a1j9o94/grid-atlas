@@ -26,6 +26,11 @@ export interface DragState { x: number; y: number; vb: ViewBox }
 export interface LegendTarget {
   dim: readonly string[];
   lit: readonly string[];
+  // What the card should say while this key is showing, for a key that names
+  // one thing the atlas can already describe — a market, a machine. Pointing at
+  // PJM on the strip and reading about ERCOT is the card contradicting the map.
+  // Keys that name a set with no card of its own leave it alone.
+  describe?: () => void;
 }
 
 export interface ParentGroup { color: string; meters: number; n: number; rank: number }
