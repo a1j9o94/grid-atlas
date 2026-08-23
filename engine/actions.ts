@@ -12,7 +12,7 @@ import { isColourMeasure, measureSpec } from "./data";
 import { clearHighlights, clearLegendPin, highlightLegend, pinLegendKey } from "./highlight";
 import { buildParentGroups, ensureWires, morphCircles, renderSizeKey, repaintWires } from "./layers/wires";
 import { repaintRules } from "./layers/rules";
-import { flyToTrivia } from "./layers/wholesale";
+import { flyToTrivia, syncTrivia } from "./layers/wholesale";
 import {
   ensureTimeline,
   frames,
@@ -45,7 +45,7 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   setHidden(c.g.rto, key !== "wholesale");
   setHidden(c.g.transitions, key !== "wholesale");
   setHidden(c.g.labels, key !== "wholesale");
-  setHidden(c.g.trivia, key !== "wholesale");
+  syncTrivia();
   setHidden(c.g.rules, key !== "rules");
   setHidden(c.g.wires, key !== "wires");
   setHidden(c.g.cartogram, key !== "wires" || c.sizeBy === null);
@@ -113,6 +113,8 @@ export function setSizeBy(key: string | null, urlMode: UrlMode = "replace"): voi
   c.sizeBy = key;
   setHidden(c.g.cartogram, c.current !== "wires");
   c.g.wires.classList.toggle("faded", key !== null);
+  // A place-pinned marker means nothing once the shapes have become circles.
+  syncTrivia();
   morphCircles(key);
   renderSizeKey(key);
   renderLegend(c.current);

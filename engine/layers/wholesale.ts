@@ -4,7 +4,7 @@ import { req } from "../../lib/assert";
 import { copy } from "../../lib/data";
 import { setAtlasState } from "../../lib/store";
 import { FILL, NUDGE, SVG_NS } from "../constants";
-import { ctx } from "../ctx";
+import { ctx, setHidden } from "../ctx";
 import { animateViewBox } from "../viewbox";
 import { showTrivia } from "../ui/cards";
 
@@ -63,7 +63,12 @@ function addLabel(text: string, x: number, y: number, small: boolean): void {
   ctx().g.labels.appendChild(t);
 }
 
-// ---- trivia markers (wholesale layer): the map's curiosities ----
+// ---- trivia markers: the map's curiosities ----
+//
+// Built once at boot for every layer, then shown or hidden by `syncTrivia`. The
+// entries have always carried a `layer` field; until a curiosity existed that
+// belonged anywhere but the wholesale plate, nothing read it, and every marker
+// was drawn on that one layer regardless of what it said.
 function buildTrivia(): void {
   const c = ctx();
   const transitionTriviaIds = new Set(c.transitionsFC.features.map((f) => f.properties.TRIVIA));
@@ -74,6 +79,7 @@ function buildTrivia(): void {
     g.setAttribute("class", "trivia" + (transitionTriviaIds.has(t.id) ? " transition-trivia" : ""));
     g.setAttribute("transform", `translate(${pt[0].toFixed(1)},${pt[1].toFixed(1)})`);
     g.dataset.trivia = String(i);
+    g.dataset.layer = t.layer;
     g.dataset.x = pt[0].toFixed(1);
     g.dataset.y = pt[1].toFixed(1);
     if (transitionTriviaIds.has(t.id)) {
@@ -90,6 +96,23 @@ function buildTrivia(): void {
   };
   c.g.trivia.addEventListener("mouseover", onPick, { signal: c.ac.signal });
   c.g.trivia.addEventListener("click", onPick, { signal: c.ac.signal });
+}
+
+// Show the curiosities that belong to the layer on screen, and hide the group
+// outright when there are none. Nothing shows over the cartogram: a marker is
+// pinned to a place, and once territories have become circles that push each
+// other apart, the place under the marker is no longer the company it names.
+export function syncTrivia(): void {
+  const c = ctx();
+  const suppressed = c.current === "wires" && c.sizeBy !== null;
+  let shown = 0;
+  for (const m of c.g.trivia.children) {
+    const el = m as SVGGElement;
+    const mine = !suppressed && el.dataset.layer === c.current;
+    setHidden(el, !mine);
+    if (mine) shown++;
+  }
+  setHidden(c.g.trivia, shown === 0);
 }
 
 // deep link to a curiosity: open the card and fly to its marker

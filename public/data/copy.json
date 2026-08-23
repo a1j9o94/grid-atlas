@@ -392,6 +392,27 @@
         "https://www.michigan.gov/mpsc/commission/news-releases/2025/08/21/michigan-electricity-providers-file-reports-showing-they-again-have-enough-capacity",
         "https://www.ferc.gov/industries-data/electric/electric-power-markets/pjm"
       ]
+    },
+    {
+      "id": "small-towns-one-number",
+      "layer": "wires",
+      "anchor": {
+        "lonlat": [
+          -94.93,
+          38.81
+        ],
+        "feature": {
+          "name": "CITY OF GARDNER",
+          "state": "KS"
+        }
+      },
+      "title": "The towns that report one number",
+      "body": "Gardner, Kansas runs its own power company, and it is blank on the price maps. So are 1,698 others. They all have houses on them. What they do not have is a price broken out for those houses: a small company files a short form with three figures on it, total money, total power, total customers, and nothing about who paid which part. Kansas, Iowa and Nebraska lose most of their shapes this way. They lose almost none of their electricity, because these are town utilities and co-ops. All 1,699 together are about one meter in forty.",
+      "verified": true,
+      "sources": [
+        "https://www.eia.gov/electricity/data/eia861/",
+        "https://www.eia.gov/survey/form/eia_861/instructions.pdf"
+      ]
     }
   ],
   "cartogram": {
