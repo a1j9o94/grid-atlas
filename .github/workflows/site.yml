@@ -28,7 +28,7 @@ jobs:
   # What the page actually does, in a real browser against the real production
   # build. These three found every layout and legend regression this project has
   # had, and until now they only ran on someone's laptop when they remembered.
-  # They are slow — the audit alone drives 184 viewport/view combinations — so
+  # They are slow — the audit alone drives 207 viewport/view combinations — so
   # they run beside the fast job rather than after it.
   browser:
     runs-on: ubuntu-latest

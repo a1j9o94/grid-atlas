@@ -40,13 +40,12 @@ const VIEWPORTS = [
   { name: "phone-landscape-tall", w: 915, h: 412 },
   { name: "tablet", w: 768, h: 1024 },
   { name: "laptop-short", w: 1280, h: 660 },
-  // A 1280x540 window belongs here and is deliberately absent. Adding it turns
-  // the audit red on arrival for a reason that predates this list: on the wires
-  // layer the colour and size controls are 94px tall floating over a 606x379
-  // map, which is 25% of it against a 22% contract. That is a real failure and
-  // it is not the legend's — the legend is not even drawn at that height any
-  // more. Add this viewport in the same change that makes those two controls
-  // fit, not before: a check that is red on every pull request is not a check.
+  // Short enough that the controls lie across the map, tall enough that they
+  // are still drawn at full size. Nothing else here covered that band, and the
+  // first thing this viewport found when it was added was a stale group label
+  // taking a whole row over the country: 25% of the map against a 22%
+  // contract, on every wires view, for as long as the window had existed.
+  { name: "laptop-tiny", w: 1280, h: 540 },
   { name: "desktop", w: 1500, h: 950 },
   // the map is the product, and a fixed-width plate wasted two thirds of a
   // large display before anyone measured it
