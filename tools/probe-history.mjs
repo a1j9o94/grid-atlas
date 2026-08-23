@@ -73,7 +73,7 @@ const open = async (frame) => {
 // FTC Map III: every county-equivalent must be present, and the five explicit
 // trace states must survive the JSON-to-DOM boundary. This is deliberately an
 // exact count: silently dropping one tiny independent city is still data loss.
-await page.goto(`${url}/then/1930`, { waitUntil: "networkidle" });
+await page.goto(`${url}/then/1925`, { waitUntil: "networkidle" });
 await page.waitForFunction(
   () => document.querySelectorAll("#g-holdings .holdings-county").length === 3108,
   null, { timeout: 30000 });
@@ -89,13 +89,18 @@ const holdings = await page.evaluate(() => ({
   pending: document.querySelector('.tl-stop[aria-pressed="true"]')?.hasAttribute("data-pending"),
   legend: document.getElementById("legend")?.textContent?.replace(/\s+/g, " ").trim(),
 }));
-want("1930 draws every county once", holdings.total, 3108);
-want("1930 preserves exact/maybe/amb/unknown/none",
+want("1925 draws every county once", holdings.total, 3108);
+want("1925 preserves exact/maybe/amb/unknown/none",
   [holdings.exact, holdings.maybe, holdings.amb, holdings.unknown, holdings.none],
   [1329, 57, 215, 334, 1173]);
-want("1930 holdings visible and city dots hidden", [holdings.visible, holdings.dotsHidden], [true, true]);
-want("1930 is shipped, not pending", holdings.pending, false);
-want("1930 legend explains source colour", holdings.legend?.includes("source plate is monochrome"), true);
+want("1925 holdings visible and city dots hidden", [holdings.visible, holdings.dotsHidden], [true, true]);
+want("1925 is shipped, not pending", holdings.pending, false);
+// The legend used to list five confidence states and name no company, while the counties
+// under it were coloured by company. Assert the fix rather than the old wording: it names
+// the systems, biggest first, and still says the colour is ours and not the plate's.
+want("1925 legend names the biggest system", holdings.legend?.includes("Insull"), true);
+want("1925 legend says the colour is not the plate's",
+  holdings.legend?.includes("monochrome"), true);
 
 // Cook County is a release anchor. Picking it must name both the county and
 // the printed system, proving geometry, trace, legend and card are joined.
@@ -108,65 +113,82 @@ want("Cook County pick names Insull", await page.evaluate(() => {
   return one.includes("Insull") || many.some((t) => t.includes("Insull"));
 }), true);
 
-// The source-plate control. With one sheet traced it names the sheet and does
-// not offer a press; with two it becomes a real switch and the county card
-// starts reading both years. Written so it asserts the truth either way, which
-// means it keeps working the day the 1932 trace lands.
-const hy = await page.evaluate(() => {
-  const el = document.getElementById("holdings-years");
-  const btns = [...document.querySelectorAll("#holdings-years .hy-year")];
+// The two sheets are two plates on the timeline, not one plate with a switch inside it.
+// There used to be a 1930 plate carrying both, which put two controls on screen doing the
+// same job and dated the plate to a year neither sheet was printed in.
+want("the source-plate switch is gone",
+  await page.evaluate(() => document.getElementById("holdings-years") === null), true);
+
+// The guard that keeps a half-read year off the site: a holdings plate may only draw a
+// year the artifact itself calls `complete`. A denylist on `not-built` used to sit here and
+// it admitted `in-progress`, which is what a trace reads while it is being worked, so the
+// map would have drawn the eastern two thirds and left the west silently blank.
+const sheets = await page.evaluate(async () => {
+  const f = await fetch("/data/timeline/holdings-1925.json").then((r) => r.json());
+  const t = await fetch("/data/timeline.json").then((r) => r.json());
   return {
-    present: !!el && !el.hasAttribute("hidden"),
-    years: btns.map((b) => b.querySelector("b")?.textContent),
-    plates: btns.map((b) => b.querySelector(".hy-plate")?.textContent),
-    pressed: btns.filter((b) => b.getAttribute("aria-pressed") === "true").length,
-    disabled: btns.filter((b) => b.disabled).length,
+    status: f.meta.trace_status ?? {},
+    years: Object.keys(f.years ?? {}),
+    drawn: t.frames.filter((x) => x.geometry?.kind === "holdings").map((x) => x.geometry.year),
   };
 });
-// The guard that keeps a half-read year off the site. Every year offered must be
-// `complete` in the artifact's own trace_status. A denylist on `not-built` used to
-// sit here and it admitted `in-progress`, which is what the 1932 trace reads while
-// it is being worked: 1,860 counties of 3,108, so the map would have drawn the
-// eastern two thirds and left the west silently blank.
-const statuses = await page.evaluate(async () => {
-  const f = await fetch("/data/timeline/holdings-1925.json").then((r) => r.json());
-  return { status: f.meta.trace_status ?? {}, years: Object.keys(f.years ?? {}) };
-});
-const complete = Object.entries(statuses.status)
+const complete = Object.entries(sheets.status)
   .filter(([, v]) => v === "complete").map(([k]) => k).sort();
-want("only complete years are offered", hy.years.slice().sort(), complete);
+want("every holdings plate names a sheet", sheets.drawn.every((y) => typeof y === "string"), true);
+want("every sheet drawn is complete in the artifact", sheets.drawn.slice().sort(), complete);
 want("every year in the file is accounted for by a status",
-  statuses.years.every((y) => y in statuses.status), true);
+  sheets.years.every((y) => y in sheets.status), true);
 
-want("1930 names its source plate", hy.present, true);
-want("every offered year is a traced sheet", hy.years.length >= 1, true);
-want("exactly one source plate is current", hy.pressed, 1);
-want("the plate name is shown beside the year",
-  hy.plates.every((p) => typeof p === "string" && p.length > 0), true);
-// A single sheet is not a choice, so it must not present as one.
-want("a lone sheet is not offered as a switch",
-  hy.years.length === 1 ? hy.disabled === 1 : hy.disabled === 0, true);
+// The later sheet is its own plate and draws its own trace.
+await page.goto(`${url}/then/1932`, { waitUntil: "networkidle" });
+await page.waitForFunction(
+  () => document.querySelectorAll("#g-holdings .holdings-county").length === 3108,
+  null, { timeout: 30000 });
+const m4 = await page.evaluate(() => ({
+  total: document.querySelectorAll("#g-holdings .holdings-county").length,
+  exact: document.querySelectorAll("#g-holdings .holdings-exact").length,
+  maybe: document.querySelectorAll("#g-holdings .holdings-maybe").length,
+  amb: document.querySelectorAll("#g-holdings .holdings-amb").length,
+  unknown: document.querySelectorAll("#g-holdings .holdings-unknown").length,
+  none: document.querySelectorAll("#g-holdings .holdings-none").length,
+  year: document.getElementById("g-holdings")?.dataset.year,
+  // Colour is the whole claim of this layer: it says WHO, not merely that someone was
+  // there. Half of this sheet drew grey once, because the colour table only carried Map
+  // III's twenty keys and Map IV names systems Map III does not.
+  coloured: [...document.querySelectorAll("#g-holdings .holdings-county")]
+    .filter((e) => e.style.getPropertyValue("--holding-fill") !== "").length,
+}));
+want("1932 draws every county once", m4.total, 3108);
+want("1932 preserves exact/maybe/amb/unknown/none",
+  [m4.exact, m4.maybe, m4.amb, m4.unknown, m4.none], [2094, 143, 376, 300, 195]);
+want("the drawn sheet follows the plate", m4.year, "1932");
+// Every county with a named system carries a colour. The only ones without are the
+// counties whose hatch is filled but unreadable, which have no system to colour by.
+want("every named county is coloured", m4.coloured, m4.total - m4.none - m4.unknown);
 
-// Switching year must repaint, never rebuild: a county that does not change
-// between the sheets has to stay the same element or the map shifts under the
-// reader as they flip.
-if (hy.years.length > 1) {
-  const before = await page.evaluate(() =>
-    document.querySelector('#g-holdings .holdings-county')?.getAttribute("d"));
-  await page.evaluate(() => {
-    const btns = [...document.querySelectorAll("#holdings-years .hy-year")];
-    btns.find((b) => b.getAttribute("aria-pressed") !== "true")?.click();
-  });
-  await page.waitForTimeout(300);
-  const after = await page.evaluate(() => ({
-    d: document.querySelector('#g-holdings .holdings-county')?.getAttribute("d"),
-    count: document.querySelectorAll("#g-holdings .holdings-county").length,
-    year: document.getElementById("g-holdings")?.dataset.year,
-  }));
-  want("switching year repaints rather than rebuilds", after.d, before);
-  want("switching year keeps every county", after.count, 3108);
-  want("the drawn year follows the control", after.year !== undefined, true);
-}
+// A link to the old combined plate has to land somewhere honest rather than 404. The
+// trace is lazy-loaded, so wait for the paint rather than for the network to fall quiet.
+await page.goto(`${url}/then/1930`, { waitUntil: "networkidle" });
+await page.waitForFunction(
+  () => document.getElementById("g-holdings")?.dataset.year !== undefined,
+  null, { timeout: 30000 });
+want("an old 1930 link still lands on the earlier sheet",
+  await page.evaluate(() => document.getElementById("g-holdings")?.dataset.year), "1925");
+
+// Stepping between the sheets must repaint, never rebuild: a county that does not change
+// between them has to stay the same element or the map shifts under the reader.
+const before = await page.evaluate(() =>
+  document.querySelector("#g-holdings .holdings-county")?.getAttribute("d"));
+await page.goto(`${url}/then/1932`, { waitUntil: "networkidle" });
+await page.waitForFunction(
+  () => document.getElementById("g-holdings")?.dataset.year === "1932",
+  null, { timeout: 30000 });
+const after = await page.evaluate(() => ({
+  d: document.querySelector("#g-holdings .holdings-county")?.getAttribute("d"),
+  count: document.querySelectorAll("#g-holdings .holdings-county").length,
+}));
+want("the county mesh is the same geometry on both sheets", after.d, before);
+want("switching sheet keeps every county", after.count, 3108);
 
 // Leaving the plate in-app must hide it without destroying it; stepping back
 // reuses the already-built paths and never duplicates the county mesh.
@@ -181,10 +203,10 @@ const clickStop = async (label) => {
 await clickStop("1935");
 want("1935 hides holdings", await page.evaluate(
   () => document.getElementById("g-holdings")?.hasAttribute("hidden")), true);
-await clickStop("1930");
+await clickStop("1932");
 await page.waitForFunction(
   () => document.querySelectorAll("#g-holdings .holdings-county").length === 3108);
-want("returning to 1930 reuses one county mesh", await page.evaluate(
+want("returning to a sheet reuses one county mesh", await page.evaluate(
   () => document.querySelectorAll("#g-holdings .holdings-county").length), 3108);
 await page.locator("#rail .step").first().click();
 want("leaving History hides holdings", await page.evaluate(

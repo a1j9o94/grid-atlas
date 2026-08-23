@@ -12,7 +12,7 @@ import {
 } from "../../lib/store";
 import { swatchBackground, wireGroup } from "../constants";
 import { ctx } from "../ctx";
-import { holdingsChange, holdingsYears } from "../layers/history";
+import { holdingsChange, holdingsYears, shownHoldingsYear } from "../layers/history";
 import { colourValue, isColourMeasure, measureSpec, measureValue } from "../data";
 import { WIRE_GROUPS } from "../wiregroups";
 import { ensureWires } from "../layers/wires";
@@ -294,8 +294,7 @@ function holdingsMethod(f: TimelineFrame): {
   const h = ctx().holdings;
   if (!h) return null;
   const meta = h.trace.meta;
-  const years = holdingsYears();
-  const year = ctx().holdingsYear ?? years[0];
+  const year = shownHoldingsYear();
   if (year === undefined) return null;
   const rows: { label: string; value: string }[] = [];
   const notes: string[] = [];
@@ -477,7 +476,7 @@ export function showHoldingCounty(fips: string): void {
   const years = holdingsYears();
   const readings = years.map((y) => readingFor(y, fips)).filter((r) => r !== null);
   if (readings.length === 0) return;
-  const shown = c.holdingsYear ?? years[0] ?? "1925";
+  const shown = shownHoldingsYear() ?? years[0] ?? "1925";
   const current = readings.find((r) => r.year === shown) ?? readings[0];
   if (current === undefined) return;
 

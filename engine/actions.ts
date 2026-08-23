@@ -19,7 +19,6 @@ import {
   renderTimelineBar,
   resolveFrame,
   setFrame,
-  setHoldingsYear,
   startPlay,
   stepFrame,
   stopPlay,
@@ -230,12 +229,6 @@ export function pickFrame(id: string): void {
 export function walkFrame(delta: number): void {
   stopPlay();
   stepFrame(delta);
-}
-// Choosing a source plate is a reader action like any other, so it stops the
-// auto-advance too: otherwise the plate the reader just chose slides away.
-export function pickHoldingsYear(year: string): void {
-  stopPlay();
-  setHoldingsYear(year);
 }
 export function togglePlay(): void {
   const c = ctx();

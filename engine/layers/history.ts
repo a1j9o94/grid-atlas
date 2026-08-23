@@ -12,7 +12,7 @@ import {
 } from "../../lib/data";
 import { loadHoldingsBundle, loadMembership, loadSeam } from "../data";
 import { setAtlasState, type TimelineStop } from "../../lib/store";
-import { FILL, HOLDING_COLORS, HOME_VIEW, SVG_NS } from "../constants";
+import { FILL, holdingColour, HOME_VIEW, SVG_NS } from "../constants";
 import { ctx, setHidden } from "../ctx";
 import { animateViewBox } from "../viewbox";
 import { showDot, showFrame, showHoldingCounty, showMachine, showMarket } from "../ui/cards";
@@ -295,6 +295,15 @@ function buildHoldings(): void {
 // reading takes. Under the old test it would have drawn a map of the eastern two
 // thirds of the country with the west silently blank, which is the one failure
 // this layer must never produce.
+// The sheet this plate draws, or undefined when the artifact does not carry it as
+// complete. Reading it off the frame is what makes the timeline the control.
+export function shownHoldingsYear(): string | undefined {
+  const want = frameById(ctx().frameId)?.geometry.year;
+  const ready = holdingsYears();
+  if (want !== undefined) return ready.includes(want) ? want : undefined;
+  return ready[0];
+}
+
 export function holdingsYears(): string[] {
   const t = ctx().holdings?.trace;
   if (!t) return [];
@@ -309,32 +318,20 @@ function paintHoldings(year: string): void {
   const h = c.holdings;
   if (!h) return;
   const rows = h.trace.years[year] ?? {};
-  c.holdingsYear = year;
   c.g.holdings.dataset.year = year;
   for (const p of c.g.holdings.querySelectorAll<SVGPathElement>(".holdings-county")) {
     const fips = p.dataset.fips ?? "";
     const parsed = parseHoldingsTrace(rows[fips] ?? "unknown-served");
     p.setAttribute("class", `holdings-county holdings-${parsed.status}`);
     p.dataset.trace = parsed.raw;
-    const colour = parsed.groups[0] !== undefined ? HOLDING_COLORS[parsed.groups[0]] : undefined;
+    const colour = holdingColour(parsed.groups[0], h.trace.key_rollup?.[year]);
     // Clearing first matters: a county that had a group in 1925 and none in
     // 1932 would otherwise keep the old custom property and paint the old
     // colour under a "no fill" class.
     p.style.removeProperty("--holding-fill");
     if (colour !== undefined) p.style.setProperty("--holding-fill", colour);
   }
-  renderHoldingsControl();
   renderLegend("history");
-}
-
-export function setHoldingsYear(year: string): void {
-  if (!holdingsYears().includes(year)) return;
-  paintHoldings(year);
-  // The card's measured lines are per sheet: how many counties that sheet leaves
-  // uncertain, how many anchors it is checked against. Repainting without
-  // rebuilding the card leaves the other sheet's figures under the new map.
-  const f = frameById(ctx().frameId);
-  if (f) showFrame(f);
 }
 
 // What changed between the two sheets, counted. This is the growth story as a
@@ -392,31 +389,6 @@ export function holdingsChange(): HoldingsChange | null {
   return out;
 }
 
-// The control names the sheet being drawn. It is the answer to the plate
-// carrying an era label while the map under it is one dated printing, and it
-// only renders when there is more than one sheet to choose between.
-export function renderHoldingsControl(): void {
-  const c = ctx();
-  const years = holdingsYears();
-  const f = frameById(c.frameId);
-  if (f?.geometry.kind !== "holdings" || years.length === 0) {
-    setAtlasState({ holdings: null });
-    return;
-  }
-  setAtlasState({
-    holdings: {
-      label: "Source plate",
-      years: years.map((y) => ({
-        year: y,
-        label: y,
-        plate: (c.holdings?.trace.meta.plate_names as Record<string, string> | undefined)?.[y]
-          ?? (y === "1925" ? "Map III" : "Map IV"),
-        pressed: y === c.holdingsYear,
-      })),
-    },
-  });
-}
-
 // A plate id is its year, so /then/1967 and a legacy ?year=1970 resolve the
 // same way: an exact id, or the latest plate at or before the year asked for.
 // That is what keeps a link to a retired year landing somewhere honest.
@@ -453,9 +425,8 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
   if (showHoldings && c.holdings !== null) {
     // Already loaded, so repaint for whichever sheet the reader last chose,
     // defaulting to the earliest the artifact carries.
-    paintHoldings(c.holdingsYear ?? holdingsYears()[0] ?? "1925");
-  } else if (!showHoldings) {
-    setAtlasState({ holdings: null });
+    const y = shownHoldingsYear();
+    if (y !== undefined) paintHoldings(y);
   }
   if (showHoldings && c.holdings === null) {
     const want = f.id;
@@ -465,8 +436,10 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
         // was in flight. A destroyed context owns detached DOM and must stay
         // untouched.
         if (c.dead || c.current !== "history" || c.frameId !== want) return;
+        const y = shownHoldingsYear();
+        if (y === undefined) { setHidden(c.g.holdings, true); return; }
         setHidden(c.g.holdings, false);
-        paintHoldings(c.holdingsYear ?? holdingsYears()[0] ?? "1925");
+        paintHoldings(y);
         // Rebuild the card now the trace is in hand. Everything on it that is
         // measured off the trace rather than written - what moved between the
         // sheets, how the plate was read, how wrong it might be - reads null

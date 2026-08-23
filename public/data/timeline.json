@@ -67,43 +67,69 @@
    ]
   },
   {
-   "id": "1930",
-   "year": 1930,
-   "label": "1930",
+   "id": "1925",
+   "year": 1925,
+   "label": "1925",
    "span": [
-    1927,
+    1920,
+    1928
+   ],
+   "kicker": "the buying spree",
+   "title": "The buyers start buying the buyers",
+   "body": "The FTC drew this sheet to answer one question: who held what, county by county. A third of the country comes back blank. On 1,173 counties no principal power group operated at all, which is not the same as darkness. Municipal plants and companies too small for the FTC's list are simply not on the map.\n\nWhat is on it got there by buying. A holding company bought operating companies. A bigger holding company bought the holding company. The men at the top never touched a wire, and by 1925 twenty groups had taken the parts of the country worth taking.",
+   "geometry": {
+    "kind": "holdings",
+    "year": "1925"
+   },
+   "events": [
+    "pjm-pool-1927",
+    "ftc-investigation-1928"
+   ],
+   "evidence": [
+    "ftc-72a-map3-fields-of-operation-1925",
+    "middle-west-utilities-1923-properties-map",
+    "ftc-72a-table19-operating-companies-by-group"
+   ],
+   "ship": true,
+   "verified": true,
+   "sources": [],
+   "note": "This layer is a hand trace of FTC Map III, printed 1925, read to all 3,108 modern county equivalents. Counties the engraving cannot settle are marked unreadable or ambiguous rather than guessed, and the panel above says how the sheet was read. Modern county geometry is used to read a historical plate, so changed boundaries and separate towns remain limits of the trace.",
+   "verify_notes": "Map III county trace released with explicit exact, possible, ambiguous, unreadable, and unfilled states."
+  },
+  {
+   "id": "1932",
+   "year": 1932,
+   "label": "1932",
+   "span": [
+    1929,
     1934
    ],
    "kicker": "the empires",
    "title": "A handful of men own the lights",
-   "body": "Small companies got bought, then the buyers got bought. At the end of 1930 Samuel Insull's system operated in 32 states out of 48, two thirds of the country, and its rivals overlapped it everywhere. Sixteen systems together made about three quarters of the country's investor-owned power.",
+   "body": "Small companies got bought, then the buyers got bought. At the end of 1930 Samuel Insull's system operated in 32 states out of 48, two thirds of the country, and its rivals overlapped it everywhere. Sixteen systems together made about three quarters of the country's investor-owned power.\n\nSeven years after the earlier sheet the blank third of the country is nearly gone: counties with no principal group fall from 1,173 to 195. It is also the last picture of the empires whole. Middle West Utilities went into receivership in April.",
    "geometry": {
-    "kind": "holdings"
+    "kind": "holdings",
+    "year": "1932"
    },
    "events": [
-    "ftc-investigation-1928",
-    "pjm-pool-1927",
     "insull-empire-1930",
     "ebasco-1930",
     "concentration-1930",
     "insull-collapse-1932"
    ],
    "evidence": [
-    "ftc-72a-map3-fields-of-operation-1925",
     "ftc-72a-map4-fields-of-operation-1932",
     "ftc-72a-map1-transmission-lines-1932",
     "ftc-72a-chart-9-insull-group-1932",
     "ftc-72a-chart-10-insull-chain-1930",
     "ftc-72a-table12-generation-by-group",
-    "ftc-72a-table19-operating-companies-by-group",
-    "middle-west-utilities-1923-properties-map",
     "ftc-annual-report-1938-volume-list"
    ],
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "The interactive county layer is a hand trace of two FTC sheets, Map III of 1925 and Map IV of 1932, both read to all 3,108 modern county equivalents inside this 1930 context plate. Use the source-plate control to switch between them. Counties the engraving cannot settle are marked unreadable or ambiguous rather than guessed, and the panel below says how the plates were read and how wrong the reading might be. The georeference is good enough to place and crop a county, not to sample one blind, so the printed county lines govern where they disagree with the modern mesh. Separate cities and towns may be absent, and the historical percentages use different denominators, so the systems cannot be ranked from these maps.",
-   "verify_notes": "Map III county trace released with explicit exact, possible, ambiguous, unreadable, and unfilled states."
+   "note": "This layer is a hand trace of FTC Map IV, printed 1932, read to all 3,108 modern county equivalents. It carries a circled numeral on many counties naming the operating company inside the group, which the earlier sheet does not. Counties the engraving cannot settle are marked unreadable or ambiguous rather than guessed, and the panel above says how the sheet was read and how wrong the reading might be. Modern county geometry is used to read a historical plate, so changed boundaries and separate towns remain limits of the trace.",
+   "verify_notes": "Map IV county trace released with explicit exact, possible, ambiguous, unreadable and unfilled states, an expanded machine-checked anchor set, and a published residual error estimate."
   },
   {
    "id": "1935",

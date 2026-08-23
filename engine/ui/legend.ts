@@ -1,12 +1,12 @@
 // The legend as data: the engine computes a model on every repaint, because
 // its content hangs off engine-owned lazy state (colour scales, parent
 // groups); the Legend component renders whatever lands here.
-import { copy, rules, statePrices, type LayerKey } from "../../lib/data";
+import { copy, parseHoldingsTrace, rules, statePrices, type LayerKey } from "../../lib/data";
 import { fmtMeasure, titleCase } from "../../lib/format";
 import { req } from "../../lib/assert";
 import { setAtlasState, type LegendModel } from "../../lib/store";
 import {
-  HOLDINGS_AMB_SWATCH, HOLDINGS_EXACT_SWATCH, HOLDINGS_MAYBE_SWATCH,
+  holdingColour, HOLDINGS_AMB_SWATCH, HOLDINGS_MAYBE_SWATCH,
   HOLDINGS_UNKNOWN_SWATCH, NO_DATA, OTHER_PARENT, TRANSITION_SWATCH,
 } from "../constants";
 import { ctx } from "../ctx";
@@ -14,6 +14,77 @@ import { colourScale, isColourMeasure, measureSpec } from "../data";
 import type { Scale } from "../scales";
 import { WIRE_GROUPS } from "../wiregroups";
 import { sizeLegendNote } from "../layers/wires";
+import { shownHoldingsYear } from "../layers/history";
+
+// The systems the reader is actually looking at, named. This used to list five confidence
+// states and no company at all, while the counties underneath were coloured by company, so
+// a reader saw twenty-odd hues explained as though they meant certainty. Name the systems
+// that cover ground, in the order they cover it, and keep the states that are not a system
+// at the end where they belong.
+function holdingsLegend(): LegendModel | null {
+  const c = ctx();
+  const h = c.holdings;
+  if (!h) return null;
+  const year = shownHoldingsYear();
+  if (year === undefined) return null;
+  const rows = h.trace.years[year];
+  if (rows === undefined) return null;
+  const rollup = h.trace.key_rollup?.[year];
+  const labels = h.trace.legends[year] ?? {};
+
+  // Count by the system a key rolls up to, so Map IV's two Insull cells count as Insull
+  // and the two sheets can be read side by side.
+  const n = new Map<string, number>();
+  let maybe = 0, amb = 0, unknown = 0, none = 0;
+  for (const raw of Object.values(rows)) {
+    const p = parseHoldingsTrace(raw);
+    if (p.status === "none") { none++; continue; }
+    if (p.status === "unknown") { unknown++; continue; }
+    if (p.status === "maybe") maybe++;
+    if (p.status === "amb") amb++;
+    const key = p.groups[0];
+    if (key === undefined) continue;
+    const sys = rollup?.[key] ?? key;
+    // An uncertain county is counted toward its leading candidate for ordering only. It
+    // is not drawn as a confident one: the hatch swatches below say what it is.
+    n.set(sys, (n.get(sys) ?? 0) + 1);
+  }
+  // The plate prints "United Corporation, (The)" and "American Water Works & Electric
+  // Co.,(The)". The article is how a 1935 government printer alphabetised a company name
+  // and it tells a reader nothing, while the length clips the count off the end of the
+  // row. The county card still shows the printed name in full.
+  const short = (t: string): string =>
+    t.replace(/,?\s*\(The\)\s*$/i, "").replace(/,\s*$/, "").trim();
+  const ranked = [...n.entries()].sort((a, b) => b[1] - a[1]);
+  const SHOWN = 10;
+  const items = ranked.slice(0, SHOWN).map(([sys, count]) => ({
+    swatch: holdingColour(sys, rollup) ?? NO_DATA,
+    label: `${short(labels[sys]?.printed_label ?? titleCase(sys.replace(/-/g, " ")))} `
+      + `· ${String(count)}`,
+  }));
+  const tail = ranked.slice(SHOWN);
+  if (tail.length > 0) {
+    const rest = tail.reduce((a, [, v]) => a + v, 0);
+    items.push({
+      swatch: NO_DATA,
+      label: `${String(tail.length)} smaller systems · ${String(rest)}`,
+    });
+  }
+  if (maybe > 0) items.push({ swatch: HOLDINGS_MAYBE_SWATCH, label: "Possible, not defended" });
+  if (amb > 0) items.push({ swatch: HOLDINGS_AMB_SWATCH, label: "Two candidates" });
+  if (unknown > 0) {
+    items.push({ swatch: HOLDINGS_UNKNOWN_SWATCH, label: "Filled, system unreadable" });
+  }
+  if (none > 0) items.push({ swatch: "#e4e7db", label: "No county fill" });
+  return {
+    kind: "swatches",
+    items,
+    note: "Counts are counties on this sheet. Colour separates systems; the FTC plate is "
+      + "monochrome, and the hatch swatches mark counties the engraving does not settle. "
+      + "Click a county for the printed name, the operating company where the plate names "
+      + "one, and how sure the reading is.",
+  };
+}
 
 // A sequential scale gets a stepped bar with the break values under it, not a
 // list of swatches. The steps are quantiles, so the numbers are what separates
@@ -54,16 +125,9 @@ export function renderLegend(key: LayerKey): void {
     if (f?.geometry.kind === "current") {
       legend = { kind: "swatches", items: [{ swatch: TRANSITION_SWATCH, label: "Changed grids in 2026" }] };
     } else if (f?.geometry.kind === "holdings") {
-      legend = {
+      legend = holdingsLegend() ?? {
         kind: "swatches",
-        items: [
-          { swatch: HOLDINGS_EXACT_SWATCH, label: "Named system" },
-          { swatch: HOLDINGS_MAYBE_SWATCH, label: "Possible system" },
-          { swatch: HOLDINGS_AMB_SWATCH, label: "Ambiguous pattern" },
-          { swatch: HOLDINGS_UNKNOWN_SWATCH, label: "Filled; system unreadable" },
-          { swatch: "#e4e7db", label: "No county fill" },
-        ],
-        note: "Colour separates traced systems; the FTC source plate is monochrome. Hover a county for the printed name and confidence.",
+        items: [{ swatch: HOLDINGS_UNKNOWN_SWATCH, label: "Loading the trace" }],
       };
     } else {
       legend = {

@@ -68,13 +68,11 @@ const VIEWS = [
   // the widest that bar ever gets, so every plate kind is worth a pass: dots,
   // a plate not drawn yet, and today (which is the wholesale layer redrawn).
   { name: "history-1900", q: "/then" },
-  // The holdings plate. Both sheets are traced now, so the source-plate control
-  // is a real two-way switch rather than a label naming the only sheet there is,
-  // and it is chrome that did not exist when this list was written. The default
-  // sheet and the switched one are both worth a pass: the legend is rebuilt per
-  // sheet and Map IV's is four marks longer than Map III's.
-  { name: "history-holdings", q: "/then/1930" },
-  { name: "history-holdings-1932", q: "/then/1930", click: "#holdings-years .hy-year:last-of-type" },
+  // The two holdings sheets, each its own plate on the timeline. Both are worth a
+  // pass: the legend is rebuilt per sheet, it now names systems rather than
+  // confidence states, and Map IV's list is longer and its names are longer.
+  { name: "history-holdings-1925", q: "/then/1925" },
+  { name: "history-holdings-1932", q: "/then/1932" },
   // The three seam plates differ in what they emphasise rather than in layout,
   // so one of them stands for the geometry and 1975 is the one whose legend is
   // longest.
@@ -123,7 +121,6 @@ const PANELS = {
   colourControls: "#colour-controls",
   shadeControls: "#shade-controls",
   timelineBar: "#timeline-bar",
-  holdingsYears: "#holdings-years",
 };
 
 function freePort() {

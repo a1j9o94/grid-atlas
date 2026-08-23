@@ -116,17 +116,6 @@ export interface ColourControlsModel extends ControlsModel {
 // Which source plate the holdings layer is drawing. Two sheets seven years
 // apart, and the control names the one on screen, because the plate around it
 // is labelled for an era rather than for a printing.
-export interface HoldingsYearOption {
-  year: string;
-  label: string;
-  plate: string;
-  pressed: boolean;
-}
-export interface HoldingsControlModel {
-  label: string;
-  years: HoldingsYearOption[];
-}
-
 export interface DrawingNoteModel {
   title: string;
   sub: string;
@@ -166,7 +155,6 @@ export interface AtlasState {
   ready: boolean;
   layer: LayerKey;
   card: CardModel | null;
-  holdings: HoldingsControlModel | null;
   legend: LegendModel | null;
   shadeControls: ControlsModel | null;
   colourControls: ColourControlsModel | null;
@@ -186,7 +174,6 @@ const INITIAL: AtlasState = {
   ready: false,
   layer: "wholesale",
   card: null,
-  holdings: null,
   legend: null,
   shadeControls: null,
   colourControls: null,

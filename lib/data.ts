@@ -240,24 +240,41 @@ export interface HoldingsFile {
 // hatch into a confident owner. Exact values are bare legend keys; the four
 // reserved forms are intentionally parsed here, at the JSON/type boundary.
 export function parseHoldingsTrace(raw: string): HoldingsTrace {
-  // The numeral rides on the end as `key#3`, and it qualifies the whole record
-  // rather than one candidate, so it comes off before anything else is read.
-  // Map III never carries one; every 1925 value falls straight through.
-  const hash = raw.lastIndexOf("#");
-  const numeral = hash > 0 ? raw.slice(hash + 1) : undefined;
-  const body = hash > 0 ? raw.slice(0, hash) : raw;
-  const withNumeral = (t: Omit<HoldingsTrace, "raw" | "numeral">): HoldingsTrace =>
-    ({ raw, ...t, ...(numeral !== undefined && numeral !== "" ? { numeral } : {}) });
+  // A numeral rides on a key as `key#3`, naming the operating company inside that
+  // group. It belongs to the candidate it is attached to, not to the record: an
+  // ambiguous pair carries one per side, and they differ, because which subsidiary
+  // it is depends on which mark it is. Splitting the record first and stripping each
+  // candidate's own numeral is what keeps `groups` bare legend keys.
+  //
+  // It used to take the LAST numeral off the whole string, which left the first
+  // candidate of every numbered pair reading `ebasco#3`. That matched no colour and
+  // no legend label, so 87 counties drew grey and their cards showed a raw key where
+  // the company name belongs.
+  const cut = (s: string): { key: string; num?: string } => {
+    const h = s.lastIndexOf("#");
+    if (h <= 0) return { key: s };
+    const num = s.slice(h + 1);
+    return num === "" ? { key: s.slice(0, h) } : { key: s.slice(0, h), num };
+  };
 
-  if (body === "none") return withNumeral({ status: "none", groups: [] });
-  if (body === "unknown-served") return withNumeral({ status: "unknown", groups: [] });
-  if (body.startsWith("maybe:")) {
-    return withNumeral({ status: "maybe", groups: [body.slice("maybe:".length)].filter(Boolean) });
-  }
-  if (body.startsWith("amb:")) {
-    return withNumeral({ status: "amb", groups: body.slice("amb:".length).split("|").filter(Boolean) });
-  }
-  return withNumeral({ status: "exact", groups: [body] });
+  const head = raw.startsWith("amb:") ? "amb:" : raw.startsWith("maybe:") ? "maybe:" : "";
+  const parts = (head === "" ? [raw] : raw.slice(head.length).split("|"))
+    .filter(Boolean).map(cut);
+  const nums = [...new Set(parts.map((p) => p.num).filter((n) => n !== undefined))];
+  // One numeral only when every candidate agrees on it. Two candidates naming
+  // different subsidiaries cannot be summarised as one, and printing either would
+  // assert the half the reader did not choose.
+  const numeral = nums.length === 1 ? nums[0] : undefined;
+  const groups = parts.map((p) => p.key);
+  const body = groups[0] ?? "";
+  const out = (t: Omit<HoldingsTrace, "raw" | "numeral">): HoldingsTrace =>
+    ({ raw, ...t, ...(numeral !== undefined ? { numeral } : {}) });
+
+  if (head === "amb:") return out({ status: "amb", groups });
+  if (head === "maybe:") return out({ status: "maybe", groups });
+  if (body === "none") return out({ status: "none", groups: [] });
+  if (body === "unknown-served") return out({ status: "unknown", groups: [] });
+  return out({ status: "exact", groups });
 }
 
 export interface ZipUtility {
@@ -330,6 +347,11 @@ export interface EvidenceAsset {
 export type FrameKind = "dots" | "dots+tints" | "holdings" | "seam" | "membership" | "current";
 export interface TimelineGeometry {
   kind: FrameKind;
+  // holdings plates only: which source sheet this plate draws. The timeline is the
+  // control. There used to be one 1930 plate carrying both sheets behind a separate
+  // switch, which put two controls on screen doing the same job and dated the plate to
+  // a year neither sheet was printed in.
+  year?: string;
   scale?: { field: string; min_r: number; max_r: number };
   frame_key?: string;
   tints?: Record<string, string>;

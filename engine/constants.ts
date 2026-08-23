@@ -25,7 +25,18 @@ export const TRANSITION_SWATCH =
 // FTC Map III is monochrome. These editorial colours separate the twenty
 // printed hatch identities after they have been hand traced; the legend says
 // that explicitly so nobody mistakes them for colours sampled from the plate.
+// One colour per system, across both sheets. Map IV names systems Map III does not, and
+// it splits two that Map III prints whole, so the table covers the union and
+// `holdingColour` below resolves a finer key to its parent's colour. That is what keeps
+// Insull the same colour in 1925 and 1932: the sheets exist to be compared, and a system
+// that changed hue between them would read as a change that did not happen.
+//
+// Twenty-eight categories is more than anyone can hold at once, and that is survivable
+// here because the patches are large and contiguous: what a reader has to separate is a
+// system from its neighbours, not every system from every other. The legend names them and
+// the county card confirms on click.
 export const HOLDING_COLORS: Record<string, string> = {
+  // on Map III (1925)
   age: "#8f5f4b",
   "american-water-works": "#52799a",
   "cities-service": "#b87c34",
@@ -46,7 +57,38 @@ export const HOLDING_COLORS: Record<string, string> = {
   ugi: "#477c59",
   "united-gas-electric": "#a76437",
   "united-light-power": "#77705d",
+  // new on Map IV (1932). Chosen against the neighbours each one actually has on the
+  // plate rather than against the whole set, because that is the discrimination a reader
+  // is asked to make.
+  "united-corporation": "#7d4a63",
+  "american-commonwealths": "#a8964e",
+  "utilities-power-light": "#3f8a86",
+  duke: "#2f6b4a",
+  "pacific-gas-electric": "#4a8fa8",
+  "central-states-electric": "#8a6bb0",
+  "nevada-california": "#c19a5b",
+  "tri-utilities": "#8c6f4a",
+  "new-england-power": "#5f8f6a",
+  rockland: "#9a5f7a",
+  "central-public-service": "#6a7a95",
+  // Attested nowhere on the plate as an exact read, so they surface only as one half of
+  // an ambiguous pair. Deliberately neutral: a confident hue would overstate them.
+  "american-electric-power-corp": "#8b8177",
+  "empire-power": "#7a6d5f",
 };
+
+// The colour for a trace key, falling back to the system it rolls up to. Map IV prints
+// `insull-middle-west` and `insull-other` where Map III prints one Insull, and both should
+// draw as Insull. Without the fallback they draw as nothing, which is how 1,524 of the
+// 1932 sheet's 2,913 filled counties came to have no colour at all.
+export function holdingColour(
+  key: string | undefined,
+  rollup: Record<string, string> | undefined,
+): string | undefined {
+  if (key === undefined) return undefined;
+  return HOLDING_COLORS[key] ?? HOLDING_COLORS[rollup?.[key] ?? ""];
+}
+
 export const HOLDINGS_EXACT_SWATCH =
   "linear-gradient(90deg, #9d5545 0 20%, #697d91 20% 40%, #657d45 40% 60%, #52799a 60% 80%, #b87c34 80%)";
 export const HOLDINGS_MAYBE_SWATCH =

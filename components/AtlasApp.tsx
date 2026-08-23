@@ -15,7 +15,6 @@ import Legend from "./Legend";
 import { ColourControls, ShadeControls, SizeControls } from "./Controls";
 import { DrawingNote, ZipSearch, ZoomReset } from "./MapChrome";
 import TourPanel from "./TourPanel";
-import HoldingsYears from "./HoldingsYears";
 import TimelineBar from "./TimelineBar";
 import EvidenceModal from "./EvidenceModal";
 import MethodologyModal from "./MethodologyModal";
@@ -64,7 +63,6 @@ export default function AtlasApp() {
                 when the panel is short. */}
             <div className="time-stack">
               <TimelineBar />
-              <HoldingsYears />
             </div>
             <svg id="map" viewBox="0 0 975 610" role="img" aria-label="Map of the United States electricity system" hidden></svg>
             <ZipSearch />
