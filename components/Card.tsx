@@ -16,7 +16,7 @@ function Chips({ chips }: { chips: EvidenceChip[] }) {
         <button
           key={ch.id}
           className="ev-chip"
-          title={ch.thumb !== undefined ? "Click to read it" : undefined}
+          title={ch.thumb !== undefined ? "Open this source" : undefined}
           onClick={() => { openEvidenceCard(ch.id); }}
         >
           {ch.glyph} {ch.label}
@@ -71,8 +71,8 @@ function CardBody({ card }: { card: CardModel }) {
     case "wiresIntro":
       return (
         <>
-          <h3>Almost 3,000 wire owners</h3>
-          <p className="c-body">Every piece on this map is a company that owns poles and wires. Hover any piece to meet it.</p>
+          <h3>Almost 3,000 local wires utilities</h3>
+          <p className="c-body">Each shape is a local wires utility. Point to a territory to see the utility, its owner, its size, and its wholesale market.</p>
           <Stats stats={card.stats} />
         </>
       );
@@ -98,7 +98,7 @@ function CardBody({ card }: { card: CardModel }) {
       return (
         <>
           <h3>Zip {card.zip}</h3>
-          <p className="c-body">The dashed line is your zip. Hover the pieces around it to meet the companies that own the wires near you.</p>
+          <p className="c-body">The dashed outline is your zip code. Point to a utility territory to see who owns the local poles and wires.</p>
         </>
       );
     case "you":
@@ -108,7 +108,7 @@ function CardBody({ card }: { card: CardModel }) {
           <p className="c-body"><b>Your wires:</b> {card.wires}</p>
           {card.choice !== undefined && <div className="c-choice">{card.choice}</div>}
           {card.market !== undefined && <p className="c-body c-note"><b>Your market:</b> {card.market}</p>}
-          <p className="c-body c-fine">Zip shapes are the Census version of zip codes. Utility match comes from a 2020 federal lookup.</p>
+          <p className="c-body c-fine">Zip boundaries use Census ZCTAs, which approximate postal zip codes. Utility matches come from a 2020 federal lookup.</p>
         </>
       );
     case "frame":
@@ -120,7 +120,7 @@ function CardBody({ card }: { card: CardModel }) {
           {card.changeLine !== undefined && <p className="c-body c-change">{card.changeLine}</p>}
           {card.method !== undefined && (
             <details className="c-method">
-              <summary>How this plate was read, and how wrong it might be</summary>
+              <summary>How this source map was interpreted</summary>
               <dl>
                 {card.method.rows.map((r) => (
                   <div key={r.label}>
@@ -137,7 +137,7 @@ function CardBody({ card }: { card: CardModel }) {
           {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
           {card.pending && (
             <p className="c-body c-note">
-              This plate is still being inked. The words are here. The map for this moment lands in the next update.
+              This historical map is still being prepared.
             </p>
           )}
           {card.events.length > 0 && (
