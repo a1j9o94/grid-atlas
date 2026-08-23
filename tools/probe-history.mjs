@@ -97,10 +97,11 @@ want("1925 holdings visible and city dots hidden", [holdings.visible, holdings.d
 want("1925 is shipped, not pending", holdings.pending, false);
 // The legend used to list five confidence states and name no company, while the counties
 // under it were coloured by company. Assert the fix rather than the old wording: it names
-// the systems, biggest first, and still says the colour is ours and not the plate's.
+// the systems, biggest first, and still explains what colour and patterns mean.
 want("1925 legend names the biggest system", holdings.legend?.includes("Insull"), true);
-want("1925 legend says the colour is not the plate's",
-  holdings.legend?.includes("monochrome"), true);
+want("1925 legend explains colour and patterns",
+  holdings.legend?.includes("Color identifies holding-company groups")
+    && holdings.legend?.includes("Patterns mark uncertain readings"), true);
 
 // Cook County is a release anchor. Picking it must name both the county and
 // the printed system, proving geometry, trace, legend and card are joined.
@@ -222,7 +223,8 @@ for (const frame of ["1935", "1967", "1975"]) {
 const y1967 = await open("1967");
 want("1967 East and West share a fill", y1967.east === y1967.west, true);
 want("1967 the divide is broken", y1967.ewDash !== "none", true);
-want("1967 counts two machines", await hoverKicker("WESTERN"), "one of two, this year");
+want("1967 counts two machines", await hoverKicker("WESTERN"),
+  "one of two synchronized grids this year");
 
 // 1975: three machines again, and the seam is the heaviest mark on the plate.
 const y1975 = await open("1975");
@@ -230,7 +232,8 @@ want("1975 East and West differ", y1975.east !== y1975.west, true);
 want("1975 the seam is solid", y1975.ewDash, "none");
 want("1975 the seam is emphasised",
   Number.parseFloat(y1975.ewWidth) > Number.parseFloat(y1967.ewWidth), true);
-want("1975 counts three machines", await hoverKicker("EASTERN"), "one of three");
+want("1975 counts three machines", await hoverKicker("EASTERN"),
+  "one of three synchronized grids");
 
 // 1935: Texas is the subject, so its boundary carries the weight, not the seam.
 const y1935 = await open("1935");
