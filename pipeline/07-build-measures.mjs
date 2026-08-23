@@ -588,7 +588,28 @@ const measures = [
   { id: "ratecom", label: "What businesses pay", unit: "cents per kWh", short: "¢/kWh", format: "decimal1",
     colourOnly: true, cls: "com", breaks: [9, 11, 14, 18],
     derived: { numerator: "rev", denominator: "mwh", scale: 100, minus: { numerator: "drev", denominator: "dmwh" } },
-    note: "The same figure for commercial customers: shops, offices, schools and the like, not factories. It runs a few cents under the residential price almost everywhere, because a business takes more power through one connection." },
+    note: "The same figure for commercial customers, which in this survey means the service sector: shops, offices, schools, restaurants, hospitals. Not factories, which are their own class. It runs a few cents under the residential price almost everywhere, because a business takes more power through one connection." },
+  // Industrial is the third class and the cheapest by a wide margin, 8.05 c/kWh
+  // nationally against 15.75 for homes, because a factory takes enormous steady
+  // load at high voltage and often connects to transmission directly, skipping
+  // most of the distribution system it would otherwise help pay for. That gap is
+  // the argument this map exists to show. The state layer's own note for the same
+  // class puts it well: it is the closest thing in the data to the structural
+  // cost of moving power, since these customers buy near cost with little retail
+  // margin on top.
+  //
+  // Coverage is a little worse than the other two, at 1,088 utilities against
+  // 1,201, because plenty of utilities have no industrial load at all rather than
+  // because of the reporting form. A utility with no factories on it is honestly
+  // blank here.
+  //
+  // Breaks put 8/30/27/14/21 per cent of the reported meters in the five steps.
+  // The obvious rounder alternatives, [5,7,9,13] and [5,7,10,15], pile 44 and 52
+  // per cent into a single step.
+  { id: "rateind", label: "What industry pays", unit: "cents per kWh", short: "¢/kWh", format: "decimal1",
+    colourOnly: true, cls: "ind", breaks: [6, 8, 10, 14],
+    derived: { numerator: "rev", denominator: "mwh", scale: 100, minus: { numerator: "drev", denominator: "dmwh" } },
+    note: "Factories, mines, refineries and farms. Roughly half the household price, because industry takes huge steady load at high voltage and often connects straight to the transmission system. Blank where a utility reports no industrial customers at all." },
   // Residential too, so it subtracts cleanly from what homes pay and matches the
   // delivery measure on the state layer. Fixed breaks again, and on 59 utilities
   // quantiles would be redrawn by any one of them joining or leaving.
@@ -747,6 +768,9 @@ for (const cls of ["res", "com", "ind"]) {
   const hit = ids.filter(pricedIn(cls));
   classCover[cls] = { n: hit.length, share: meterShare(pricedIn(cls)) };
 }
+// The national price for one class, summed over the utilities that report it.
+const clsRate = cls => ids.reduce((s, id) => s + (bundledCls(id, "rev", cls) ?? 0), 0)
+  / ids.reduce((s, id) => s + (bundledCls(id, "mwh", cls) ?? 0), 0) * 100;
 // The national bundled price, which is the sanity check on the whole split. Mix
 // the delivery stream back in and this drops by roughly a cent and a half.
 const bunRev = ids.reduce((s, id) => s + bundled(id, "rev"), 0);
@@ -770,7 +794,7 @@ console.log(`  bundled price         ${bunRate.toFixed(2)} c/kWh over ${(rateMet
 for (const [cls, label] of [["res", "homes"], ["com", "businesses"], ["ind", "industry"]]) {
   const c = classCover[cls];
   console.log(`  priced, ${label.padEnd(13)} ${String(c.n).padStart(5)} utilities, ${(c.share * 100).toFixed(1)}% of meters` +
-    (cls === "ind" ? "  (collected, no map yet)" : ""));
+    `  ${clsRate(cls).toFixed(2)} c/kWh national`);
 }
 console.log(`  delivery charge       reported by ${delivOnly.length + bothStreams.length} utilities, ${(delivMeters * 100).toFixed(1)}% of meters ` +
   `(${bothStreams.length} bill both halves, ${delivOnly.length} deliver only and carry no price)`);
@@ -812,7 +836,7 @@ if (rateMeters < 0.85) fail.push(`a bundled price covers only ${(rateMeters * 10
 // The class maps are what ships, so they get their own floor. Only the long form
 // breaks revenue out by class and the short-form tail is small in meters, so a
 // drop below 85% means the class columns moved rather than the tail growing.
-for (const cls of ["res", "com"]) {
+for (const cls of ["res", "com", "ind"]) {
   if (classCover[cls].share < 0.85) {
     fail.push(`${cls} price covers only ${(classCover[cls].share * 100).toFixed(1)}% of meters, below 85%`);
   }
@@ -820,11 +844,14 @@ for (const cls of ["res", "com"]) {
 // Homes pay more per kWh than businesses almost everywhere, because a business
 // draws more power through one connection. If this inverts nationally the two
 // class column offsets have been swapped.
-const clsRate = cls => ids.reduce((s, id) => s + (bundledCls(id, "rev", cls) ?? 0), 0)
-  / ids.reduce((s, id) => s + (bundledCls(id, "mwh", cls) ?? 0), 0) * 100;
-const resRate = clsRate("res"), comRate = clsRate("com");
-if (!(resRate > comRate)) fail.push(`residential ${resRate.toFixed(2)} is not above commercial ${comRate.toFixed(2)}; the class columns may be swapped`);
+const resRate = clsRate("res"), comRate = clsRate("com"), indRate = clsRate("ind");
+if (!(resRate > comRate && comRate > indRate)) {
+  fail.push(`class prices are not ordered homes > businesses > industry (${resRate.toFixed(2)} / ${comRate.toFixed(2)} / ${indRate.toFixed(2)}); the class column offsets may be swapped`);
+}
 if (resRate < 12 || resRate > 20) fail.push(`national residential price ${resRate.toFixed(2)} c/kWh is outside the plausible 12-20 band`);
+// Industry buys near cost, so it should sit well under households. If this gap
+// closes, the industrial column has moved rather than the market changing.
+if (resRate - indRate < 3) fail.push(`households pay only ${(resRate - indRate).toFixed(2)} c/kWh more than industry, implausibly close`);
 // Every ERCOT TDU delivers and sells nothing, so it must carry a delivery charge
 // and no price. One of them holding a price means Part C leaked into the bundled
 // stream and Oncor is about to be painted as the cheapest utility in America.

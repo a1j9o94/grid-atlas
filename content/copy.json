@@ -413,6 +413,28 @@
         "https://www.eia.gov/electricity/data/eia861/",
         "https://www.eia.gov/survey/form/eia_861/instructions.pdf"
       ]
+    },
+    {
+      "id": "oncor-sells-nobody-power",
+      "layer": "wires",
+      "anchor": {
+        "lonlat": [
+          -96.8,
+          32.78
+        ],
+        "feature": {
+          "name": "ONCOR ELECTRIC DELIVERY COMPANY LLC",
+          "state": "TX"
+        }
+      },
+      "title": "The company that sells you nothing",
+      "body": "Oncor owns the poles for Dallas and about four million meters, and it has never sold anyone a kilowatt hour. In most of Texas the company that owns the wires is forbidden to sell you the power. A retailer sells you that, bills you for both halves, and hands the delivery part back to Oncor. So Oncor has no price to put on this map, only a delivery charge, and it is blank here for the opposite reason to a small town: not too little reported, but the wrong half. What Dallas households actually paid is on the state map.",
+      "verified": true,
+      "sources": [
+        "https://www.oncor.com/content/oncorwww/us/en/home/about-us/who-we-are.html",
+        "https://www.puc.texas.gov/industry/electric/directories/rep/reptcert.aspx",
+        "https://www.eia.gov/electricity/data/eia861/"
+      ]
     }
   ],
   "cartogram": {
@@ -452,6 +474,7 @@
     "colour_amishare": "Smart meters",
     "colour_rateres": "What homes pay",
     "colour_ratecom": "What businesses pay",
+    "colour_rateind": "What industry pays",
     "colour_delivrate": "Cost of the wires",
     "not_reported": "not reported",
     "parent_intro_title": "Almost 3,000 companies, twenty owners",
@@ -470,7 +493,10 @@
     "rateres_note": "Homes only. Shops and factories buy the same electricity for less, because they take more of it through one connection, so mixing them in would have shown you a price nobody is charged. Small companies that report one lump sum instead of a breakdown are blank here; they are 1 meter in 40.",
     "ratecom_intro_title": "What a shop pays",
     "ratecom_intro_body": "The same map for businesses: shops, offices, schools, restaurants. Not factories, which buy differently again. It runs a few cents under the household price nearly everywhere, and the size of that gap is the thing worth looking at. Where it is wide, households are carrying more of the cost of the system.",
-    "ratecom_note": "Commercial customers as the annual report counts them. The very largest industrial users are a separate class and are not in this map.",
+    "ratecom_note": "Commercial customers as the annual report counts them, which is the service sector rather than anything that makes things. Factories are their own class, on their own map.",
+    "rateind_intro_title": "What a factory pays",
+    "rateind_intro_body": "About half what a house pays for the same electricity. A factory takes an enormous, steady amount of power through one connection, often straight off the big transmission lines, so it skips most of the local poles and wires that a house depends on. Compare this map with the first one: where the two are furthest apart, households are carrying the most of the system's cost.",
+    "rateind_note": "Factories, mines, refineries and farms. Blank where a company reports no industrial customers at all, which is honest rather than missing: plenty of places have no factories.",
     "delivrate_intro_title": "Just the poles and wires",
     "delivrate_intro_body": "This is the delivery charge on a household bill, with the cost of the power taken out. Nearly the whole map is blank, and that is the finding rather than a hole. A company only bills delivery separately where you are allowed to buy your power from somebody else. Everywhere else one company sends one bill, and how much of it is the wires is not written down anywhere.",
     "delivrate_note": "Homes only, so it lines up with what a house pays. A few dozen companies out of almost 3,000 report it. Where it is blank the number is not being withheld; it does not exist, because the company was never required to split its bill in two.",
