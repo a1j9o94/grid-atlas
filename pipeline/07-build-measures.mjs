@@ -553,38 +553,54 @@ const measures = [
   { id: "cust", label: "Meters", unit: "meters", short: "meters", format: "integer", note: "Billing accounts, not people. Commercial and industrial meters are included." },
   { id: "mwh", label: "Electricity delivered", unit: "MWh", short: "MWh", format: "integer" },
   { id: "rev", label: "Revenue", unit: "thousand dollars", short: "$K", format: "integer" },
-  // The two price measures, each dividing inside one revenue stream. Neither can
-  // size anything: price is an intensity, and a circle drawn from it would say an
-  // expensive utility is a large one.
+  // The price measures, each dividing inside one revenue stream and one customer
+  // class. None of them can size anything: price is an intensity, and a circle
+  // drawn from it would say an expensive utility is a large one.
   //
-  // `rate` is the whole bill, and it is the one to lead with, because it is the
-  // number a customer recognises and it is reported for the great majority of the
-  // country. It is null for a delivery-only TDU, which is honest: that company
-  // never sold anyone energy, and its customers' full bill came from a retailer
-  // with no territory to draw. state-prices.json carries that instead.
+  // Per class, not blended. A single all-class average is the arithmetic nobody
+  // pays: it divides one utility's whole book by its whole volume, so a system
+  // with a smelter on it reads below what its households are charged and a
+  // residential system reads above. Nationally the blend was 12.76 against 15.47
+  // for homes and 12.61 for businesses, meter-weighted. Someone arriving here is
+  // almost always asking what their own bill costs, so homes lead and businesses
+  // are the second button.
   //
-  // `delivrate` is the wires charge alone. It is null almost everywhere, because
-  // a utility only bills delivery separately where customers can shop, so the map
-  // is mostly empty. That emptiness is the finding, not a gap to paper over: for
-  // 30-odd states the wires half of the bill is simply not in the public record.
-  // Fixed breaks, for the reason the other two fixed-break measures give. This
-  // distribution is 2,800 small co-ops and municipals against a few hundred big
-  // utilities, so unweighted quantiles come out as [10.08, 11.56, 12.90, 14.89]:
-  // a middle step 1.3 cents wide that paints Georgia and Ohio the same colour.
-  // These put 8/25/33/15/18 percent of the country's meters in the five steps
-  // and 19/28/34/14/5 percent of its utilities, which is about as even as one
-  // set of round numbers gets on both counts at once.
-  { id: "rate", label: "What customers pay", unit: "cents per kWh", short: "¢/kWh", format: "decimal1",
-    colourOnly: true, breaks: [10, 12, 15, 20],
+  // The cost of splitting is real and worth stating: only the long form breaks
+  // revenue out by class. The ~1,670 short-form filers report a single total, so
+  // they drop off these maps entirely. That is 1,201 utilities carrying a
+  // residential price where the blend had 2,871 — but 92.3 per cent of the
+  // country's meters against 95.0, because the filers that drop are small co-ops
+  // and municipals totalling 4.4M meters. The utility count falls by more than
+  // half; what a reader sees barely moves.
+  //
+  // Separate measures rather than one measure with class variants, because the
+  // breaks genuinely differ. Shared breaks of [10,12,15,20] put 1/8/33/35/23 per
+  // cent of residential meters in the five steps, spending two colours on almost
+  // nothing. Each class gets its own set below.
+  //
+  // Both are null for a delivery-only TDU, which is honest: that company never
+  // sold anyone energy, and its customers' full bill came from a retailer with no
+  // territory to draw. state-prices.json carries that instead.
+  { id: "rateres", label: "What homes pay", unit: "cents per kWh", short: "¢/kWh", format: "decimal1",
+    colourOnly: true, cls: "res", breaks: [11, 13, 16, 21],
     derived: { numerator: "rev", denominator: "mwh", scale: 100, minus: { numerator: "drev", denominator: "dmwh" } },
-    note: "Revenue over electricity sold, for customers the utility billed for the whole service. Blank where the utility only delivers and a separate retailer sells the energy, which is all of ERCOT: no one company billed the whole amount, so no one company can be coloured by it." },
-  // Fixed breaks again, and on 78 utilities quantiles would be redrawn by any
-  // one of them joining or leaving. These hold still and spread the reported
-  // meters 14/35/20/14/17 across the five steps.
+    note: "Residential revenue over residential electricity sold, for customers the utility billed for the whole service. Blank where the utility only delivers and a separate retailer sells the energy, which is all of ERCOT, and blank for the small utilities that file a single total instead of a breakdown by class." },
+  { id: "ratecom", label: "What businesses pay", unit: "cents per kWh", short: "¢/kWh", format: "decimal1",
+    colourOnly: true, cls: "com", breaks: [9, 11, 14, 18],
+    derived: { numerator: "rev", denominator: "mwh", scale: 100, minus: { numerator: "drev", denominator: "dmwh" } },
+    note: "The same figure for commercial customers: shops, offices, schools and the like, not factories. It runs a few cents under the residential price almost everywhere, because a business takes more power through one connection." },
+  // Residential too, so it subtracts cleanly from what homes pay and matches the
+  // delivery measure on the state layer. Fixed breaks again, and on 59 utilities
+  // quantiles would be redrawn by any one of them joining or leaving.
+  //
+  // Blank almost everywhere, because a utility only bills delivery separately
+  // where customers can shop. That emptiness is the finding, not a gap to paper
+  // over: for 30-odd states the wires half of the bill is not in the public
+  // record at all.
   { id: "delivrate", label: "What delivery alone costs", unit: "cents per kWh", short: "¢/kWh", format: "decimal1",
-    colourOnly: true, breaks: [2, 4, 7, 12],
+    colourOnly: true, cls: "res", breaks: [2, 4, 7, 12],
     derived: { numerator: "drev", denominator: "dmwh", scale: 100 },
-    note: "The wires charge on its own, with the energy half stripped out. Only exists where customers can shop, because only then does the wires company send its own bill. Blank across most of the country: a bundled utility files one number and the delivery portion is not in the data." },
+    note: "The wires charge on a household bill, with the energy half stripped out. Only exists where customers can shop, because only then does the wires company send its own bill. Blank across most of the country: a bundled utility files one number and the delivery portion is not in the data." },
   // Not a size measure. Outage minutes colour the map; they cannot drive an
   // area encoding, because a big circle would then mean a bad utility rather
   // than a large one.
@@ -715,6 +731,22 @@ const delivOnly = ids.filter(id => !priced(id) && delivered(id));
 const meterShare = pred => ids.reduce((s, id) => s + (pred(id) ? utilities[id].cust?.tot ?? 0 : 0), 0)
   / ids.reduce((s, id) => s + (utilities[id].cust?.tot ?? 0), 0);
 const rateMeters = meterShare(priced), delivMeters = meterShare(delivered);
+// Per-class coverage, which is what the price maps actually draw. Only the long
+// form breaks revenue out by class, so these are lower than the blended figure
+// by whatever the short-form tail is worth. Reported rather than asserted tight,
+// because the tail's size is a property of the filing year, not a regression.
+const bundledCls = (id, metric, cls) =>
+  (utilities[id][metric]?.[cls] ?? null) === null ? null
+    : utilities[id][metric][cls] - (utilities[id][STREAMS.del + metric]?.[cls] ?? 0);
+const pricedIn = cls => id => {
+  const m = bundledCls(id, "mwh", cls);
+  return m !== null && m > 0 && bundledCls(id, "rev", cls) !== null;
+};
+const classCover = {};
+for (const cls of ["res", "com", "ind"]) {
+  const hit = ids.filter(pricedIn(cls));
+  classCover[cls] = { n: hit.length, share: meterShare(pricedIn(cls)) };
+}
 // The national bundled price, which is the sanity check on the whole split. Mix
 // the delivery stream back in and this drops by roughly a cent and a half.
 const bunRev = ids.reduce((s, id) => s + bundled(id, "rev"), 0);
@@ -735,6 +767,11 @@ console.log(`  smart meters          ${(amiNat / amiDen * 100).toFixed(1)}% AMI 
   `${(amiMeters * 100).toFixed(1)}% of meters covered`);
 console.log(`  bundled price         ${bunRate.toFixed(2)} c/kWh over ${(rateMeters * 100).toFixed(1)}% of meters ` +
   `(blending delivery in would read ${blendRate.toFixed(2)}, understated by ${(bunRate - blendRate).toFixed(2)})`);
+for (const [cls, label] of [["res", "homes"], ["com", "businesses"], ["ind", "industry"]]) {
+  const c = classCover[cls];
+  console.log(`  priced, ${label.padEnd(13)} ${String(c.n).padStart(5)} utilities, ${(c.share * 100).toFixed(1)}% of meters` +
+    (cls === "ind" ? "  (collected, no map yet)" : ""));
+}
 console.log(`  delivery charge       reported by ${delivOnly.length + bothStreams.length} utilities, ${(delivMeters * 100).toFixed(1)}% of meters ` +
   `(${bothStreams.length} bill both halves, ${delivOnly.length} deliver only and carry no price)`);
 console.log(`  size                  ${(json.length / 1024).toFixed(0)}KB raw, ${(gzipSync(json, { level: 9 }).length / 1024).toFixed(0)}KB gzipped`);
@@ -772,6 +809,22 @@ if (amiPct < 0.55 || amiPct > 0.95) fail.push(`national AMI share ${(amiPct * 10
 if (bunRate < 11 || bunRate > 16) fail.push(`national bundled price ${bunRate.toFixed(2)} c/kWh is outside the plausible 11-16 band`);
 if (bunRate <= blendRate) fail.push(`bundled price ${bunRate.toFixed(2)} is not above the blended ${blendRate.toFixed(2)}; the streams are not actually separated`);
 if (rateMeters < 0.85) fail.push(`a bundled price covers only ${(rateMeters * 100).toFixed(1)}% of meters, below 85%`);
+// The class maps are what ships, so they get their own floor. Only the long form
+// breaks revenue out by class and the short-form tail is small in meters, so a
+// drop below 85% means the class columns moved rather than the tail growing.
+for (const cls of ["res", "com"]) {
+  if (classCover[cls].share < 0.85) {
+    fail.push(`${cls} price covers only ${(classCover[cls].share * 100).toFixed(1)}% of meters, below 85%`);
+  }
+}
+// Homes pay more per kWh than businesses almost everywhere, because a business
+// draws more power through one connection. If this inverts nationally the two
+// class column offsets have been swapped.
+const clsRate = cls => ids.reduce((s, id) => s + (bundledCls(id, "rev", cls) ?? 0), 0)
+  / ids.reduce((s, id) => s + (bundledCls(id, "mwh", cls) ?? 0), 0) * 100;
+const resRate = clsRate("res"), comRate = clsRate("com");
+if (!(resRate > comRate)) fail.push(`residential ${resRate.toFixed(2)} is not above commercial ${comRate.toFixed(2)}; the class columns may be swapped`);
+if (resRate < 12 || resRate > 20) fail.push(`national residential price ${resRate.toFixed(2)} c/kWh is outside the plausible 12-20 band`);
 // Every ERCOT TDU delivers and sells nothing, so it must carry a delivery charge
 // and no price. One of them holding a price means Part C leaked into the bundled
 // stream and Oncor is about to be painted as the cheapest utility in America.
