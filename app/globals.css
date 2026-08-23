@@ -720,6 +720,13 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .zip-search { left: auto; right: 12px; transform: none; text-align: left; }
 }
 
+/* On tall desktop layouts the parent-company legend can end with one row
+   clipped by the controls scroller. Give that row enough room to keep its
+   full press target. Short windows retain the tighter split above. */
+@media (min-width: 981px) and (min-height: 821px) {
+  .side .map-ui { max-height: 64%; }
+}
+
 /* Keyed on width alone. It used to fire on `max-height: 800px` as well, which
    meant a 1280x660 laptop window got the phone layout: the chrome went into
    flow, took 161px off a 499px panel, and left the map 374x234 with 876px of
