@@ -86,6 +86,14 @@ const VIEWS = [
   // 1600px image plus a citation. The note-only evidence view above never
   // exercised that, because a note has no picture.
   { name: "history-evidence-plate", q: "/then/1930/evidence/ftc-72a-chart-9-insull-group-1932" },
+  // Full size is the other half of the lightbox contract, and the state the
+  // close button used to vanish in. It is client state rather than a route, so
+  // the only way to measure it is to press the control.
+  {
+    name: "history-evidence-zoomed",
+    q: "/then/1930/evidence/ftc-72a-chart-9-insull-group-1932",
+    click: ".ev-zoom",
+  },
 ];
 
 // The query links this site shipped with. Each must answer with a redirect to
@@ -241,7 +249,7 @@ for (const vp of VIEWPORTS) {
     const r = await page.evaluate(panels => {
       const de = document.documentElement;
       const vw = de.clientWidth, vh = de.clientHeight;
-      const out = { scrollX: de.scrollWidth - vw, scrollY: de.scrollHeight - vh, offscreen: [], overlaps: [], tiny: [], clipped: [] };
+      const out = { scrollX: de.scrollWidth - vw, scrollY: de.scrollHeight - vh, offscreen: [], overlaps: [], tiny: [], clipped: [], noExit: [], unfitted: [] };
 
       // What the reader can actually see, which is the layout rect clipped by
       // every scrolling or hidden ancestor above it. An element inside a scroll
@@ -328,6 +336,44 @@ for (const vp of VIEWPORTS) {
         out.mapHeight = Math.round(drawn.h);
       }
 
+      // An open dialog owes the reader a way out that is actually on screen.
+      // The evidence lightbox shipped with its ✕ absolutely positioned inside
+      // its own scroll container, which pins it to the top of the content
+      // rather than the frame: on a landscape phone it sat hundreds of pixels
+      // above anything visible, and the only way out was the Escape key on a
+      // device with no keyboard. Assert the property, so a sticky header, a
+      // fixed button, or anything else that keeps it reachable all pass.
+      for (const dlg of document.querySelectorAll('[role="dialog"]')) {
+        if (dlg.closest("[hidden]") || getComputedStyle(dlg).display === "none") continue;
+        const btn = dlg.querySelector(".modal-close");
+        const name = dlg.id || dlg.className;
+        if (!btn) { out.noExit.push(`${name}: no close control at all`); continue; }
+        // At every scroll position, not just the top. The whole failure was
+        // that the ✕ measured fine on open and left the screen the moment the
+        // reader scrolled down to the plate, so checking only the resting
+        // state is checking the one position that was never broken.
+        const scrollers = [dlg, ...dlg.querySelectorAll("*")].filter(el => el.scrollHeight > el.clientHeight + 1);
+        const restore = scrollers.map(el => el.scrollTop);
+        for (const el of scrollers) el.scrollTop = el.scrollHeight;
+        const b = visibleRect(btn);
+        scrollers.forEach((el, i) => { el.scrollTop = restore[i]; });
+        if (!b) { out.noExit.push(`${name}: close control scrolls out of sight`); continue; }
+        if (b.w < 28 || b.h < 28)
+          out.noExit.push(`${name}: close control shrinks to ${Math.round(b.w)}x${Math.round(b.h)}`);
+        else if (b.x < -1 || b.y < -1 || b.x + b.w > vw + 1 || b.y + b.h > vh + 1)
+          out.noExit.push(`${name}: close control at ${Math.round(b.x)},${Math.round(b.y)} is outside ${vw}x${vh}`);
+      }
+
+      // A fitted archival plate has to fit. Zoomed is the reader's own choice
+      // and is meant to overflow its frame; that is what the frame scrolls.
+      for (const frame of document.querySelectorAll(".ev-scan:not(.zoomed)")) {
+        const img = frame.querySelector("img");
+        if (!img || !img.getBoundingClientRect().width) continue;
+        const r = img.getBoundingClientRect();
+        if (r.width > frame.clientWidth + 1 || r.height > frame.clientHeight + 1)
+          out.unfitted.push(`${Math.round(r.width)}x${Math.round(r.height)} plate in a ${frame.clientWidth}x${frame.clientHeight} frame`);
+      }
+
       // tap targets a thumb can actually hit
       for (const el of document.querySelectorAll("button, .step, input")) {
         const b = el.getBoundingClientRect();
@@ -363,6 +409,8 @@ for (const vp of VIEWPORTS) {
     for (const s of r.overlaps) add(tag, `overlap ${s}`);
     for (const s of new Set(r.tiny)) add(tag, `tap target ${s}`);
     for (const s of new Set(r.clipped)) add(tag, `clipped ${s}`);
+    for (const s of new Set(r.noExit)) add(tag, `no way out: ${s}`);
+    for (const s of new Set(r.unfitted)) add(tag, `fitted scan does not fit: ${s}`);
     if (errs.length) { add(tag, `${errs.length} console errors, first: ${errs[0]}`); errs.length = 0; }
 
     if (flag("shots")) await page.screenshot({ path: join(here, "shots", `${vp.name}-${view.name}.png`) });
