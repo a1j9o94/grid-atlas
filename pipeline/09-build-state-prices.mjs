@@ -126,6 +126,10 @@ const rulesPath = join(outDir, "rules.json");
 const rules = existsSync(rulesPath) ? JSON.parse(readFileSync(rulesPath, "utf8")) : { states: {} };
 
 const cents = (r, m) => (m > 0 ? +(r / m * 100).toFixed(2) : null);
+// Minimum share of a state's residential load that has to be unbundled before a
+// delivery charge derived from it means anything. See the note at its use below.
+const MIN_SHOPPED_SHARE = 0.01;
+const thinSamples = [];
 const states = {};
 for (const [abbr, s] of Object.entries(st)) {
   if (!rules.states[abbr]) continue; // territories and non-states the map cannot draw
@@ -138,9 +142,21 @@ for (const [abbr, s] of Object.entries(st)) {
   // Delivery is only broken out where retail competition exists. Everywhere
   // else the utility files one bundled number and the wires portion is simply
   // not in the data. Leaving it null is the honest answer; a zero would not be.
-  if (s.delMwh.res > 0) {
+  //
+  // A share floor rather than `> 0`, because a handful of unbundled customers is
+  // not a sample. Montana has two unbundled households in the whole state and
+  // Michigan twenty-one, and those produced published delivery rates of 6.00 and
+  // 9.59 cents: arithmetic on nobody, sitting on the map next to Ohio's 8.26
+  // drawn from 2.98 million households. Both were also the only non-choice states
+  // in the list, which is the tell. One per cent of residential load is well
+  // clear of the real floor: the lowest genuine reading is New Jersey at 5.0%,
+  // and Montana and Michigan are both under 0.05%.
+  const shopped = s.mwh.res > 0 ? s.delMwh.res / s.mwh.res : 0;
+  if (shopped >= MIN_SHOPPED_SHARE) {
     rec.delivery = cents(s.delRev.res, s.delMwh.res);
-    rec.shopped = +(s.delMwh.res / s.mwh.res).toFixed(3);
+    rec.shopped = +shopped.toFixed(3);
+  } else if (s.delMwh.res > 0) {
+    thinSamples.push(`${abbr} ${(shopped * 100).toFixed(3)}% of residential load`);
   }
   states[abbr] = rec;
 }
@@ -153,7 +169,7 @@ const measures = [
   { id: "ind", label: "What industry pays", unit: "cents per kWh", short: "¢/kWh", kind: "sequential",
     note: "The closest thing in the data to the structural cost of moving power, since industrial customers buy near cost with little retail margin on top." },
   { id: "delivery", label: "What delivery alone costs", unit: "cents per kWh", short: "¢/kWh", kind: "sequential",
-    note: "Only reported where customers can shop, because only then does the wires company bill separately." },
+    note: "Only reported where customers can shop, because only then does the wires company bill separately. Blank across most of the country: a bundled utility files one number and the wires portion of it is not in the public record at all." },
   { id: "shopped", label: "How many actually switched", unit: "share of household electricity", short: "%", kind: "sequential",
     note: "Share of household electricity delivered to customers who bought their energy from someone other than the wires company." },
 ];
@@ -190,6 +206,10 @@ console.log("\nstate-prices.json");
 console.log(`  states                ${vals.length}`);
 console.log(`  national residential  ${national.toFixed(2)} c/kWh`);
 console.log(`  delivery reported in  ${withDelivery} states`);
+if (thinSamples.length) {
+  console.log(`  delivery suppressed   ${thinSamples.length} states under the ${(MIN_SHOPPED_SHARE * 100).toFixed(0)}% residential-load floor`);
+  for (const t of thinSamples) console.log(`    ${t}`);
+}
 for (const [b, arr] of Object.entries(byBucket)) {
   const sorted = arr.slice().sort((a, c) => a - c);
   console.log(`  ${b.padEnd(9)} n=${String(arr.length).padStart(2)}  median ${sorted[sorted.length >> 1].toFixed(2)}  range ${sorted[0].toFixed(2)}-${sorted[sorted.length - 1].toFixed(2)}`);

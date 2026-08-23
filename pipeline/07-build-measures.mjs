@@ -115,22 +115,59 @@ const MERGERS = [
 // whichever polygon happens to share its utility ID. Nueces Electric
 // Cooperative is exactly that case: 20,042 meters on its wires under Part A,
 // plus a 32,561-meter retail arm under Part D that sells across ERCOT.
+//
+// Keeping A and C is right for the size measures and wrong for price, which is
+// the second trap and the subtler one. Meters and megawatthours genuinely add:
+// a shopping customer and a full-service customer are different customers on the
+// same poles, and both belong in the utility's totals. Revenue does not add,
+// because a bundled bill and a delivery charge are different quantities. Summing
+// them and dividing by total volume yields a number that is neither, pulled down
+// in proportion to how many customers shop. 66 utilities here file both parts,
+// and the bias reaches -15.6 c/kWh (NSTAR: 13.38 blended against 29.02 bundled).
+// Cleveland Electric is 91.8 per cent Part C volume; Ohio Power 83.8.
+//
+// So the two revenue streams accumulate separately alongside the totals. `rev`
+// and `mwh` stay additive and keep sizing the cartogram, and only the delivery
+// stream is written out, as `drev`/`dmwh`. The bundled half is the difference:
+// the average-price measure declares `minus: drev/dmwh` and the client subtracts
+// before dividing. That is not a micro-optimisation. Writing both streams stored
+// the bundled figure twice for the 2,799 utilities that have no delivery stream
+// at all, which is identical to `rev` and `mwh` by definition, and cost 29KB
+// gzipped on a file the client fetches. Subtracting is exact, stores nothing
+// redundant, and lands the three cases correctly by construction:
+//
+//   bundled only    drev absent, subtract zero, price is the full total
+//   both halves     price is the bundled remainder, delivery its own measure
+//   delivery only   totals cancel to zero over zero, price reads not reported
+//
+// That last row is every ERCOT TDU, and null is the honest answer rather than a
+// 3-cent lie. What those customers actually paid is a retailer's number, it has
+// no shape to colour, and it lives in state-prices.json instead.
 // ---------------------------------------------------------------------------
 
 const CLASSES = ["res", "com", "ind", "tra", "tot"];
 const COL = { rev: 0, mwh: 1, cust: 2 }; // offsets within each class block
 const CLASS_BASE = { res: 9, com: 12, ind: 15, tra: 18, tot: 21 };
+// The per-stream metrics. Customer counts are deliberately absent: a utility's
+// meter count is one number however its customers are billed.
+const STREAM_METRICS = ["rev", "mwh"];
+const STREAMS = { bun: "b", del: "d" }; // accumulator key -> emitted block prefix
 
-const acc = new Map(); // id -> { rev:{}, mwh:{}, cust:{}, states:Set, src:Set }
+const acc = new Map(); // id -> { rev:{}, mwh:{}, cust:{}, bun:{}, del:{}, states:Set, src:Set }
+const blankStream = () => ({ rev: Object.create(null), mwh: Object.create(null) });
 const blank = () => ({
   rev: Object.create(null),
   mwh: Object.create(null),
   cust: Object.create(null),
+  bun: blankStream(),
+  del: blankStream(),
   states: new Set(),
   src: new Set(),
 });
 
-function addRow(target, id, row, source) {
+// `stream` says which revenue stream this row belongs to: "bun" for a bundled
+// bill, "del" for a delivery charge, null for a row that carries no revenue.
+function addRow(target, id, row, source, stream = null) {
   if (!target.has(id)) target.set(id, blank());
   const a = target.get(id);
   a.src.add(source);
@@ -141,6 +178,9 @@ function addRow(target, id, row, source) {
       const v = num(row[CLASS_BASE[cls] + off]);
       if (v === null) continue;
       a[metric][cls] = (a[metric][cls] ?? 0) + v;
+      if (stream && STREAM_METRICS.includes(metric)) {
+        a[stream][metric][cls] = (a[stream][metric][cls] ?? 0) + v;
+      }
     }
   }
 }
@@ -165,8 +205,9 @@ for (const row of salesRows) {
     droppedParts++;
     continue;
   }
-  if (universe.has(id)) addRow(acc, id, row, "eia861-sales");
-  if (successorIds.has(id)) addRow(successorAcc, id, row, "eia861-sales");
+  const stream = part === "C" ? "del" : "bun";
+  if (universe.has(id)) addRow(acc, id, row, "eia861-sales", stream);
+  if (successorIds.has(id)) addRow(successorAcc, id, row, "eia861-sales", stream);
 }
 console.log(`sales rows: ${salesRows.length} read, ${droppedParts} dropped as Part B/D (energy-only providers and retailers)`);
 
@@ -177,7 +218,7 @@ let deliveryHits = 0;
 for (const row of deliveryRows) {
   const id = (row[1] || "").trim();
   if (!id || !universe.has(id)) continue;
-  addRow(acc, id, row, "eia861-delivery");
+  addRow(acc, id, row, "eia861-delivery", "del");
   deliveryHits++;
 }
 console.log(`delivery-only rows: ${deliveryRows.length} read, ${deliveryHits} joined`);
@@ -194,8 +235,10 @@ for (const row of shortRows) {
   const st = (row[4] || "").trim();
   if (st) a.states.add(st);
   const rev = num(row[6]), mwh = num(row[7]), cust = num(row[8]);
-  if (rev !== null) a.rev.tot = rev;
-  if (mwh !== null) a.mwh.tot = mwh;
+  // Short-form filers are small co-ops and municipals. They sell the whole
+  // service, so their revenue is a bundled bill by definition.
+  if (rev !== null) a.rev.tot = a.bun.rev.tot = rev;
+  if (mwh !== null) a.mwh.tot = a.bun.mwh.tot = mwh;
   if (cust !== null) a.cust.tot = cust;
   acc.set(id, a);
   shortHits++;
@@ -223,6 +266,15 @@ for (const m of MERGERS) {
     for (const s of src.states) a.states.add(s);
     for (const metric of Object.keys(COL)) {
       for (const [cls, v] of Object.entries(src[metric])) a[metric][cls] = Math.round(v * share);
+    }
+    // The streams split on the same share, or the successor's price would be
+    // lost and its territories would go blank on the price map.
+    for (const stream of Object.keys(STREAMS)) {
+      for (const metric of STREAM_METRICS) {
+        for (const [cls, v] of Object.entries(src[stream][metric])) {
+          a[stream][metric][cls] = Math.round(v * share);
+        }
+      }
     }
     acc.set(p, a);
   });
@@ -466,6 +518,16 @@ for (const [id, a] of acc) {
     for (const cls of CLASSES) if (a[metric][cls] !== undefined) block[cls] = round(a[metric][cls]);
     if (Object.keys(block).length) rec[metric] = block;
   }
+  // Only the delivery stream is written. The bundled half is `rev` minus this,
+  // computed at read time, so nothing is stored twice. The `bun` accumulator
+  // still exists: the assertions below check the subtraction against it.
+  for (const metric of STREAM_METRICS) {
+    const block = {};
+    for (const cls of CLASSES) {
+      if (a.del[metric][cls] !== undefined) block[cls] = round(a.del[metric][cls]);
+    }
+    if (Object.keys(block).length) rec[STREAMS.del + metric] = block;
+  }
   if (a.saidi) {
     rec.saidi = Object.fromEntries(Object.entries(a.saidi).map(([k, v]) => [k, +v.toFixed(1)]));
     if (a.saidiStates > 1) rec.saidi.n = a.saidiStates;
@@ -491,7 +553,38 @@ const measures = [
   { id: "cust", label: "Meters", unit: "meters", short: "meters", format: "integer", note: "Billing accounts, not people. Commercial and industrial meters are included." },
   { id: "mwh", label: "Electricity delivered", unit: "MWh", short: "MWh", format: "integer" },
   { id: "rev", label: "Revenue", unit: "thousand dollars", short: "$K", format: "integer" },
-  { id: "rate", label: "Average price", unit: "cents per kWh", short: "¢/kWh", format: "decimal1", derived: { numerator: "rev", denominator: "mwh", scale: 100 } },
+  // The two price measures, each dividing inside one revenue stream. Neither can
+  // size anything: price is an intensity, and a circle drawn from it would say an
+  // expensive utility is a large one.
+  //
+  // `rate` is the whole bill, and it is the one to lead with, because it is the
+  // number a customer recognises and it is reported for the great majority of the
+  // country. It is null for a delivery-only TDU, which is honest: that company
+  // never sold anyone energy, and its customers' full bill came from a retailer
+  // with no territory to draw. state-prices.json carries that instead.
+  //
+  // `delivrate` is the wires charge alone. It is null almost everywhere, because
+  // a utility only bills delivery separately where customers can shop, so the map
+  // is mostly empty. That emptiness is the finding, not a gap to paper over: for
+  // 30-odd states the wires half of the bill is simply not in the public record.
+  // Fixed breaks, for the reason the other two fixed-break measures give. This
+  // distribution is 2,800 small co-ops and municipals against a few hundred big
+  // utilities, so unweighted quantiles come out as [10.08, 11.56, 12.90, 14.89]:
+  // a middle step 1.3 cents wide that paints Georgia and Ohio the same colour.
+  // These put 8/25/33/15/18 percent of the country's meters in the five steps
+  // and 19/28/34/14/5 percent of its utilities, which is about as even as one
+  // set of round numbers gets on both counts at once.
+  { id: "rate", label: "What customers pay", unit: "cents per kWh", short: "¢/kWh", format: "decimal1",
+    colourOnly: true, breaks: [10, 12, 15, 20],
+    derived: { numerator: "rev", denominator: "mwh", scale: 100, minus: { numerator: "drev", denominator: "dmwh" } },
+    note: "Revenue over electricity sold, for customers the utility billed for the whole service. Blank where the utility only delivers and a separate retailer sells the energy, which is all of ERCOT: no one company billed the whole amount, so no one company can be coloured by it." },
+  // Fixed breaks again, and on 78 utilities quantiles would be redrawn by any
+  // one of them joining or leaving. These hold still and spread the reported
+  // meters 14/35/20/14/17 across the five steps.
+  { id: "delivrate", label: "What delivery alone costs", unit: "cents per kWh", short: "¢/kWh", format: "decimal1",
+    colourOnly: true, breaks: [2, 4, 7, 12],
+    derived: { numerator: "drev", denominator: "dmwh", scale: 100 },
+    note: "The wires charge on its own, with the energy half stripped out. Only exists where customers can shop, because only then does the wires company send its own bill. Blank across most of the country: a bundled utility files one number and the delivery portion is not in the data." },
   // Not a size measure. Outage minutes colour the map; they cannot drive an
   // area encoding, because a big circle would then mean a bad utility rather
   // than a large one.
@@ -543,6 +636,8 @@ const payload = {
     key: "EIA utility number, the same identifier HIFLD carries as ID",
     rules: [
       "Parts A and C only: full-service utilities and delivery-only wires companies. Parts B and D are energy-only providers and retailers that own no wires.",
+      "Meters and megawatthours add across Parts A and C, because a shopping customer and a full-service customer are different customers on the same poles. Revenue does not: a bundled bill and a delivery charge are different quantities. The two are kept apart as brev/bmwh and drev/dmwh, and each price measure divides inside one of them.",
+      "No utility carries an all-in price for a customer who shops. That number belongs to a retailer, which owns no wires and has no shape on this map; state-prices.json carries it per state.",
       "Short-form filings are a fallback for utilities absent from the main table, never added to it.",
       "Merged utilities are split back across the territories the map still draws, in proportion to HIFLD meter counts.",
       "Missing is null, never zero.",
@@ -601,6 +696,33 @@ const txSolar = [...universe.keys()]
   .filter(id => utilities[id]?.st?.includes("TX"))
   .reduce((s, id) => s + (utilities[id].solarmw?.res ?? 0), 0);
 
+// The two revenue streams, and the split that this file exists to keep straight.
+// `bundled` reproduces exactly what the client computes from the shipped file:
+// the totals less the delivery stream. Everything below is checked against that
+// rather than against the accumulator, so these assertions cover the arithmetic
+// the reader actually sees.
+const ids = [...universe.keys()].filter(id => utilities[id]);
+const bundled = (id, metric) =>
+  (utilities[id][metric]?.tot ?? 0) - (utilities[id][STREAMS.del + metric]?.tot ?? 0);
+const priced = id => bundled(id, "mwh") > 0;
+const delivered = id => utilities[id]?.drev?.tot != null && utilities[id]?.dmwh?.tot > 0;
+const bothStreams = ids.filter(id => priced(id) && delivered(id));
+const delivOnly = ids.filter(id => !priced(id) && delivered(id));
+// Weighted by the meters this file itself reports, not by HIFLD's, because
+// HIFLD's count is the -999999 sentinel for exactly the delivery-only TDUs whose
+// coverage is in question. Using it would have reported 100% of meters priced
+// while 8.3M of them carry no price at all.
+const meterShare = pred => ids.reduce((s, id) => s + (pred(id) ? utilities[id].cust?.tot ?? 0 : 0), 0)
+  / ids.reduce((s, id) => s + (utilities[id].cust?.tot ?? 0), 0);
+const rateMeters = meterShare(priced), delivMeters = meterShare(delivered);
+// The national bundled price, which is the sanity check on the whole split. Mix
+// the delivery stream back in and this drops by roughly a cent and a half.
+const bunRev = ids.reduce((s, id) => s + bundled(id, "rev"), 0);
+const bunMwh = ids.reduce((s, id) => s + bundled(id, "mwh"), 0);
+const blendRev = ids.reduce((s, id) => s + (utilities[id].rev?.tot ?? 0), 0);
+const blendMwh = ids.reduce((s, id) => s + (utilities[id].mwh?.tot ?? 0), 0);
+const bunRate = bunRev / bunMwh * 100, blendRate = blendRev / blendMwh * 100;
+
 console.log("\nmeasures.json");
 console.log(`  utilities matched     ${matched} / ${universe.size}  (${(matchRate * 100).toFixed(1)}%)`);
 console.log(`  meter-weighted        ${(weighted * 100).toFixed(2)}%`);
@@ -611,6 +733,10 @@ console.log(`  rooftop solar         ${(solarRes / 1000).toFixed(1)}GW residenti
 console.log(`  Texas residential     ${Math.round(txSolar).toLocaleString()}MW  (zero here means the net-metering hole reopened)`);
 console.log(`  smart meters          ${(amiNat / amiDen * 100).toFixed(1)}% AMI of ${(amiDen / 1e6).toFixed(1)}M meters, ` +
   `${(amiMeters * 100).toFixed(1)}% of meters covered`);
+console.log(`  bundled price         ${bunRate.toFixed(2)} c/kWh over ${(rateMeters * 100).toFixed(1)}% of meters ` +
+  `(blending delivery in would read ${blendRate.toFixed(2)}, understated by ${(bunRate - blendRate).toFixed(2)})`);
+console.log(`  delivery charge       reported by ${delivOnly.length + bothStreams.length} utilities, ${(delivMeters * 100).toFixed(1)}% of meters ` +
+  `(${bothStreams.length} bill both halves, ${delivOnly.length} deliver only and carry no price)`);
 console.log(`  size                  ${(json.length / 1024).toFixed(0)}KB raw, ${(gzipSync(json, { level: 9 }).length / 1024).toFixed(0)}KB gzipped`);
 console.log("  meters by market");
 for (const [rto, v] of Object.entries(byRto).sort((a, b) => b[1] - a[1])) {
@@ -638,6 +764,44 @@ if (solarMeters < 0.85) fail.push(`rooftop solar covers only ${(solarMeters * 10
 if (amiMeters < 0.95) fail.push(`smart meters cover only ${(amiMeters * 100).toFixed(1)}% of meters, below 95%`);
 const amiPct = amiNat / amiDen;
 if (amiPct < 0.55 || amiPct > 0.95) fail.push(`national AMI share ${(amiPct * 100).toFixed(1)}% is outside the plausible 55-95% band`);
+// The revenue split. If any of these trip, a delivery charge is being served as
+// a price, which is the failure this whole mechanism exists to prevent.
+//
+// EIA's published national all-sector average sits in the low teens. The bundled
+// figure has to land there; the blended one does not, which is the point.
+if (bunRate < 11 || bunRate > 16) fail.push(`national bundled price ${bunRate.toFixed(2)} c/kWh is outside the plausible 11-16 band`);
+if (bunRate <= blendRate) fail.push(`bundled price ${bunRate.toFixed(2)} is not above the blended ${blendRate.toFixed(2)}; the streams are not actually separated`);
+if (rateMeters < 0.85) fail.push(`a bundled price covers only ${(rateMeters * 100).toFixed(1)}% of meters, below 85%`);
+// Every ERCOT TDU delivers and sells nothing, so it must carry a delivery charge
+// and no price. One of them holding a price means Part C leaked into the bundled
+// stream and Oncor is about to be painted as the cheapest utility in America.
+if (delivOnly.length < 5) fail.push(`only ${delivOnly.length} delivery-only utilities; the ERCOT TDUs should all be here`);
+for (const id of delivOnly) {
+  // The subtraction has to land on exactly zero volume, or a rounding residue
+  // becomes a denominator and the TDU gets a price after all.
+  const m = bundled(id, "mwh");
+  if (m !== 0) fail.push(`${id} ${universe.get(id).name} delivers only but ${m} MWh survives the subtraction`);
+}
+// The accumulator is the independent check on the subtraction: what the pipeline
+// summed from Part A rows directly has to match what the client will derive.
+for (const [id, a] of acc) {
+  if (!utilities[id]) continue;
+  for (const metric of STREAM_METRICS) {
+    const direct = Math.round(a.bun[metric].tot ?? 0);
+    const derived = bundled(id, metric);
+    if (Math.abs(direct - derived) > 1) {
+      fail.push(`${id} ${universe.get(id)?.name}: bundled ${metric} is ${direct} summed but ${derived} subtracted`);
+    }
+  }
+}
+// Both-stream utilities are the ones a blended average silently ruined. There
+// were 66 in the 2024 file; a collapse to zero means the Part C branch is dead.
+if (bothStreams.length < 40) fail.push(`only ${bothStreams.length} utilities file both streams, expected ~66; the Part C branch may have regressed`);
+for (const id of bothStreams) {
+  const b = bundled(id, "rev") / bundled(id, "mwh") * 100;
+  const d = utilities[id].drev.tot / utilities[id].dmwh.tot * 100;
+  if (d >= b) fail.push(`${id} ${universe.get(id).name}: delivery ${d.toFixed(2)} is not below its bundled price ${b.toFixed(2)}`);
+}
 
 if (fail.length) {
   console.error("\nFAILED:");

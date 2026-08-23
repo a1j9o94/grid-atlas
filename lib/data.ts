@@ -105,7 +105,18 @@ export interface MeasureSpec {
   cls?: string;
   breaks?: number[];
   variants?: Record<string, string>;
-  derived?: { numerator: string; denominator: string; scale?: number };
+  // `minus` subtracts one stored ratio's parts from another's before dividing,
+  // which is how a price is taken over part of a utility's book rather than all
+  // of it. Average price is total revenue less the delivery-only revenue, over
+  // total volume less the delivery-only volume: the bundled half, without
+  // storing it a second time. A utility that only ever billed delivery cancels
+  // to zero over zero and reads as not reported, which is the correct answer.
+  derived?: {
+    numerator: string;
+    denominator: string;
+    scale?: number;
+    minus?: { numerator: string; denominator: string };
+  };
 }
 // A utility row is a handful of scalar fields plus one block of numbers per
 // stored measure, keyed by customer class (or by storm basis, for saidi).

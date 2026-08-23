@@ -175,10 +175,18 @@ export function measureValue(id: string, measureId: string, cls = "tot"): number
   if (!u) return null;
   const spec = measureSpec(measureId);
   if (spec?.derived) {
-    const n = blockOf(u, spec.derived.numerator)?.[cls];
-    const d = blockOf(u, spec.derived.denominator)?.[cls];
-    if (n == null || !d) return null;
-    return (n / d) * (spec.derived.scale ?? 1);
+    const { numerator, denominator, scale, minus } = spec.derived;
+    let n = blockOf(u, numerator)?.[cls];
+    let d = blockOf(u, denominator)?.[cls];
+    if (n == null || d == null) return null;
+    // A subtracted stream that this utility does not have is simply zero, so a
+    // bundled-only utility keeps its full totals and needs nothing stored.
+    if (minus) {
+      n -= blockOf(u, minus.numerator)?.[cls] ?? 0;
+      d -= blockOf(u, minus.denominator)?.[cls] ?? 0;
+    }
+    if (!d || d < 0) return null;
+    return (n / d) * (scale ?? 1);
   }
   return blockOf(u, measureId)?.[cls] ?? null;
 }
