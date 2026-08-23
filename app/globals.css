@@ -577,6 +577,11 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .lg-size { display: none; }
   .size-controls { padding: 4px 6px; gap: 4px; }
   .sz-label { display: none; }
+  /* And the buttons come down to the 28px floor this project holds every tap
+     target to, from the 30 a roomier window can afford. Two rows of them, so
+     that is four more pixels of map. The extra specificity is deliberate: the
+     wide-column block sets 30px and sits later in the file. */
+  .side .map-ui .sz-btn { min-height: 28px; }
   .sz-btn { font-size: 11px; padding: 8px 8px; }
 
   /* The zip box shrinks to one row: field plus a magnifier. "Type your zip
@@ -828,6 +833,14 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   /* The in-column layout can afford twelve pixels of breathing room inside its
      scroller. Floating over the map, every pixel is map. */
   .side .map-ui { padding-block: 0; }
+  /* Short windows already drop these labels, up at the top of this file. Then
+     the wide-column block re-shows each one on a full row of its own — right
+     for a 256px column, where a label in the first button slot costs two extra
+     rows, and wrong here, where the controls are lying across the map and that
+     row is 14px of country. Same selector, later in the file, so it won won.
+     The buttons still say what they are; the group name is the only thing
+     going. */
+  .sz-label { display: none; }
   .zip-search {
     position: absolute; top: 4px; right: 6px; left: auto; bottom: auto;
     order: 0; align-self: auto; margin-bottom: 0; transform: none;
