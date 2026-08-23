@@ -1,0 +1,22 @@
+{
+ "insull-middle-west#12": ["55001","55021","55025","55027","55047","55049","55055","55057","55099","55107","55111","55119"],
+ "insull-middle-west#8": ["55085","55125"],
+ "insull-middle-west": ["55003","55113"],
+ "maybe:insull-middle-west": ["55007"],
+ "ebasco#2": ["55013","55031","55129"],
+ "maybe:ebasco#2": ["55095"],
+ "none": ["55051"],
+ "standard-gas": ["55023","55029","55053","55061","55063","55067","55073","55081","55083","55097","55103","55115","55123","55141"],
+ "north-american": ["55015","55037","55059","55075","55079","55089","55101"],
+ "maybe:north-american": ["55041"],
+ "central-states-electric": ["55043"],
+ "amb:standard-gas|tri-utilities": ["55005","55011","55033","55035","55093","55109","55121"],
+ "amb:insull-middle-west#12|standard-gas": ["55017","55019","55039"],
+ "amb:insull-middle-west|standard-gas": ["55069","55078","55135","55137"],
+ "amb:north-american|standard-gas": ["55009","55071","55117","55139"],
+ "amb:insull-middle-west#12|north-american": ["55127","55131","55133"],
+ "amb:insull-middle-west|north-american": ["55087"],
+ "amb:insull-middle-west#12|united-light-power": ["55045","55105"],
+ "amb:central-states-electric|insull-middle-west#12": ["55065"],
+ "amb:insull-middle-west#8|standard-gas": ["55077"]
+}

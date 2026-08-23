@@ -1,0 +1,156 @@
+{
+  "protocol": "Blind native-raster readings made before opening map4-georef-provisional.json or any fitted overlay.",
+  "raster": "data-raw/ftc72a/map4-1932.png",
+  "raster_size_px": [5521, 3784],
+  "coordinate_convention": "native image pixels, origin at upper left; coordinates are estimated boundary centerline intersections",
+  "marked_at": "2026-08-18",
+  "landmarks": [
+    {
+      "id": "WA-OR-ID",
+      "kind": "interstate_junction",
+      "lon": -117.0396,
+      "lat": 45.9996,
+      "x": 1260,
+      "y": 925,
+      "confidence": "high",
+      "uncertainty_px": 3,
+      "ambiguity": "Broad pale river/border strokes; marked their centerline confluence."
+    },
+    {
+      "id": "ID-MT-WY",
+      "kind": "interstate_junction",
+      "lon": -111.053,
+      "lat": 44.475,
+      "x": 1671,
+      "y": 1190,
+      "confidence": "medium",
+      "uncertainty_px": 5,
+      "ambiguity": "The junction is partly confused by the blank Wyoming field and nearby boxed state label; marked the endpoint of the pale ID-MT boundary where the Idaho-Wyoming edge begins."
+    },
+    {
+      "id": "Four Corners",
+      "kind": "interstate_junction",
+      "lon": -109.0452,
+      "lat": 36.9991,
+      "x": 1719,
+      "y": 2044,
+      "confidence": "high",
+      "uncertainty_px": 3,
+      "ambiguity": "Thick perpendicular strokes; marked centerline crossing."
+    },
+    {
+      "id": "CO-KS-OK",
+      "kind": "interstate_junction",
+      "lon": -102.0416,
+      "lat": 36.9999,
+      "x": 2325,
+      "y": 2089,
+      "confidence": "high",
+      "uncertainty_px": 3,
+      "ambiguity": "Marked center of the vertical CO-KS line where it terminates on Oklahoma's north edge."
+    },
+    {
+      "id": "MO-AR-OK",
+      "kind": "interstate_junction",
+      "lon": -94.6179,
+      "lat": 36.4994,
+      "x": 2978,
+      "y": 2145,
+      "confidence": "high",
+      "uncertainty_px": 3,
+      "ambiguity": "Dark state stroke overlaps dense county fills but the three-way topology is clear."
+    },
+    {
+      "id": "NE-IA-MO",
+      "kind": "interstate_junction",
+      "lon": -95.7656,
+      "lat": 40.5852,
+      "x": 2858,
+      "y": 1710,
+      "confidence": "medium",
+      "uncertainty_px": 4,
+      "ambiguity": "Missouri River stroke is broad and bends at the Iowa-Missouri line."
+    },
+    {
+      "id": "KY-TN-VA",
+      "kind": "interstate_junction",
+      "lon": -83.6753,
+      "lat": 36.6008,
+      "x": 3959,
+      "y": 2049,
+      "confidence": "medium",
+      "uncertainty_px": 5,
+      "ambiguity": "Cumberland Gap junction is embedded in dark and hatched county fills; marked the western tip of Virginia at the KY-TN stroke."
+    },
+    {
+      "id": "PA-MD-WV",
+      "kind": "interstate_junction",
+      "lon": -79.4767,
+      "lat": 39.7211,
+      "x": 4211,
+      "y": 1653,
+      "confidence": "medium",
+      "uncertainty_px": 5,
+      "ambiguity": "Mason-Dixon boundary is doubled/thick near the narrow Maryland panhandle; marked the centerline junction with the WV-MD edge."
+    },
+    {
+      "id": "Crowley-El Paso-Lincoln-Pueblo CO",
+      "kind": "county_junction",
+      "lon": -104.05392,
+      "lat": 38.52239,
+      "x": 2193,
+      "y": 1919,
+      "confidence": "medium",
+      "uncertainty_px": 5,
+      "fold_context": "left/central vertical fold-adjacent",
+      "ambiguity": "Four county fills meet beside the scan fold; line weight and fold illumination widen the apparent corner."
+    },
+    {
+      "id": "Bailey-Curry-Parmer TX-NM",
+      "kind": "county_junction",
+      "lon": -103.04398,
+      "lat": 34.31275,
+      "x": 2219,
+      "y": 2382,
+      "confidence": "low",
+      "uncertainty_px": 10,
+      "fold_context": "left/central vertical fold-adjacent",
+      "ambiguity": "County divider is faint where it meets the heavy TX-NM line; reading retained but designated low-confidence."
+    },
+    {
+      "id": "Cannon-Coffee-Rutherford TN",
+      "kind": "county_junction",
+      "lon": -86.20715,
+      "lat": 35.70379,
+      "x": 3749,
+      "y": 2153,
+      "confidence": "low",
+      "uncertainty_px": 8,
+      "fold_context": "right/central vertical fold-adjacent",
+      "ambiguity": "Junction lies in a continuous vertically hatched service area next to the fold; inferred from the small unfilled county corner and is genuinely ambiguous."
+    },
+    {
+      "id": "Delaware-Montgomery-Philadelphia PA",
+      "kind": "county_junction",
+      "lon": -75.27648,
+      "lat": 39.97696,
+      "x": 4544,
+      "y": 1574,
+      "confidence": "medium",
+      "uncertainty_px": 6,
+      "small_eastern_county": true,
+      "ambiguity": "Philadelphia is small at this scale and the tripoint is partly hidden by dense utility symbols."
+    },
+    {
+      "id": "Adams-Carroll-York PA-MD",
+      "kind": "county_junction",
+      "lon": -76.99932,
+      "lat": 39.71983,
+      "x": 4408,
+      "y": 1646,
+      "confidence": "low",
+      "uncertainty_px": 8,
+      "ambiguity": "County divider reaches a thick/doubled state border; the exact centerline endpoint is weak."
+    }
+  ]
+}

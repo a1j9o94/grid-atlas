@@ -1,0 +1,619 @@
+{
+  "meta": {
+    "launched": "2026-04-01",
+    "built": "2026-08-15",
+    "notes": "SPP RTO West membership, verified against SPP participant rosters. members -> SPPWEST. spp_east are HIFLD balancing-authority miscodes for utilities actually in SPP East. unsure stay non-RTO pending verification (Kit Carson via Guzman, two MT co-ops, Town of Springer NM). Black Hills deliberately absent: it became its own BA and joined CAISO WEIM May 2026. NorthWestern MT did not move its load into the RTO.",
+    "sources": [
+      "https://spp.org/news-list/spp-and-member-utilities-successfully-complete-historic-western-expansion/",
+      "https://www.spp.org/news-list/spp-and-western-utilities-affirm-plans-for-rto-s-april-1-expansion/",
+      "https://www.utilitydive.com/news/ferc-spp-rto-west-trump-coal-gas-market-report/743157/"
+    ]
+  },
+  "ba_rule": [],
+  "members": [
+    {
+      "NAME": "K C ELECTRIC ASSOCIATION",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF KIMBALL - (NE)",
+      "STATE": "NE",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "CITY OF AZTEC - (NM)",
+      "STATE": "NM",
+      "via": "itself"
+    },
+    {
+      "NAME": "CITY OF LA JUNTA - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "LA PLATA ELECTRIC ASSN, INC",
+      "STATE": "CO",
+      "via": "itself"
+    },
+    {
+      "NAME": "LACREEK ELECTRIC ASSN, INC",
+      "STATE": "NE",
+      "via": "Basin"
+    },
+    {
+      "NAME": "CITY OF LAMAR - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "CITY OF LAS ANIMAS - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "TOWN OF LINGLE - (WY)",
+      "STATE": "WY",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "CITY OF LONGMONT",
+      "STATE": "CO",
+      "via": "Platte River"
+    },
+    {
+      "NAME": "LOS ALAMOS COUNTY",
+      "STATE": "NM",
+      "via": "itself"
+    },
+    {
+      "NAME": "CITY OF LOVELAND - (CO)",
+      "STATE": "CO",
+      "via": "Platte River"
+    },
+    {
+      "NAME": "LOWER YELLOWSTONE R E A, INC",
+      "STATE": "MT",
+      "via": "Basin"
+    },
+    {
+      "NAME": "TOWN OF LUSK - (WY)",
+      "STATE": "WY",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "VILLAGE OF LYMAN - (NE)",
+      "STATE": "NE",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "TOWN OF LYONS - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "MARIAS RIVER ELECTRIC COOP INC",
+      "STATE": "MT",
+      "via": "CMEPC"
+    },
+    {
+      "NAME": "MCCONE ELECTRIC COOP INC",
+      "STATE": "MT",
+      "via": "Basin"
+    },
+    {
+      "NAME": "MID-YELLOWSTONE ELEC COOP, INC",
+      "STATE": "MT",
+      "via": "Basin"
+    },
+    {
+      "NAME": "MIDWEST ELECTRIC MEMBER CORP",
+      "STATE": "NE",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "MORGAN COUNTY RURAL ELEC ASSN",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "MOON LAKE ELECTRIC ASSN INC",
+      "STATE": "UT",
+      "via": "Deseret"
+    },
+    {
+      "NAME": "MORA-SAN MIGUEL ELEC COOP",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "MOUNTAIN PARKS ELECTRIC, INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "MOUNTAIN VIEW ELEC ASSN, INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "NIOBRARA ELECTRIC ASSN, INC",
+      "STATE": "NE",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF BAYARD - (NE)",
+      "STATE": "NE",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "NORTHERN RIO ARRIBA E COOP INC",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "NORTHWEST RURAL PUB PWR DIST",
+      "STATE": "NE",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "TOWN OF OAK CREEK - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "OTERO COUNTY ELECTRIC COOP INC",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "PAGE UTILITY ENTERPRISES",
+      "STATE": "AZ",
+      "via": "itself"
+    },
+    {
+      "NAME": "PANHANDLE RURAL EL MEMBER ASSN",
+      "STATE": "NE",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "PARK ELECTRIC COOP INC",
+      "STATE": "MT",
+      "via": "CMEPC"
+    },
+    {
+      "NAME": "CITY OF PINE BLUFFS - (WY)",
+      "STATE": "WY",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "POUDRE VALLEY REA, INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF POWELL - (WY)",
+      "STATE": "WY",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "RATON PUBLIC SERVICE COMPANY",
+      "STATE": "NM",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "ROOSEVELT PUBLIC POWER DIST",
+      "STATE": "NE",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "SAN LUIS VALLEY R E C, INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "SAN ISABEL ELECTRIC ASSN, INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "SAN MIGUEL POWER ASSN, INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "SANGRE DE CRISTO ELEC ASSN INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "BIG FLAT ELECTRIC COOP INC",
+      "STATE": "MT",
+      "via": "CMEPC"
+    },
+    {
+      "NAME": "BIG HORN RURAL ELECTRIC CO",
+      "STATE": "MT",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF SIDNEY - (NE)",
+      "STATE": "NE",
+      "via": "itself"
+    },
+    {
+      "NAME": "SOCORRO ELECTRIC COOP, INC",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "SOUTHEAST COLORADO POWER ASSN",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "SOUTHEAST ELECTRIC COOP, INC",
+      "STATE": "MT",
+      "via": "Basin"
+    },
+    {
+      "NAME": "SOUTHWESTERN ELECTRIC COOP INC - (NM)",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "TOWN OF BASIN - (WY)",
+      "STATE": "WY",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "SPRINGER ELECTRIC COOP, INC",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF SPRINGFIELD - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "SUN RIVER ELECTRIC COOP, INC",
+      "STATE": "MT",
+      "via": "CMEPC"
+    },
+    {
+      "NAME": "CITY OF TORRINGTON - (WY)",
+      "STATE": "WY",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "POWDER RIVER ENERGY CORP",
+      "STATE": "WY",
+      "via": "Basin"
+    },
+    {
+      "NAME": "CITY OF TRINIDAD - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "UNITED POWER, INC",
+      "STATE": "CO",
+      "via": "itself"
+    },
+    {
+      "NAME": "WHEATLAND RURAL ELEC ASSN, INC",
+      "STATE": "WY",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "WHEAT BELT PUBLIC POWER DIST",
+      "STATE": "NE",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "TOWN OF WHEATLAND - (WY)",
+      "STATE": "WY",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "WHITE RIVER ELECTRIC ASSN, INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "YELLOWSTONE VALLEY ELEC CO-OP",
+      "STATE": "MT",
+      "via": "CMEPC"
+    },
+    {
+      "NAME": "CITY OF WRAY",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "Y-W ELECTRIC ASSN INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "WYRULEC COMPANY",
+      "STATE": "NE",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF YUMA - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "FERGUS ELECTRIC COOP, INC",
+      "STATE": "MT",
+      "via": "WAPA-UGP"
+    },
+    {
+      "NAME": "BRIDGER VALLEY ELEC ASSN, INC",
+      "STATE": "UT",
+      "via": "Deseret"
+    },
+    {
+      "NAME": "SIERRA ELECTRIC COOP, INC",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF BURLINGTON - (CO)",
+      "STATE": "CO",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "BUTTE ELECTRIC COOP, INC",
+      "STATE": "SD",
+      "via": "Basin"
+    },
+    {
+      "NAME": "WAPA-- WESTERN AREA POWER ADMINISTRATION",
+      "STATE": "CO",
+      "via": "WAPA"
+    },
+    {
+      "NAME": "HIGH WEST ENERGY, INC",
+      "STATE": "WY",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CARBON POWER & LIGHT, INC",
+      "STATE": "WY",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF CENTER - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "CENTRAL NEW MEXICO EL COOP, INC",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CHIMNEY ROCK PUBLIC POWER DIST",
+      "STATE": "NE",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF CODY",
+      "STATE": "WY",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "CITY OF COLORADO SPRINGS - (CO)",
+      "STATE": "CO",
+      "via": "itself"
+    },
+    {
+      "NAME": "DIXIE ESCALANTE R E A, INC",
+      "STATE": "UT",
+      "via": "Deseret"
+    },
+    {
+      "NAME": "COLUMBUS ELECTRIC COOP, INC",
+      "STATE": "AZ",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CONTINENTAL DIVIDE EL COOP INC",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF DELTA - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "DELTA MONTROSE ELECTRIC ASSN",
+      "STATE": "CO",
+      "via": "itself"
+    },
+    {
+      "NAME": "EMPIRE ELECTRIC ASSN, INC",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "TOWN OF ESTES PARK",
+      "STATE": "CO",
+      "via": "Platte River"
+    },
+    {
+      "NAME": "CITY OF FARMINGTON - (NM)",
+      "STATE": "NM",
+      "via": "itself"
+    },
+    {
+      "NAME": "TOWN OF FLEMING - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "TOWN OF FORT LARAMIE- (WY)",
+      "STATE": "WY",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "CITY OF FORT COLLINS - (CO)",
+      "STATE": "CO",
+      "via": "Platte River"
+    },
+    {
+      "NAME": "CITY OF FORT MORGAN",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "CITY OF FOUNTAIN",
+      "STATE": "CO",
+      "via": "itself"
+    },
+    {
+      "NAME": "CITY OF GALLUP - (NM)",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "GARLAND LIGHT & POWER COMPANY",
+      "STATE": "WY",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "GARKANE ENERGY COOP, INC",
+      "STATE": "UT",
+      "via": "Deseret"
+    },
+    {
+      "NAME": "CITY OF GERING - (NE)",
+      "STATE": "NE",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "CITY OF GILLETTE - (WY)",
+      "STATE": "WY",
+      "via": "WAPA-UGP"
+    },
+    {
+      "NAME": "CITY OF GLENWOOD SPRINGS - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "TOWN OF GRANADA - (CO)",
+      "STATE": "CO",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "TOWN OF GUERNSEY - (WY)",
+      "STATE": "WY",
+      "via": "WAPA-LAP"
+    },
+    {
+      "NAME": "GUNNISON COUNTY ELEC ASSN.",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF GUNNISON - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "TOWN OF HAXTUN - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "HIGH PLAINS POWER INC",
+      "STATE": "WY",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "HIGHLINE ELECTRIC ASSN",
+      "STATE": "CO",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "HILL COUNTY ELECTRIC COOP, INC",
+      "STATE": "MT",
+      "via": "CMEPC"
+    },
+    {
+      "NAME": "TOWN OF HOLLY - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "CITY OF HOLYOKE - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "CITY OF ASPEN- (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    },
+    {
+      "NAME": "JEMEZ MOUNTAINS ELEC COOP, INC",
+      "STATE": "NM",
+      "via": "Tri-State"
+    },
+    {
+      "NAME": "CITY OF JULESBURG - (CO)",
+      "STATE": "CO",
+      "via": "MEAN"
+    }
+  ],
+  "spp_east": [
+    {
+      "NAME": "LAKE REGION ELECTRIC ASSN, INC - (SD)",
+      "STATE": "SD"
+    },
+    {
+      "NAME": "CITY OF SCHUYLER - (NE)",
+      "STATE": "NE"
+    },
+    {
+      "NAME": "CITY OF BROOKINGS - (SD)",
+      "STATE": "SD"
+    },
+    {
+      "NAME": "CENTRAL ELECTRIC COOP, INC - (SD)",
+      "STATE": "SD"
+    },
+    {
+      "NAME": "DAKOTA ENERGY COOP INC",
+      "STATE": "SD"
+    },
+    {
+      "NAME": "VILLAGE OF DORCHESTER - (NE)",
+      "STATE": "NE"
+    }
+  ],
+  "unsure": [
+    {
+      "NAME": "KIT CARSON ELECTRIC COOP, INC",
+      "STATE": "NM"
+    },
+    {
+      "NAME": "BIG HORN COUNTY ELEC COOP, INC",
+      "STATE": "MT"
+    },
+    {
+      "NAME": "TOWN OF SPRINGER - (NM)",
+      "STATE": "NM"
+    },
+    {
+      "NAME": "TONGUE RIVER ELECTRIC COOP INC",
+      "STATE": "MT"
+    }
+  ]
+}

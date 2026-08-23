@@ -1,0 +1,20 @@
+{
+ "united-corporation#1": ["39001","39015","39017","39025","39027","39047","39057","39061","39071","39113","39165"],
+ "united-corporation#2": ["39021","39023","39029","39097","39099","39133","39151","39153","39155","39171"],
+ "ebasco#1": ["39003","39011","39031","39033","39059","39087","39119","39127","39137","39157","39161"],
+ "insull-middle-west#3": ["39037","39107","39109","39149"],
+ "insull-middle-west": ["39041","39093","39101","39103","39117","39159"],
+ "united-light-power": ["39009","39049","39053","39079","39089","39105","39129","39131","39145","39163"],
+ "cities-service": ["39039","39069","39075","39095","39123","39143","39173"],
+ "north-american": ["39007","39035","39055","39085"],
+ "maybe:insull-middle-west": ["39077"],
+ "unknown-served": ["39043"],
+ "amb:cities-service|ebasco": ["39019","39063","39073","39139","39147"],
+ "amb:cities-service|insull-middle-west": ["39005","39083","39169"],
+ "amb:cities-service|united-corporation": ["39051"],
+ "amb:cities-service|united-light-power": ["39045","39141"],
+ "amb:ebasco|insull-middle-west": ["39013","39065","39067","39081","39111","39115","39121","39125","39175"],
+ "amb:ebasco|united-corporation": ["39091"],
+ "amb:insull-middle-west|united-corporation": ["39135"],
+ "amb:american-water-works|insull-middle-west": ["39167"]
+}

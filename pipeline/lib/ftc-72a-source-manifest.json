@@ -1,0 +1,28 @@
+{
+  "source": {
+    "title": "Federal Trade Commission, Utility Corporations, Senate Document 92, Part 72-A",
+    "url": "https://www.govinfo.gov/content/pkg/SERIALSET-08858_57_02/pdf/SERIALSET-08858_57_02.pdf",
+    "bytes": 752450511,
+    "sha256": "021a6ae6767b896884cb7cbb8ca91e9c211cd40115bc1be3a1392de92432a87a"
+  },
+  "plates": {
+    "map3": {
+      "source_year": 1925,
+      "pdf_page_index": 88,
+      "pdf_page_number": 89,
+      "width": 5111,
+      "height": 3789,
+      "extracted_png_sha256": "8de9f611eaadd148502dac94e1de2f6558d6df33e35dcb8ab5fe334896e1fdd1",
+      "georeference_rms_pixels": 2.37
+    },
+    "map4": {
+      "source_year": 1932,
+      "pdf_page_index": 89,
+      "pdf_page_number": 90,
+      "width": 5521,
+      "height": 3784,
+      "extracted_png_sha256": "d8d4e5a1c2c0e5e4f59fc6baf1e8d0673351d734bb165f32595b3153c0e7330",
+      "georeference_status": "not-built"
+    }
+  }
+}

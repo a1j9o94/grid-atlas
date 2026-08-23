@@ -1,0 +1,46 @@
+{
+  "status": "rejected_by_blind_landmark_audit",
+  "source_image": "data-raw/ftc72a/map4-1932.png",
+  "source_sha256": "d8d4e5a1c2c0e5e4f59fc6baf1e8d0673351d734bb165f32595b3153c0e7330a",
+  "source_dimensions": [5521, 3784],
+  "projection": "Albers conic, lat0 23 lon0 -96 sp 29.5/45.5, R 6370997, projected coordinates scaled to Mm",
+  "order": 3,
+  "coeff": [
+    3013.0935370825637,
+    925.0524817771017,
+    -27.48592689813179,
+    -9.519785454060287,
+    -7.032974092712369,
+    -8.28711159112479,
+    0.9360647594716673,
+    5.749198496268983,
+    0.9097820300267401,
+    -1.8489894433041194,
+    3438.130675746267,
+    -59.34995837192581,
+    -894.6838061777795,
+    -2.870189944747578,
+    -22.90246238785102,
+    20.73472704590321,
+    2.8925973655575468,
+    1.616030699729574,
+    7.407966088897541,
+    -2.3914339583585202
+  ],
+  "fit_method": {
+    "independence_from_map3_coefficients": "Map III coefficients were not copied, rescaled, transformed, or used as optimizer parameters.",
+    "coarse_seed": "Four Map IV landmarks read from the Map IV raster supplied an affine start.",
+    "coarse_landmarks_lon_lat": [[-124.73, 48.38], [-97.15, 25.96], [-81.10, 25.20], [-67.0, 44.90]],
+    "coarse_landmarks_map4_pixels": [[745.0, 480.0], [2680.0, 3320.0], [4410.0, 3420.0], [4780.0, 565.0]],
+    "refinement": "Map IV local texture energy along state borders, followed by normal-direction ICP against the national land boundary; polynomial order promoted from affine to quadratic to cubic."
+  },
+  "retained_outline_fit_statistics": {
+    "sample_count": 1303,
+    "rms_pixels": 2.4032675362090474,
+    "p95_pixels": 3.9811047731645086,
+    "max_pixels": 4.483668431836881,
+    "warning": "These are residuals to the final retained ICP targets, not a withheld control-point accuracy estimate."
+  },
+  "map3_seed_assessment": "Map III's projection family and control-point strategy are reusable. Map III's pixel coefficients are not reusable because the Map IV scan has a different width, placement, crop, fold profile, and local warp.",
+  "release_gate": "FAILED: the frozen blind landmark audit measured 159.91 px RMS and 289.94 px maximum on eight interstate junctions. Do not use for county masks; refit and repeat independent validation."
+}

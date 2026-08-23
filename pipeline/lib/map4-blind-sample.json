@@ -1,0 +1,2325 @@
+{
+ "schema": "map4-blind-sample/1",
+ "status": "complete",
+ "plate": "data-raw/ftc72a/map4-1932.png, 5521 x 3784",
+ "georef": "lib/ftc-map4-georef.json, order 3 on Albers",
+ "legend": "lib/map4-legend-patterns.md and lib/plate_legend_map4.py",
+ "purpose": "Independent blind second read of a deterministic stratified sample of Map IV counties, to be adjudicated against the full trace in lib/map4-county-trace.json. That file was not opened at any point during this read, and no commit or log entry about it was read.",
+ "sampling_rule": {
+  "universe": "lib/counties-conus-fips.json, 3,108 CONUS plus DC county equivalents",
+  "rule": "Sort all 3,108 canonical FIPS ascending as zero-padded strings. Take every 7th starting at index 0, that is indices 0, 7, 14, ... 3101.",
+  "stride": 7,
+  "offset": 0,
+  "drawn": 444,
+  "target_was": 400,
+  "deviation_note": "The brief asked for 400 counties drawn by taking every 7th and then topping up to 400 from the remainder at the same stride offset. Stride 7 over 3,108 yields 444, not fewer than 400, so the top-up step is moot. Truncating the stride sequence at 400 would have stopped at FIPS 48xxx and dropped Utah, Vermont, Virginia, Washington, West Virginia, Wisconsin and Wyoming entirely, which is a worse sample. The full 444 are read and reported. The draw is reproducible from the rule above and was fixed before any county was looked at.",
+  "known_gaps": "Stride 7 happens to select no county in DC (1 county) or Rhode Island (5 counties). No county was hand added or hand removed."
+ },
+ "method": {
+  "identification": "Modern county mesh projected onto plate pixels with the shipped order-3 georef. Per county the largest ring is rasterised, eroded by 4 px, and the largest inscribed square inside the eroded mask is taken as the measurement window.",
+  "reading": "Every county was looked at as an 8x crop with the measurement window marked by corner ticks, 20 counties to a contact sheet, 23 sheets. Regional views at 3x to 6x were used where a patch boundary or a numeral needed context. Structure and stroke weight decided the verdict; the measurements below were a numeric aid, never the verdict.",
+  "measurements": "lib/plate_measure.py Radon path for orientation and perpendicular period, plus stroke width. Two extra discriminators were built for this read and are described in findings.",
+  "numerals": "A numeral is appended only where a circle was actually legible in the county or in the same contiguous same-texture patch in a regional view. No numeral was inferred from geography alone."
+ },
+ "confidence_vocabulary": {
+  "firm": "structure and, where relevant, the numeral were read unambiguously in the county itself",
+  "leaning": "the mark is the best fit but the window is small, straddles a patch edge, or the family rank is close",
+  "unreadable": "no usable window: label box, coast or river ink, independent city, or mesh offset larger than the county"
+ },
+ "counts": {
+  "counties_read": 444,
+  "by_confidence": {
+   "firm": 32,
+   "leaning": 379,
+   "unreadable": 33
+  },
+  "with_numeral": 83,
+  "exact_key": 299,
+  "ambiguous": 57,
+  "maybe": 24,
+  "none": 32,
+  "unknown_served": 32
+ },
+ "counties": {
+  "01001": {
+   "verdict": "united-corporation#2",
+   "confidence": "firm",
+   "note": "circle read in county"
+  },
+  "01015": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "texture firm, numeral propagated"
+  },
+  "01029": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "fold/shadow ground, rails+dashes still legible"
+  },
+  "01043": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "texture firm, numeral propagated"
+  },
+  "01057": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "texture firm, numeral propagated"
+  },
+  "01071": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "texture firm, numeral propagated"
+  },
+  "01085": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "texture firm, numeral propagated"
+  },
+  "01099": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "texture firm, numeral propagated"
+  },
+  "01113": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "texture firm, numeral propagated"
+  },
+  "01127": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "texture firm, numeral propagated"
+  },
+  "04007": {
+   "verdict": "tri-utilities",
+   "confidence": "leaning",
+   "note": "fine uniform horizontal rules p~6.3, no dash row; geography odd"
+  },
+  "04019": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash p~14 stroke 6; geography odd"
+  },
+  "05005": {
+   "verdict": "ebasco#4",
+   "confidence": "leaning",
+   "note": "p01 mottle firm, numeral propagated"
+  },
+  "05019": {
+   "verdict": "ebasco#4",
+   "confidence": "leaning",
+   "note": "p01 mottle firm, numeral propagated"
+  },
+  "05033": {
+   "verdict": "maybe:standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes plus river/border ink"
+  },
+  "05047": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes, dash ratio 0.38"
+  },
+  "05061": {
+   "verdict": "insull-middle-west",
+   "confidence": "firm",
+   "note": "clean square grid p 8.7"
+  },
+  "05075": {
+   "verdict": "maybe:ebasco",
+   "confidence": "leaning",
+   "note": "window on blank, p01 abuts to the south"
+  },
+  "05089": {
+   "verdict": "ebasco#4",
+   "confidence": "firm",
+   "note": "circle read in county"
+  },
+  "05103": {
+   "verdict": "ebasco#4",
+   "confidence": "leaning",
+   "note": "p01 mottle firm, numeral propagated"
+  },
+  "05117": {
+   "verdict": "ebasco#4",
+   "confidence": "leaning",
+   "note": "p01 mottle, numeral propagated from Marion patch"
+  },
+  "05131": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes at Fort Smith"
+  },
+  "05145": {
+   "verdict": "ebasco#4",
+   "confidence": "leaning",
+   "note": "p01 mottle, numeral propagated from Marion patch"
+  },
+  "06009": {
+   "verdict": "pacific-gas-electric",
+   "confidence": "firm",
+   "note": "dot in diamond, unmistakable"
+  },
+  "06023": {
+   "verdict": "pacific-gas-electric",
+   "confidence": "leaning",
+   "note": "dot-in-diamond, window straddles coast/edge"
+  },
+  "06037": {
+   "verdict": "none",
+   "confidence": "firm",
+   "note": "bare paper; SCE and LADWP are in no listed group"
+  },
+  "06051": {
+   "verdict": "amb:nevada-california|pacific-gas-electric",
+   "confidence": "leaning",
+   "note": "window straddles both patches"
+  },
+  "06065": {
+   "verdict": "nevada-california",
+   "confidence": "leaning",
+   "note": "sparse slash dashes, ink 0.10"
+  },
+  "06079": {
+   "verdict": "pacific-gas-electric",
+   "confidence": "firm",
+   "note": "dot in diamond, unmistakable"
+  },
+  "06093": {
+   "verdict": "pacific-gas-electric",
+   "confidence": "leaning",
+   "note": "dot-in-diamond, window straddles coast/edge"
+  },
+  "06107": {
+   "verdict": "maybe:pacific-gas-electric",
+   "confidence": "leaning",
+   "note": "window half on blank, lattice to the south"
+  },
+  "08005": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper, border ink only"
+  },
+  "08017": {
+   "verdict": "none",
+   "confidence": "firm",
+   "note": "bare paper ink 0.04"
+  },
+  "08031": {
+   "verdict": "north-american",
+   "confidence": "leaning",
+   "note": "thin wide slash; ranked against Joplin and Decatur reference fills"
+  },
+  "08045": {
+   "verdict": "north-american",
+   "confidence": "leaning",
+   "note": "thin wide slash; ranked against Joplin and Decatur reference fills"
+  },
+  "08059": {
+   "verdict": "north-american",
+   "confidence": "leaning",
+   "note": "thin wide slash; ranked against Joplin and Decatur reference fills"
+  },
+  "08073": {
+   "verdict": "united-corporation#6",
+   "confidence": "leaning",
+   "note": "circle read in county; numeral resolves implausibly"
+  },
+  "08087": {
+   "verdict": "north-american",
+   "confidence": "leaning",
+   "note": "thin wide slash; ranked against Joplin and Decatur reference fills"
+  },
+  "08101": {
+   "verdict": "north-american",
+   "confidence": "leaning",
+   "note": "thin wide slash; ranked against Joplin and Decatur reference fills"
+  },
+  "08115": {
+   "verdict": "north-american",
+   "confidence": "leaning",
+   "note": "thin wide slash; ranked against Joplin and Decatur reference fills"
+  },
+  "09003": {
+   "verdict": "new-england-power",
+   "confidence": "leaning",
+   "note": "bold horizontal p~16 stroke 4.7"
+  },
+  "10001": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "clean square grid p 7.7; geography surprising"
+  },
+  "12007": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle, no window"
+  },
+  "12021": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "Everglades swamp symbol, ink not a fill"
+  },
+  "12037": {
+   "verdict": "maybe:insull-middle-west",
+   "confidence": "leaning",
+   "note": "grid at top, heavy coast ink"
+  },
+  "12051": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "Everglades swamp symbol, ink not a fill"
+  },
+  "12065": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "leaning",
+   "note": "grid patch, numeral propagated"
+  },
+  "12079": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "leaning",
+   "note": "grid patch, numeral propagated"
+  },
+  "12091": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "circled 2 in county, rails to the east"
+  },
+  "12105": {
+   "verdict": "age",
+   "confidence": "leaning",
+   "note": "bold backslash p~12 stroke 3.7"
+  },
+  "12119": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "grid at window, bold slash abuts east"
+  },
+  "12133": {
+   "verdict": "amb:insull-middle-west|united-corporation",
+   "confidence": "leaning",
+   "note": "window straddles grid and rails"
+  },
+  "13013": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails, numeral propagated"
+  },
+  "13027": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "leaning",
+   "note": "grid patch, numeral propagated"
+  },
+  "13043": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails, numeral propagated"
+  },
+  "13057": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails, numeral propagated"
+  },
+  "13071": {
+   "verdict": "maybe:insull-middle-west",
+   "confidence": "leaning",
+   "note": "window on the grid patch edge"
+  },
+  "13085": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails, numeral propagated"
+  },
+  "13099": {
+   "verdict": "maybe:united-corporation",
+   "confidence": "leaning",
+   "note": "window largely blank, rails abut"
+  },
+  "13113": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails, numeral propagated"
+  },
+  "13127": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13141": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13155": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13169": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13183": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "leaning",
+   "note": "square grid patch"
+  },
+  "13197": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13213": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13227": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13241": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13255": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13269": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13283": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "13297": {
+   "verdict": "united-corporation#2",
+   "confidence": "firm",
+   "note": "circle read in county"
+  },
+  "13311": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns, numeral propagated"
+  },
+  "16003": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Idaho Power was an American Power & Light company"
+  },
+  "16017": {
+   "verdict": "maybe:ebasco",
+   "confidence": "leaning",
+   "note": "p01-like mottle broken by lake/river white"
+  },
+  "16031": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Idaho Power was an American Power & Light company"
+  },
+  "16045": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Idaho Power was an American Power & Light company"
+  },
+  "16059": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper"
+  },
+  "16073": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper"
+  },
+  "16087": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "17013": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid p~7.5"
+  },
+  "17027": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash, wide"
+  },
+  "17041": {
+   "verdict": "amb:insull-middle-west|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles the patch edge"
+  },
+  "17055": {
+   "verdict": "amb:insull-middle-west|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles the patch edge"
+  },
+  "17069": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid p~7.5"
+  },
+  "17083": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid p~7.5"
+  },
+  "17097": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash, wide"
+  },
+  "17111": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash, wide"
+  },
+  "17125": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid p~7.5"
+  },
+  "17139": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash, wide"
+  },
+  "17153": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid p~7.5"
+  },
+  "17167": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid p~7.5"
+  },
+  "17181": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid p~7.5"
+  },
+  "17195": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid p~7.5"
+  },
+  "18005": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, ink 0.22 to 0.45"
+  },
+  "18019": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, ink 0.22 to 0.45"
+  },
+  "18033": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, ink 0.22 to 0.45"
+  },
+  "18047": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, ink 0.22 to 0.45"
+  },
+  "18061": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, ink 0.22 to 0.45"
+  },
+  "18075": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, light"
+  },
+  "18089": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, light"
+  },
+  "18103": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, light"
+  },
+  "18117": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, light"
+  },
+  "18131": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, light"
+  },
+  "18145": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, light"
+  },
+  "18159": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, light"
+  },
+  "18173": {
+   "verdict": "insull-other",
+   "confidence": "leaning",
+   "note": "open diagonal crosshatch, light"
+  },
+  "19003": {
+   "verdict": "united-light-power",
+   "confidence": "firm",
+   "note": "columns of short vertical dashes, no continuous rule"
+  },
+  "19017": {
+   "verdict": "utilities-power-light",
+   "confidence": "leaning",
+   "note": "dark ground, large white rounded diamonds"
+  },
+  "19031": {
+   "verdict": "central-states-electric",
+   "confidence": "leaning",
+   "note": "thin diagonal lattice with dark node at crossings"
+  },
+  "19045": {
+   "verdict": "central-states-electric",
+   "confidence": "leaning",
+   "note": "thin diagonal lattice with dark node at crossings"
+  },
+  "19059": {
+   "verdict": "utilities-power-light",
+   "confidence": "leaning",
+   "note": "dark ground, large white rounded diamonds"
+  },
+  "19073": {
+   "verdict": "amb:north-american-light|united-light-power",
+   "confidence": "leaning",
+   "note": "window straddles slash and dash-column patches"
+  },
+  "19087": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "window largely on blank paper"
+  },
+  "19101": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "window largely on blank paper"
+  },
+  "19115": {
+   "verdict": "central-states-electric",
+   "confidence": "leaning",
+   "note": "thin diagonal lattice with dark node at crossings"
+  },
+  "19129": {
+   "verdict": "ebasco#2",
+   "confidence": "firm",
+   "note": "circle read in county on p01 mottle"
+  },
+  "19143": {
+   "verdict": "utilities-power-light",
+   "confidence": "leaning",
+   "note": "dark ground, large white rounded diamonds"
+  },
+  "19157": {
+   "verdict": "central-states-electric",
+   "confidence": "leaning",
+   "note": "thin diagonal lattice with dark node at crossings"
+  },
+  "19171": {
+   "verdict": "central-states-electric",
+   "confidence": "leaning",
+   "note": "thin diagonal lattice with dark nodes"
+  },
+  "19185": {
+   "verdict": "none",
+   "confidence": "firm",
+   "note": "bare paper ink 0.03"
+  },
+  "20001": {
+   "verdict": "amb:american-commonwealths|american-water-works",
+   "confidence": "leaning",
+   "note": "dash rows clear, continuous rule not resolvable in the window"
+  },
+  "20015": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "20029": {
+   "verdict": "insull-middle-west#4",
+   "confidence": "leaning",
+   "note": "grid patch, numeral propagated"
+  },
+  "20043": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash p 13 to 16 stroke 4.5 to 5.5"
+  },
+  "20057": {
+   "verdict": "insull-middle-west#4",
+   "confidence": "firm",
+   "note": "circle read in county on the grid"
+  },
+  "20071": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank, dark band is the state line"
+  },
+  "20085": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash p 13 to 16 stroke 4.5 to 5.5"
+  },
+  "20099": {
+   "verdict": "amb:ebasco|insull-middle-west",
+   "confidence": "leaning",
+   "note": "window straddles mottle and grid"
+  },
+  "20113": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash p 13 to 16 stroke 4.5 to 5.5"
+  },
+  "20127": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash p 13 to 16 stroke 4.5 to 5.5"
+  },
+  "20141": {
+   "verdict": "insull-middle-west#4",
+   "confidence": "firm",
+   "note": "circle read in county on the grid"
+  },
+  "20155": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash p 13 to 16 stroke 4.5 to 5.5"
+  },
+  "20169": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash p 13 to 16 stroke 4.5 to 5.5"
+  },
+  "20183": {
+   "verdict": "insull-middle-west#4",
+   "confidence": "leaning",
+   "note": "grid patch, numeral propagated"
+  },
+  "20197": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash p 13 to 16 stroke 4.5 to 5.5"
+  },
+  "21001": {
+   "verdict": "unknown-served",
+   "confidence": "leaning",
+   "note": "faint, state label box over the fill"
+  },
+  "21015": {
+   "verdict": "amb:united-corporation|united-light-power",
+   "confidence": "unreadable",
+   "note": "no window, Cincinnati edge"
+  },
+  "21029": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "sparse backslash dashes south of Louisville"
+  },
+  "21043": {
+   "verdict": "ebasco#1",
+   "confidence": "firm",
+   "note": "circle read in county on p01 mottle"
+  },
+  "21057": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "window on blank paper"
+  },
+  "21071": {
+   "verdict": "ebasco#1",
+   "confidence": "firm",
+   "note": "circle read in county on p01 mottle"
+  },
+  "21085": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "21099": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "21113": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "21127": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "window on blank paper"
+  },
+  "21141": {
+   "verdict": "amb:american-electric-power-corp|stone-webster",
+   "confidence": "leaning",
+   "note": "backslash p 11.7 stroke 3.0, too thin for age"
+  },
+  "21155": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "21169": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "21183": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "21197": {
+   "verdict": "maybe:insull-middle-west",
+   "confidence": "unreadable",
+   "note": "no window, grid abuts blank"
+  },
+  "21211": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "21225": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash"
+  },
+  "21239": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "22013": {
+   "verdict": "amb:american-commonwealths|american-water-works",
+   "confidence": "leaning",
+   "note": "dash rows clear, continuous rule not resolvable in the window"
+  },
+  "22027": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "state label box over the fill"
+  },
+  "22041": {
+   "verdict": "maybe:ebasco",
+   "confidence": "leaning",
+   "note": "window on blank, p01 mottle abuts"
+  },
+  "22055": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash"
+  },
+  "22069": {
+   "verdict": "american-commonwealths",
+   "confidence": "leaning",
+   "note": "rows of brick-offset horizontal dashes, no continuous rule"
+  },
+  "22083": {
+   "verdict": "ebasco#4",
+   "confidence": "firm",
+   "note": "circle read in county on p01 mottle"
+  },
+  "22097": {
+   "verdict": "amb:cities-service|north-american",
+   "confidence": "leaning",
+   "note": "slash p~10, stroke 3.0, between the two"
+  },
+  "22111": {
+   "verdict": "ebasco#4",
+   "confidence": "leaning",
+   "note": "p01 mottle, numeral propagated"
+  },
+  "22125": {
+   "verdict": "amb:cities-service|north-american",
+   "confidence": "leaning",
+   "note": "slash p~10, stroke 3.0, between the two"
+  },
+  "23011": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, slightly tilted engraving"
+  },
+  "23025": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, slightly tilted engraving"
+  },
+  "24009": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "label box, coast ink or no window"
+  },
+  "24023": {
+   "verdict": "american-water-works",
+   "confidence": "leaning",
+   "note": "continuous rules alternating with dash rows"
+  },
+  "24037": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "label box, coast ink or no window"
+  },
+  "25001": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "label box, coast ink or no window"
+  },
+  "25015": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "label box, coast ink or no window"
+  },
+  "26001": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank"
+  },
+  "26015": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails; legend verifies n2 in Eaton Co next door"
+  },
+  "26029": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "label box, coast ink or no window"
+  },
+  "26043": {
+   "verdict": "amb:north-american|north-american-light",
+   "confidence": "leaning",
+   "note": "slash p~18, stroke between thin and bold"
+  },
+  "26057": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails; legend verifies n2 in Eaton Co next door"
+  },
+  "26071": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash"
+  },
+  "26085": {
+   "verdict": "amb:insull-middle-west|united-corporation",
+   "confidence": "leaning",
+   "note": "window shows rails plus dashes; the legend places its p02 numeral 4 here"
+  },
+  "26099": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "26113": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "26127": {
+   "verdict": "insull-middle-west#4",
+   "confidence": "firm",
+   "note": "circle read in county on the grid"
+  },
+  "26141": {
+   "verdict": "maybe:insull-middle-west",
+   "confidence": "leaning",
+   "note": "grid at south, blank at window"
+  },
+  "26155": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails"
+  },
+  "27003": {
+   "verdict": "tri-utilities",
+   "confidence": "leaning",
+   "note": "fine uniform horizontal rules p~5.9 stroke 2.3"
+  },
+  "27017": {
+   "verdict": "amb:ebasco|tri-utilities",
+   "confidence": "leaning",
+   "note": "window straddles mottle and fine horizontal rules"
+  },
+  "27031": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank"
+  },
+  "27045": {
+   "verdict": "utilities-power-light",
+   "confidence": "leaning",
+   "note": "dark ground, large white rounded diamonds"
+  },
+  "27059": {
+   "verdict": "tri-utilities",
+   "confidence": "leaning",
+   "note": "fine uniform horizontal rules p~5.9 stroke 2.3"
+  },
+  "27073": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank"
+  },
+  "27087": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes, light"
+  },
+  "27101": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes, light"
+  },
+  "27115": {
+   "verdict": "amb:ebasco|tri-utilities",
+   "confidence": "leaning",
+   "note": "window straddles mottle and fine horizontal rules"
+  },
+  "27129": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes, light"
+  },
+  "27143": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes, light"
+  },
+  "27157": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes, light"
+  },
+  "27171": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes, light"
+  },
+  "28011": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle, Mississippi delta"
+  },
+  "28025": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails"
+  },
+  "28039": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails"
+  },
+  "28053": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "window ink 0.05"
+  },
+  "28067": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails"
+  },
+  "28081": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails"
+  },
+  "28095": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails"
+  },
+  "28109": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails"
+  },
+  "28123": {
+   "verdict": "amb:ebasco|united-corporation",
+   "confidence": "leaning",
+   "note": "window straddles mottle and rails"
+  },
+  "28137": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "28151": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "29001": {
+   "verdict": "maybe:north-american-light",
+   "confidence": "leaning",
+   "note": "window on blank, bold slash abuts"
+  },
+  "29015": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "29029": {
+   "verdict": "amb:insull-middle-west|utilities-power-light",
+   "confidence": "leaning",
+   "note": "window on the patch edge"
+  },
+  "29043": {
+   "verdict": "cities-service",
+   "confidence": "leaning",
+   "note": "fine slash p 8.1, matches the Joplin fill next door"
+  },
+  "29057": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "29071": {
+   "verdict": "amb:united-corporation|united-light-power",
+   "confidence": "leaning",
+   "note": "vertical, alternation 0.27 favours rails"
+  },
+  "29085": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "29099": {
+   "verdict": "north-american",
+   "confidence": "leaning",
+   "note": "thin wide slash, Union Electric territory"
+  },
+  "29113": {
+   "verdict": "amb:insull-middle-west|utilities-power-light",
+   "confidence": "leaning",
+   "note": "window on the patch edge"
+  },
+  "29127": {
+   "verdict": "amb:north-american|north-american-light",
+   "confidence": "leaning",
+   "note": "slash, stroke between the two"
+  },
+  "29141": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "29155": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "29169": {
+   "verdict": "utilities-power-light",
+   "confidence": "leaning",
+   "note": "large white rounded diamonds on dark"
+  },
+  "29183": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "29199": {
+   "verdict": "amb:ebasco|north-american-light",
+   "confidence": "leaning",
+   "note": "window on the patch edge"
+  },
+  "29213": {
+   "verdict": "amb:ebasco|north-american-light",
+   "confidence": "leaning",
+   "note": "window on the patch edge"
+  },
+  "29227": {
+   "verdict": "united-light-power",
+   "confidence": "leaning",
+   "note": "columns of vertical dashes, no continuous rule"
+  },
+  "30009": {
+   "verdict": "ebasco#2",
+   "confidence": "leaning",
+   "note": "p01 in regional view, circle in the same patch"
+  },
+  "30023": {
+   "verdict": "ebasco#2",
+   "confidence": "leaning",
+   "note": "p01 in regional view, circle in the same patch"
+  },
+  "30037": {
+   "verdict": "ebasco#2",
+   "confidence": "leaning",
+   "note": "p01 in regional view, circle in the same patch"
+  },
+  "30051": {
+   "verdict": "maybe:ebasco",
+   "confidence": "leaning",
+   "note": "window straddles blank and the p01 patch"
+  },
+  "30065": {
+   "verdict": "ebasco#2",
+   "confidence": "leaning",
+   "note": "p01 in regional view, circle in the same patch"
+  },
+  "30079": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank, ink 0.03"
+  },
+  "30093": {
+   "verdict": "ebasco#2",
+   "confidence": "leaning",
+   "note": "p01 in regional view, circle in the same patch"
+  },
+  "30107": {
+   "verdict": "ebasco#2",
+   "confidence": "leaning",
+   "note": "p01 in regional view, circle in the same patch"
+  },
+  "31009": {
+   "verdict": "maybe:north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash abutting blank"
+  },
+  "31023": {
+   "verdict": "united-light-power",
+   "confidence": "leaning",
+   "note": "columns of vertical dashes, brick offset"
+  },
+  "31037": {
+   "verdict": "united-light-power",
+   "confidence": "leaning",
+   "note": "columns of vertical dashes, brick offset"
+  },
+  "31051": {
+   "verdict": "utilities-power-light",
+   "confidence": "leaning",
+   "note": "large white rounded diamonds on dark"
+  },
+  "31065": {
+   "verdict": "amb:insull-middle-west|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles grid and slash"
+  },
+  "31079": {
+   "verdict": "amb:insull-middle-west|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles grid and slash"
+  },
+  "31093": {
+   "verdict": "amb:insull-middle-west|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles grid and slash"
+  },
+  "31107": {
+   "verdict": "utilities-power-light",
+   "confidence": "leaning",
+   "note": "large white rounded diamonds on dark"
+  },
+  "31121": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "31135": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash"
+  },
+  "31149": {
+   "verdict": "utilities-power-light",
+   "confidence": "leaning",
+   "note": "large white rounded diamonds on dark"
+  },
+  "31163": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash"
+  },
+  "31177": {
+   "verdict": "united-light-power",
+   "confidence": "leaning",
+   "note": "columns of vertical dashes"
+  },
+  "32005": {
+   "verdict": "nevada-california",
+   "confidence": "leaning",
+   "note": "sparse slash dashes"
+  },
+  "32019": {
+   "verdict": "nevada-california",
+   "confidence": "leaning",
+   "note": "sparse slash dashes"
+  },
+  "32510": {
+   "verdict": "maybe:nevada-california",
+   "confidence": "unreadable",
+   "note": "independent city, no window"
+  },
+  "33013": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, matches the Maine reading"
+  },
+  "34007": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "small dense NJ counties, mesh offset dominates"
+  },
+  "34021": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "small dense NJ counties, mesh offset dominates"
+  },
+  "34035": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "small dense NJ counties, mesh offset dominates"
+  },
+  "35006": {
+   "verdict": "maybe:north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash at the north of the window only"
+  },
+  "35019": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper with foxing, ink 0.02 to 0.18"
+  },
+  "35031": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper with foxing, ink 0.02 to 0.18"
+  },
+  "35045": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper with foxing, ink 0.02 to 0.18"
+  },
+  "35059": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper with foxing, ink 0.02 to 0.18"
+  },
+  "36011": {
+   "verdict": "age",
+   "confidence": "leaning",
+   "note": "bold backslash p 12.6 stroke 5.0; legend age site is Yates Co next door"
+  },
+  "36025": {
+   "verdict": "age",
+   "confidence": "leaning",
+   "note": "bold backslash p 12.6 stroke 5.0; legend age site is Yates Co next door"
+  },
+  "36039": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "36053": {
+   "verdict": "amb:united-corporation|united-light-power",
+   "confidence": "leaning",
+   "note": "vertical dash columns, rule presence unclear"
+  },
+  "36067": {
+   "verdict": "amb:united-corporation|united-light-power",
+   "confidence": "leaning",
+   "note": "vertical dash columns, rule presence unclear"
+  },
+  "36081": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "dense metropolitan crop"
+  },
+  "36095": {
+   "verdict": "amb:united-corporation|united-light-power",
+   "confidence": "leaning",
+   "note": "vertical dash columns, rule presence unclear"
+  },
+  "36109": {
+   "verdict": "age",
+   "confidence": "leaning",
+   "note": "bold backslash; 36123 is the legend age site"
+  },
+  "36123": {
+   "verdict": "age",
+   "confidence": "leaning",
+   "note": "bold backslash; 36123 is the legend age site"
+  },
+  "37013": {
+   "verdict": "amb:ebasco|insull-middle-west",
+   "confidence": "leaning",
+   "note": "window straddles mottle and grid"
+  },
+  "37027": {
+   "verdict": "duke",
+   "confidence": "firm",
+   "note": "isolated black plus marks on a coarse lattice"
+  },
+  "37041": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "coast and sound ink dominate the window"
+  },
+  "37055": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "coast and sound ink dominate the window"
+  },
+  "37069": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Carolina Power & Light is National Power & Light"
+  },
+  "37083": {
+   "verdict": "amb:ebasco|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles mottle and slash"
+  },
+  "37097": {
+   "verdict": "duke",
+   "confidence": "firm",
+   "note": "isolated black plus marks on a coarse lattice"
+  },
+  "37111": {
+   "verdict": "duke",
+   "confidence": "firm",
+   "note": "isolated black plus marks on a coarse lattice"
+  },
+  "37125": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Carolina Power & Light is National Power & Light"
+  },
+  "37139": {
+   "verdict": "amb:ebasco|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles mottle and slash"
+  },
+  "37153": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Carolina Power & Light is National Power & Light"
+  },
+  "37167": {
+   "verdict": "duke",
+   "confidence": "firm",
+   "note": "isolated black plus marks on a coarse lattice"
+  },
+  "37181": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Carolina Power & Light is National Power & Light"
+  },
+  "37195": {
+   "verdict": "amb:ebasco|insull-middle-west",
+   "confidence": "leaning",
+   "note": "window straddles mottle and grid"
+  },
+  "38009": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank; the dark band is the Canadian border"
+  },
+  "38023": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank; the dark band is the Canadian border"
+  },
+  "38037": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "38051": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "38065": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "38079": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank; the dark band is the Canadian border"
+  },
+  "38093": {
+   "verdict": "maybe:insull-middle-west",
+   "confidence": "leaning",
+   "note": "window mostly blank, grid to the south"
+  },
+  "39001": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "39015": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "39029": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "39043": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "Lake Erie shoreline ink"
+  },
+  "39057": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "39071": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "39085": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank, ink 0.04"
+  },
+  "39099": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "circled 2 at the crop edge, may belong to a neighbour"
+  },
+  "39113": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "39127": {
+   "verdict": "unknown-served",
+   "confidence": "leaning",
+   "note": "dark mottle, no clean structure"
+  },
+  "39141": {
+   "verdict": "amb:north-american-light|united-corporation",
+   "confidence": "leaning",
+   "note": "window straddles rails and slash"
+  },
+  "39155": {
+   "verdict": "amb:north-american-light|united-corporation",
+   "confidence": "leaning",
+   "note": "window straddles rails and slash"
+  },
+  "39169": {
+   "verdict": "amb:north-american-light|united-corporation",
+   "confidence": "leaning",
+   "note": "window straddles rails and slash"
+  },
+  "40007": {
+   "verdict": "amb:united-corporation|united-light-power",
+   "confidence": "leaning",
+   "note": "vertical dashes under a label box"
+  },
+  "40021": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "40035": {
+   "verdict": "insull-middle-west#5",
+   "confidence": "firm",
+   "note": "circled 5 read in county on the grid"
+  },
+  "40049": {
+   "verdict": "amb:insull-middle-west|standard-gas",
+   "confidence": "leaning",
+   "note": "window straddles grid and backslash dashes"
+  },
+  "40063": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes; legend lists Oklahoma City for p20"
+  },
+  "40077": {
+   "verdict": "insull-middle-west#1",
+   "confidence": "leaning",
+   "note": "circle in county reads 1, glyph partly clipped"
+  },
+  "40091": {
+   "verdict": "amb:insull-middle-west|standard-gas",
+   "confidence": "leaning",
+   "note": "window straddles grid and backslash dashes"
+  },
+  "40105": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "40119": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes; legend lists Oklahoma City for p20"
+  },
+  "40133": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes; legend lists Oklahoma City for p20"
+  },
+  "40147": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "41007": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes"
+  },
+  "41021": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "41035": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes"
+  },
+  "41049": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "41063": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "42005": {
+   "verdict": "american-water-works",
+   "confidence": "leaning",
+   "note": "continuous rules alternating with dash rows"
+  },
+  "42019": {
+   "verdict": "american-water-works",
+   "confidence": "leaning",
+   "note": "continuous rules alternating with dash rows"
+  },
+  "42033": {
+   "verdict": "age",
+   "confidence": "leaning",
+   "note": "bold backslash p 11.9"
+  },
+  "42047": {
+   "verdict": "american-water-works",
+   "confidence": "leaning",
+   "note": "continuous rules alternating with dash rows"
+  },
+  "42061": {
+   "verdict": "ebasco#1",
+   "confidence": "leaning",
+   "note": "circled 1 on dark mottle"
+  },
+  "42075": {
+   "verdict": "amb:age|north-american-light",
+   "confidence": "leaning",
+   "note": "bold diagonal, slope not settled in the window"
+  },
+  "42089": {
+   "verdict": "ebasco#1",
+   "confidence": "leaning",
+   "note": "circled 1 on dark mottle"
+  },
+  "42103": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "circles present, host texture and digits not resolvable"
+  },
+  "42117": {
+   "verdict": "age",
+   "confidence": "leaning",
+   "note": "bold backslash"
+  },
+  "42131": {
+   "verdict": "age",
+   "confidence": "leaning",
+   "note": "bold backslash"
+  },
+  "45001": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails, circled 2 nearby"
+  },
+  "45015": {
+   "verdict": "maybe:united-corporation",
+   "confidence": "leaning",
+   "note": "window largely blank, rails to the south"
+  },
+  "45029": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails, circled 2 nearby"
+  },
+  "45043": {
+   "verdict": "united-corporation#2",
+   "confidence": "leaning",
+   "note": "p04 rails, circled 2 nearby"
+  },
+  "45057": {
+   "verdict": "duke",
+   "confidence": "firm",
+   "note": "isolated black plus marks"
+  },
+  "45071": {
+   "verdict": "duke",
+   "confidence": "leaning",
+   "note": "plus marks at the window, slash abuts east"
+  },
+  "45085": {
+   "verdict": "amb:ebasco|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles mottle and slash"
+  },
+  "46009": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "46023": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "46037": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "46051": {
+   "verdict": "maybe:insull-middle-west",
+   "confidence": "leaning",
+   "note": "window largely blank"
+  },
+  "46065": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "window ink 0.10"
+  },
+  "46079": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "46093": {
+   "verdict": "amb:american-commonwealths|american-water-works",
+   "confidence": "leaning",
+   "note": "rows of horizontal dashes"
+  },
+  "46105": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "state label box fills the window"
+  },
+  "46121": {
+   "verdict": "none",
+   "confidence": "firm",
+   "note": "blank, ink 0.02"
+  },
+  "47001": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47015": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47029": {
+   "verdict": "amb:ebasco|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles mottle and slash"
+  },
+  "47043": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47057": {
+   "verdict": "maybe:ebasco",
+   "confidence": "leaning",
+   "note": "window largely blank, mottle to the south"
+  },
+  "47071": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47085": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47099": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47113": {
+   "verdict": "ebasco#3",
+   "confidence": "firm",
+   "note": "circled 3 read in county on p01 mottle"
+  },
+  "47127": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47141": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47155": {
+   "verdict": "maybe:united-corporation",
+   "confidence": "leaning",
+   "note": "window largely blank, rails abut"
+  },
+  "47169": {
+   "verdict": "united-corporation",
+   "confidence": "leaning",
+   "note": "p04 rails plus dash columns"
+  },
+  "47183": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "state label box over the fill"
+  },
+  "48007": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "coastal, no window"
+  },
+  "48021": {
+   "verdict": "amb:ebasco|insull-middle-west",
+   "confidence": "leaning",
+   "note": "window straddles p01 mottle and the grid"
+  },
+  "48035": {
+   "verdict": "amb:ebasco|insull-middle-west",
+   "confidence": "leaning",
+   "note": "window straddles p01 mottle and the grid"
+  },
+  "48049": {
+   "verdict": "amb:ebasco|insull-middle-west",
+   "confidence": "leaning",
+   "note": "window straddles p01 mottle and the grid"
+  },
+  "48063": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, west Texas Central & South West field"
+  },
+  "48077": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "48091": {
+   "verdict": "united-light-power",
+   "confidence": "leaning",
+   "note": "columns of vertical dashes, no continuous rule"
+  },
+  "48105": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, west Texas Central & South West field"
+  },
+  "48119": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "48133": {
+   "verdict": "amb:ebasco|insull-middle-west",
+   "confidence": "leaning",
+   "note": "window straddles grid and mottle"
+  },
+  "48147": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "48161": {
+   "verdict": "amb:american-commonwealths|north-american-light",
+   "confidence": "leaning",
+   "note": "window straddles dash rows and slash"
+  },
+  "48175": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, west Texas Central & South West field"
+  },
+  "48189": {
+   "verdict": "american-commonwealths",
+   "confidence": "leaning",
+   "note": "brick-offset horizontal dashes, no continuous rule"
+  },
+  "48203": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, west Texas Central & South West field"
+  },
+  "48217": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "48231": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "48245": {
+   "verdict": "unknown-served",
+   "confidence": "leaning",
+   "note": "bold bands at 21 degrees off horizontal, no legend mark matches"
+  },
+  "48259": {
+   "verdict": "united-light-power",
+   "confidence": "leaning",
+   "note": "columns of vertical dashes, no continuous rule"
+  },
+  "48273": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, west Texas Central & South West field"
+  },
+  "48287": {
+   "verdict": "amb:american-commonwealths|ebasco",
+   "confidence": "leaning",
+   "note": "window straddles dash rows and mottle"
+  },
+  "48301": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, west Texas Central & South West field"
+  },
+  "48315": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, west Texas Central & South West field"
+  },
+  "48329": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, west Texas Central & South West field"
+  },
+  "48343": {
+   "verdict": "insull-middle-west#1",
+   "confidence": "firm",
+   "note": "circled 1 read in county on the grid"
+  },
+  "48357": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48371": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48385": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48399": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48413": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48427": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48441": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48455": {
+   "verdict": "north-american-light",
+   "confidence": "leaning",
+   "note": "bold slash"
+  },
+  "48469": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48483": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "48497": {
+   "verdict": "maybe:ebasco",
+   "confidence": "leaning",
+   "note": "window on blank, mottle to the south"
+  },
+  "49003": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Utah Power & Light is an Electric Bond & Share company"
+  },
+  "49017": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper with foxing, ink 0.03"
+  },
+  "49031": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "bare paper with foxing, ink 0.03"
+  },
+  "49045": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle; Utah Power & Light is an Electric Bond & Share company"
+  },
+  "50001": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid, consistent with the Maine and NH reading"
+  },
+  "50015": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "state label box over the fill"
+  },
+  "51001": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid; geography surprising for Middle West"
+  },
+  "51015": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid; geography surprising for Middle West"
+  },
+  "51029": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "leaning",
+   "note": "grid patch, numeral propagated"
+  },
+  "51043": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "no window, coast ink or independent city"
+  },
+  "51059": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "leaning",
+   "note": "grid patch, numeral propagated"
+  },
+  "51073": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "no window, coast ink or independent city"
+  },
+  "51087": {
+   "verdict": "amb:american-electric-power-corp|stone-webster",
+   "confidence": "unreadable",
+   "note": "backslash, no window; VEPCO was a Stone & Webster property but the pair is unresolvable"
+  },
+  "51101": {
+   "verdict": "amb:american-electric-power-corp|stone-webster",
+   "confidence": "unreadable",
+   "note": "backslash, no window; VEPCO was a Stone & Webster property but the pair is unresolvable"
+  },
+  "51115": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "no window, coast ink or independent city"
+  },
+  "51133": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank"
+  },
+  "51147": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "firm",
+   "note": "circled 11 read in county on the grid"
+  },
+  "51163": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "firm",
+   "note": "circled 11 read in county on the grid"
+  },
+  "51177": {
+   "verdict": "amb:insull-middle-west|stone-webster",
+   "confidence": "leaning",
+   "note": "window straddles grid and backslash"
+  },
+  "51193": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "blank"
+  },
+  "51540": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "leaning",
+   "note": "grid patch, numeral propagated"
+  },
+  "51610": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "no window, coast ink or independent city"
+  },
+  "51678": {
+   "verdict": "insull-middle-west#11",
+   "confidence": "firm",
+   "note": "circled 11 read in county on the grid"
+  },
+  "51720": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "grid, no circle in view"
+  },
+  "51775": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "no window, coast ink or independent city"
+  },
+  "53001": {
+   "verdict": "unknown-served",
+   "confidence": "leaning",
+   "note": "coarse grey stipple, cannot separate p01 from foxed paper"
+  },
+  "53015": {
+   "verdict": "amb:central-public-service|empire-power",
+   "confidence": "leaning",
+   "note": "bold vertical rules near the legend Portland site"
+  },
+  "53029": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "no window, coast ink or independent city"
+  },
+  "53043": {
+   "verdict": "ebasco#2",
+   "confidence": "firm",
+   "note": "circled 2 read in county on p01 mottle"
+  },
+  "53057": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "Cascades relief and shoreline dominate the window"
+  },
+  "53071": {
+   "verdict": "ebasco",
+   "confidence": "leaning",
+   "note": "p01 mottle"
+  },
+  "54007": {
+   "verdict": "amb:american-water-works|insull-middle-west",
+   "confidence": "leaning",
+   "note": "window straddles grid and dash rows"
+  },
+  "54021": {
+   "verdict": "american-water-works",
+   "confidence": "leaning",
+   "note": "continuous rules alternating with dash rows; 54077 is the legend p07 site"
+  },
+  "54035": {
+   "verdict": "none",
+   "confidence": "leaning",
+   "note": "window ink 0.04 to 0.10"
+  },
+  "54049": {
+   "verdict": "american-water-works",
+   "confidence": "leaning",
+   "note": "continuous rules alternating with dash rows; 54077 is the legend p07 site"
+  },
+  "54063": {
+   "verdict": "maybe:insull-middle-west",
+   "confidence": "leaning",
+   "note": "window largely blank, grid abuts"
+  },
+  "54077": {
+   "verdict": "american-water-works",
+   "confidence": "leaning",
+   "note": "continuous rules alternating with dash rows; 54077 is the legend p07 site"
+  },
+  "54091": {
+   "verdict": "unknown-served",
+   "confidence": "unreadable",
+   "note": "state label box over the fill"
+  },
+  "54105": {
+   "verdict": "maybe:american-water-works",
+   "confidence": "leaning",
+   "note": "dash rows at the window, ink low"
+  },
+  "55009": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes"
+  },
+  "55023": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes"
+  },
+  "55037": {
+   "verdict": "amb:north-american-light|united-corporation",
+   "confidence": "leaning",
+   "note": "window straddles rails and slash"
+  },
+  "55051": {
+   "verdict": "maybe:insull-middle-west",
+   "confidence": "leaning",
+   "note": "grid abutting dark, window on the edge"
+  },
+  "55065": {
+   "verdict": "insull-middle-west",
+   "confidence": "leaning",
+   "note": "square grid"
+  },
+  "55078": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes"
+  },
+  "55091": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes"
+  },
+  "55105": {
+   "verdict": "amb:north-american-light|united-corporation",
+   "confidence": "leaning",
+   "note": "window straddles rails and slash"
+  },
+  "55119": {
+   "verdict": "insull-middle-west#12",
+   "confidence": "firm",
+   "note": "circled 12 read in county on the grid"
+  },
+  "55133": {
+   "verdict": "north-american",
+   "confidence": "leaning",
+   "note": "thin wide slash; the legend names Milwaukee for p16"
+  },
+  "56005": {
+   "verdict": "none",
+   "confidence": "firm",
+   "note": "blank, ink 0.07"
+  },
+  "56019": {
+   "verdict": "standard-gas",
+   "confidence": "leaning",
+   "note": "backslash dashes"
+  },
+  "56033": {
+   "verdict": "amb:cities-service|north-american-light",
+   "confidence": "leaning",
+   "note": "slash p~13 stroke 3.5, between the two"
+  }
+ },
+ "findings_on_the_legend": [
+  {
+   "id": "numeral-3-coordinate-is-a-duplicate",
+   "severity": "defect",
+   "claim": "plate_legend_map4.VERIFIED_NUMERALS row (4246, 2384, 3, 'm4:p01', 'National Power & Light Co', 'Carolina Piedmont') is wrong.",
+   "evidence": "At 4246,2384 and at 4232,2392 the plate shows one and the same circled 2 sitting on m4:p04 vertical rails. The two coordinates are 14 px apart and a circle is 22 to 24 px across, so they cannot be two circles. Both fall inside 45075 Orangeburg SC, which is coastal plain, not Piedmont. Two of the nine verified rows point at the same ink.",
+   "consequence": "The scoping rule loses one of its nine supports, and m4:p01:n3 has no correct coordinate in the file.",
+   "repair": "A genuine circled 3 on p01 mottle does exist. I read one at 47113 Madison TN, which is Tennessee Electric Power, a National Power & Light company. The reading is right; only the coordinate is wrong."
+  },
+  {
+   "id": "p13-prose-contradicts-its-own-numbers",
+   "severity": "defect",
+   "claim": "map4-legend-patterns.md describes p13 empire-power as 'vertical rules, thinner than p09' while the same table gives both p09 and p13 stroke 4.2.",
+   "evidence": "My own measurement of both swatches reproduces stroke 4.2 for each. They differ in period, 9.2 against 12.0, and in ink, not in weight.",
+   "consequence": "A tracer told to break p09 from p13 on line weight will fail. The only separator is duty cycle, which is what the confusable section already says."
+  },
+  {
+   "id": "p01-field-ink-range-is-badly-understated",
+   "severity": "important",
+   "claim": "The legend records ebasco as ink 0.98 in the swatch and 0.84 in the fill, with no range.",
+   "evidence": "p01 fills measure window ink 0.30 to 0.37 across Montana, 0.35 to 0.51 across Arkansas, and 0.78 at the Louisiana delta. Montana is one continuous p01 patch carrying a circled 2, unmistakable at 4x regional zoom and easy to mistake for grey stipple or foxed paper at 8x county zoom.",
+   "consequence": "Any ink threshold tuned to 0.84 will drop the entire northern Rockies p01 field and call it unserved or unresolved. This is the single largest systematic error available on this plate.",
+   "repair": "Record p01 field ink as 0.30 to 0.85 and say that p01 is identified by structureless mottle with white pinhole speckle, not by darkness."
+  },
+  {
+   "id": "fill-site-place-names-are-unreliable",
+   "severity": "important",
+   "claim": "Several fill_site place names do not match the county the coordinate lands in under the shipped georef.",
+   "evidence": "age 'north-east Pennsylvania' 4336,1276 lands in 36123 Yates NY. new-england-power 'central Massachusetts' 4752,1180 lands in 33011 Hillsborough NH. ebasco 'Louisiana and Mississippi delta' 3270,2470 lands in 05041 Desha AR. nevada-california 'Owens Valley, eastern California' 1030,1960 lands in 32023 Nye NV. rockland 'Orange and Rockland counties' 4565,1362 lands in 36105 Sullivan NY. numeral 8 'SW Michigan' 3660,1498 lands in 18039 Elkhart IN.",
+   "consequence": "The legend tells a tracer to break p06 from p21 'by geography'. An unreliable geography annotation makes that instruction unsafe. The textures at those coordinates are right; the place names are not."
+  },
+  {
+   "id": "alternation-and-dash-ratio-separate-p04-from-p23",
+   "severity": "addition",
+   "claim": "The legend calls p04 against p23 structural and says it is not separable in a small county. Two cheap measurements do separate them.",
+   "evidence": "Alternation, the ratio of weak to strong peak heights in the perpendicular profile, measures 0.30 for p04 and 0.84 for p23, and 0.34 for p07 against 0.94 for p22. Dash ratio, the along-line standard deviation over the across-line standard deviation, measures 0.15 for p04 against 0.41 for p23, and separates every dashed mark (p05 0.23, p14 0.23, p20 0.44, p23 0.41) from every continuous rule (p06 0.10, p08 0.08, p09 0.04, p11 0.09, p13 0.07, p15 0.08, p16 0.13, p17 0.09, p21 0.07, p22 0.07).",
+   "caveat": "Both hold cleanly on the 40 px swatches. In a 48 px county window the alternation test degrades: the p07 site at 54077 Preston WV returns 0.94, not the 0.34 its swatch gives. Use them as swatch-space discriminators and as a county-space hint, not a county-space rule."
+  },
+  {
+   "id": "numerals-that-resolve-implausibly",
+   "severity": "open question",
+   "claim": "Two numerals read cleanly on a confidently identified host texture and then resolve to a company that cannot have operated there.",
+   "evidence": "A circled 6 sits on m4:p04 rails in a small heavily outlined patch in eastern Colorado around 08073 Lincoln, and again on p04 rails in central Arizona near 1372,2258. m4:p04:n6 is United Gas Improvement, a Philadelphia company. A circled 4 sits on the m4:p02 grid at 20141 Osborne KS and 20057 Ford KS. m4:p02:n4 is Commonwealth Light & Power, which the legend itself places in northern Michigan, and I confirmed a circled 4 on the grid there at 26127 Oceana MI.",
+   "checks_done": "I read the plate's own legend text for all three numbered lists at 4x. plate_legend_map4.NUMBERED is a verbatim correct transcription, so the list is not the problem. The host textures were identified before the numerals, per the legend's own rule.",
+   "consequence": "Either the numeral scoping rule has an exception the legend does not state, or the FTC reused numerals across disjoint regions of one parent. Either way a trace that resolves numerals to company names without a plausibility check will publish wrong attributions. Recorded as read, not silently corrected."
+  },
+  {
+   "id": "unlisted-hazards",
+   "severity": "addition",
+   "claim": "Three reading hazards not in the legend's HAZARDS list.",
+   "evidence": "A bright washed vertical band near x 2130 behaves like the two listed folds. Rectangular western county boundaries are continuous vertical lines and mimic p04 rails when they cross p23 dash columns, which is the exact discriminator the legend relies on. Everglades swamp symbols in 12021 Collier and 12051 Hendry read as ink 0.42 to 0.75 with no fill present at all."
+  }
+ ],
+ "confirmations": [
+  "p12 duke plus marks at 37027 Caldwell NC are exactly as described and are the most distinctive mark on the plate.",
+  "p18 pacific-gas-electric dot-in-diamond is unmistakable and never confusable.",
+  "The mirror-pair weight rule works. 29099 Jefferson MO reads thin wide slash and sits in Union Electric territory, which is The North American Company; 55133 Waukesha WI reads the same and sits in Milwaukee, also North American.",
+  "The numeral scoping rule survives every check it passed. Circled 2 on p04 across Alabama, Georgia, Michigan, Mississippi and South Carolina is Commonwealth & Southern in all five. Circled 11 on the p02 grid is identical in Virginia and in south Georgia, and National Electric Power owned both Virginia Public Service and Georgia Power & Light. Circled 2 on p01 covers Montana, Arizona and eastern Washington, all American Power & Light.",
+  "The legend's swatch table is sound. My independent Radon measurement of all 24 swatches reproduces its period, orientation and stroke columns."
+ ]
+}

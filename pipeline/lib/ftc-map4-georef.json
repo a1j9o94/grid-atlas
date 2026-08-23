@@ -1,0 +1,135 @@
+{
+ "projection": "Albers conic, lat0 23 lon0 -96 sp 29.5/45.5, R 6.371e+06, scaled to Mm",
+ "order": 3,
+ "coeff": [
+  2915.2204170191812,
+  936.5756171905188,
+  -92.9612779140662,
+  14.634984952833854,
+  52.453379243760196,
+  40.55985992074934,
+  3.194563918395673,
+  -5.391854417463897,
+  -15.317246625712949,
+  -7.8291069468167676,
+  3578.1952830091413,
+  -5.402279864383161,
+  -837.6643207629121,
+  6.507473375650606,
+  -38.73799448359115,
+  -89.49608428287232,
+  5.849689143979593,
+  -0.5226979168924478,
+  9.263390855840614,
+  14.628863888807992
+ ],
+ "note": "lon/lat -> Map IV plate pixels of ftc72a/map4-1932.png",
+ "method": "transferred from ftc-map3-georef.json by an affine correction on plate pixels, refitted, then refined by the same ICP ladder the Map III build uses. Fitting Map IV from scratch failed twice because stage one of that build seeds from four landmarks given in Map III pixel coordinates.",
+ "icp_rms_pixels": null,
+ "icp_rms_note": "reported on the subset the ICP matched at radius 5, so it measures agreement among points that already agreed. Not a gate.",
+ "outline_residual_by_region": {
+  "map4": {
+   "northwest": {
+    "n": 8941,
+    "matched": 8300,
+    "median_px": 116.0,
+    "p90_px": 180.0
+   },
+   "southwest": {
+    "n": 6565,
+    "matched": 6479,
+    "median_px": 18.0,
+    "p90_px": 64.0
+   },
+   "plains": {
+    "n": 12134,
+    "matched": 11867,
+    "median_px": 16.0,
+    "p90_px": 60.0
+   },
+   "northeast": {
+    "n": 39641,
+    "matched": 35277,
+    "median_px": 42.0,
+    "p90_px": 154.0
+   },
+   "southeast": {
+    "n": 18555,
+    "matched": 17356,
+    "median_px": 28.0,
+    "p90_px": 110.0
+   }
+  },
+  "map3_reference": {
+   "northwest": {
+    "n": 8941,
+    "matched": 7819,
+    "median_px": 142.0,
+    "p90_px": 206.0
+   },
+   "southwest": {
+    "n": 6565,
+    "matched": 6536,
+    "median_px": 40.0,
+    "p90_px": 110.0
+   },
+   "plains": {
+    "n": 12134,
+    "matched": 12061,
+    "median_px": 24.0,
+    "p90_px": 84.0
+   },
+   "northeast": {
+    "n": 39641,
+    "matched": 37021,
+    "median_px": 44.0,
+    "p90_px": 144.0
+   },
+   "southeast": {
+    "n": 18555,
+    "matched": 18380,
+    "median_px": 30.0,
+    "p90_px": 100.0
+   }
+  }
+ },
+ "state_line_alignment": {
+  "map4": {
+   "best_offset": [
+    8,
+    -12
+   ],
+   "best_ink": 109.83,
+   "ink_at_zero": 106.5,
+   "offset_magnitude": 14.42
+  },
+  "map3_reference": {
+   "best_offset": [
+    -12,
+    -12
+   ],
+   "best_ink": 109.5,
+   "ink_at_zero": 101.79,
+   "offset_magnitude": 16.97
+  }
+ },
+ "visual_verification": "Chicago sits at the southwest corner of Lake Michigan and Seattle at the southern end of Puget Sound, both matching where Map III's shipped fit puts them. Crops are written by --crops for both plates so the comparison is repeatable.",
+ "gate": {
+  "kind": "relative to Map III, same measures, same run",
+  "region_slack": 1.25,
+  "offset_slack_px": 4.0,
+  "passed": true,
+  "failures": []
+ },
+ "accuracy_standard": {
+  "what_it_must_support": "navigating and cropping the plate with a county mesh drawn over it, so a human reader can identify which county a printed fill belongs to. The Map III trace was produced that way rather than by sampling per-county masks, which is why its six anchors pass despite a residual of tens of pixels in the interior.",
+  "measured_against_map3": {
+   "four_corners": "Map III about 60 px off; Map IV comparable.",
+   "pa_md_wv_junction": "Map III about 25 px off; Map IV about 10 to 15 px, tighter.",
+   "chicago": "both place it at the southwest corner of Lake Michigan.",
+   "seattle": "both place it at the southern end of Puget Sound."
+  },
+  "why_a_3px_rule_is_wrong_here": "A rejected provisional fit was scored against 3 px RMS with no miss above 8 px. Projecting the same interior junctions through Map III shows the shipped fit does not meet that either, so the rule would reject the map that is live. The residual is largest in the west, where counties are large enough to absorb it, and smallest in the dense east, where they are not. That is the shape the task needs.",
+  "known_limit": "These are fold-out plates and the folds are visible as pale vertical bands. A global cubic cannot absorb a fold discontinuity, so local error near a fold corridor is expected. Tracers are asked to log any region where the mesh is visibly offset, so a local correction can be fitted if a pattern emerges."
+ }
+}

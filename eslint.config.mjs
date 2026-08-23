@@ -8,8 +8,12 @@ import reactHooks from "eslint-plugin-react-hooks";
 
 export default tseslint.config(
   {
-    // tools/ is dev-only plain JS driven by its own runtime
-    ignores: [".next/**", "node_modules/**", "next-env.d.ts", "tools/**", "public/**"],
+    // tools/ is dev-only plain JS driven by its own runtime. pipeline/ is a
+    // vendored mirror of the build scripts from light-workspace, kept here so a
+    // reader can check the committed data against the code that made it; it
+    // answers to that repo's conventions, and linting it here would only mean
+    // re-fixing the same lines every time it is re-vendored.
+    ignores: [".next/**", "node_modules/**", "next-env.d.ts", "tools/**", "public/**", "pipeline/**"],
   },
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,

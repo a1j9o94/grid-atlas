@@ -1,0 +1,163 @@
+{
+ "north-american-light": [
+  "29001",
+  "29007",
+  "29019",
+  "29025",
+  "29027",
+  "29031",
+  "29033",
+  "29045",
+  "29049",
+  "29087",
+  "29103",
+  "29111",
+  "29115",
+  "29117",
+  "29121",
+  "29127",
+  "29137",
+  "29139",
+  "29151",
+  "29163",
+  "29173",
+  "29199",
+  "29205",
+  "29213"
+ ],
+ "amb:north-american-light|united-light-power": [
+  "29003",
+  "29005",
+  "29041",
+  "29053",
+  "29063",
+  "29071",
+  "29073",
+  "29089",
+  "29125",
+  "29147",
+  "29175"
+ ],
+ "cities-service": [
+  "29009",
+  "29043",
+  "29077",
+  "29097",
+  "29109",
+  "29145"
+ ],
+ "insull-middle-west#4": [
+  "29011",
+  "29015",
+  "29039",
+  "29057",
+  "29059",
+  "29083",
+  "29085",
+  "29101",
+  "29167",
+  "29185"
+ ],
+ "amb:american-commonwealths|insull-middle-west#4": [
+  "29013",
+  "29141",
+  "29217"
+ ],
+ "maybe:north-american-light": [
+  "29017"
+ ],
+ "amb:insull-middle-west#4|north-american-light": [
+  "29021",
+  "29047",
+  "29061",
+  "29079",
+  "29113",
+  "29129",
+  "29159",
+  "29165",
+  "29177",
+  "29186",
+  "29187",
+  "29219",
+  "29225"
+ ],
+ "amb:american-commonwealths|insull-middle-west": [
+  "29023",
+  "29069",
+  "29143",
+  "29155"
+ ],
+ "amb:insull-middle-west#4|utilities-power-light": [
+  "29029",
+  "29067",
+  "29105",
+  "29149",
+  "29221"
+ ],
+ "utilities-power-light": [
+  "29035",
+  "29065",
+  "29091",
+  "29169",
+  "29179",
+  "29203",
+  "29215",
+  "29229"
+ ],
+ "amb:insull-middle-west#4|united-light-power": [
+  "29037",
+  "29081",
+  "29095",
+  "29107",
+  "29195"
+ ],
+ "american-commonwealths": [
+  "29051",
+  "29133",
+  "29135",
+  "29207"
+ ],
+ "amb:north-american-light|utilities-power-light": [
+  "29055",
+  "29161"
+ ],
+ "united-light-power": [
+  "29075",
+  "29227"
+ ],
+ "maybe:insull-middle-west": [
+  "29093",
+  "29123",
+  "29181"
+ ],
+ "north-american": [
+  "29099",
+  "29157",
+  "29189",
+  "29510"
+ ],
+ "amb:cities-service|insull-middle-west#4": [
+  "29119",
+  "29209"
+ ],
+ "amb:american-commonwealths|utilities-power-light": [
+  "29131"
+ ],
+ "maybe:cities-service": [
+  "29153"
+ ],
+ "none": [
+  "29171",
+  "29197",
+  "29223"
+ ],
+ "insull-middle-west": [
+  "29183"
+ ],
+ "amb:american-commonwealths|north-american-light": [
+  "29201"
+ ],
+ "maybe:insull-middle-west#4": [
+  "29211"
+ ]
+}

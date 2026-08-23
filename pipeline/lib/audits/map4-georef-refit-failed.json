@@ -1,0 +1,375 @@
+{
+  "status": "failed_internal_holdout",
+  "approved_for_county_masks": false,
+  "source_image": "data-raw/ftc72a/map4-1932.png",
+  "source_sha256": "d8d4e5a1c2c0e5e4f59fc6baf1e8d0673351d734bb165f32595b3153c0e7330a",
+  "source_dimensions": [
+    5521,
+    3784
+  ],
+  "diagnosis": "The rejected cubic minimized residuals to outline-derived ICP targets, not independent interior landmarks; its interior error field was spatially structured and severe.",
+  "candidate_model": {
+    "kind": "global_quadratic_on_albers",
+    "order": 2,
+    "coeff": [
+      2850.4766628456646,
+      1101.9737640633457,
+      52.138533003111206,
+      -8.207772208890212,
+      -57.72956491195324,
+      -25.178787448370105,
+      3490.05936508727,
+      -33.13810399407373,
+      -842.1601825054538,
+      -7.672380023909471,
+      7.433698607234611,
+      -33.59773945236014
+    ],
+    "reason_selected": "Stable lower-order baseline fitted only to geographically distributed interior controls; no cubic promotion or outline self-targeting.",
+    "fit_control_count": 16,
+    "fit_controls": [
+      {
+        "id": "WA-OR-ID",
+        "lon": -117.0396,
+        "lat": 45.9996,
+        "observed_px": [
+          1260,
+          925
+        ],
+        "source": "prior_blind"
+      },
+      {
+        "id": "ID-MT-WY",
+        "lon": -111.053,
+        "lat": 44.475,
+        "observed_px": [
+          1671,
+          1190
+        ],
+        "source": "prior_blind"
+      },
+      {
+        "id": "Four Corners",
+        "lon": -109.0452,
+        "lat": 36.9991,
+        "observed_px": [
+          1719,
+          2044
+        ],
+        "source": "prior_blind"
+      },
+      {
+        "id": "CO-KS-OK",
+        "lon": -102.0416,
+        "lat": 36.9999,
+        "observed_px": [
+          2325,
+          2089
+        ],
+        "source": "prior_blind"
+      },
+      {
+        "id": "MO-AR-OK",
+        "lon": -94.6179,
+        "lat": 36.4994,
+        "observed_px": [
+          2978,
+          2145
+        ],
+        "source": "prior_blind"
+      },
+      {
+        "id": "NE-IA-MO",
+        "lon": -95.7656,
+        "lat": 40.5852,
+        "observed_px": [
+          2858,
+          1710
+        ],
+        "source": "prior_blind"
+      },
+      {
+        "id": "KY-TN-VA",
+        "lon": -83.6753,
+        "lat": 36.6008,
+        "observed_px": [
+          3959,
+          2049
+        ],
+        "source": "prior_blind"
+      },
+      {
+        "id": "PA-MD-WV",
+        "lon": -79.4767,
+        "lat": 39.7211,
+        "observed_px": [
+          4211,
+          1653
+        ],
+        "source": "prior_blind"
+      },
+      {
+        "id": "OR-ID-NV",
+        "lon": -117.0262,
+        "lat": 41.9999,
+        "observed_px": [
+          1156,
+          1374
+        ],
+        "source": "new_native_reading"
+      },
+      {
+        "id": "MT-ND-SD",
+        "lon": -104.0454,
+        "lat": 45.9453,
+        "observed_px": [
+          2225,
+          1108
+        ],
+        "source": "new_native_reading"
+      },
+      {
+        "id": "AR-MS-TN",
+        "lon": -90.3026,
+        "lat": 34.9957,
+        "observed_px": [
+          3407,
+          2280
+        ],
+        "source": "new_native_reading"
+      },
+      {
+        "id": "PA-NJ-NY",
+        "lon": -74.6964,
+        "lat": 41.3573,
+        "observed_px": [
+          4500,
+          1378
+        ],
+        "source": "new_native_reading"
+      },
+      {
+        "id": "WI-IA-MN",
+        "lon": -91.2177,
+        "lat": 43.5005,
+        "observed_px": [
+          3201,
+          1371
+        ],
+        "source": "new_native_reading"
+      },
+      {
+        "id": "IL-KY-MO",
+        "lon": -89.1289,
+        "lat": 36.9833,
+        "observed_px": [
+          3483,
+          2062
+        ],
+        "source": "new_native_reading"
+      },
+      {
+        "id": "MI-IN-OH",
+        "lon": -84.806,
+        "lat": 41.7027,
+        "observed_px": [
+          3789,
+          1511
+        ],
+        "source": "new_native_reading"
+      },
+      {
+        "id": "NE-SD-IA",
+        "lon": -96.4507,
+        "lat": 42.4911,
+        "observed_px": [
+          2803,
+          1503
+        ],
+        "source": "new_native_reading"
+      }
+    ],
+    "fit_rms_px": 15.953685908515759,
+    "fit_max_px": 48.635272165406164
+  },
+  "internal_holdout_protocol": "Twelve additional native-raster state-junction readings were frozen separately from the 16 fit controls. They were not used in the least-squares fit.",
+  "internal_holdout_count": 12,
+  "internal_holdout": [
+    {
+      "id": "CA-OR-NV",
+      "lon": -119.9992,
+      "lat": 41.9949,
+      "observed_px": [
+        969,
+        1321
+      ],
+      "predicted_px": [
+        920.662,
+        1313.383
+      ],
+      "error_px": 48.935
+    },
+    {
+      "id": "ID-NV-UT",
+      "lon": -114.0415,
+      "lat": 41.9939,
+      "observed_px": [
+        1387,
+        1430
+      ],
+      "predicted_px": [
+        1392.236,
+        1426.691
+      ],
+      "error_px": 6.193
+    },
+    {
+      "id": "WY-NE-SD",
+      "lon": -104.053,
+      "lat": 43.0006,
+      "observed_px": [
+        2200,
+        1381
+      ],
+      "predicted_px": [
+        2204.393,
+        1426.477
+      ],
+      "error_px": 45.689
+    },
+    {
+      "id": "WY-CO-NE",
+      "lon": -104.0532,
+      "lat": 41.0014,
+      "observed_px": [
+        2179,
+        1649
+      ],
+      "predicted_px": [
+        2189.6,
+        1647.71
+      ],
+      "error_px": 10.678
+    },
+    {
+      "id": "KS-MO-OK",
+      "lon": -94.618,
+      "lat": 36.9989,
+      "observed_px": [
+        2973,
+        2093
+      ],
+      "predicted_px": [
+        2993.536,
+        2095.339
+      ],
+      "error_px": 20.669
+    },
+    {
+      "id": "AL-GA-TN",
+      "lon": -85.6114,
+      "lat": 34.9848,
+      "observed_px": [
+        3795,
+        2254
+      ],
+      "predicted_px": [
+        3824.672,
+        2235.197
+      ],
+      "error_px": 35.128
+    },
+    {
+      "id": "NC-SC-GA",
+      "lon": -83.1029,
+      "lat": 34.9973,
+      "observed_px": [
+        4029,
+        2218
+      ],
+      "predicted_px": [
+        4048.032,
+        2199.478
+      ],
+      "error_px": 26.557
+    },
+    {
+      "id": "NY-MA-VT",
+      "lon": -73.265,
+      "lat": 42.7459,
+      "observed_px": [
+        4480,
+        1259
+      ],
+      "predicted_px": [
+        4560.715,
+        1202.265
+      ],
+      "error_px": 98.66
+    },
+    {
+      "id": "VT-NH-MA",
+      "lon": -72.4585,
+      "lat": 42.7291,
+      "observed_px": [
+        4623,
+        1250
+      ],
+      "predicted_px": [
+        4617.839,
+        1185.635
+      ],
+      "error_px": 64.572
+    },
+    {
+      "id": "NE-KS-MO",
+      "lon": -95.3083,
+      "lat": 40.0,
+      "observed_px": [
+        2944,
+        1778
+      ],
+      "predicted_px": [
+        2916.9,
+        1774.788
+      ],
+      "error_px": 27.289
+    },
+    {
+      "id": "GA-FL-AL",
+      "lon": -85.0019,
+      "lat": 31.0007,
+      "observed_px": [
+        3885,
+        2685
+      ],
+      "predicted_px": [
+        3960.553,
+        2629.53
+      ],
+      "error_px": 93.73
+    },
+    {
+      "id": "NM-TX-OK",
+      "lon": -103.0024,
+      "lat": 36.5004,
+      "observed_px": [
+        2324,
+        2090
+      ],
+      "predicted_px": [
+        2240.176,
+        2140.815
+      ],
+      "error_px": 98.024
+    }
+  ],
+  "internal_holdout_rms_px": 57.765890466795184,
+  "internal_holdout_max_px": 98.65968673262545,
+  "release_gate": {
+    "required_rms_px_lte": 3.0,
+    "required_unexplained_max_px_lte": 8.0,
+    "passed": false
+  },
+  "next_required_action": "Add dense, frozen interior controls and fit a locally constrained piecewise-affine scan warp; then run a new independent holdout audit. Do not tune this candidate against the present holdout."
+}

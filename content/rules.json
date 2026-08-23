@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "version": "2026-08-15",
+    "notes": "Buckets from the series' verified choice-state list (TX + CT, ME, MA, NH, RI, NY, NJ, PA, MD, DE, OH, IL + DC). Notes marked verify:true need a fact-check pass before launch. Ramp validated on the sage surface: choice #1d6e56, hybrid #8bb296, monopoly = neutral #d8dbc9 (same convention as No RTO: pale means nothing to choose)."
+  },
+  "buckets": {
+    "choice": { "label": "You can pick", "color": "#1d6e56", "body": "People here can pick the company that sells them power, like picking a phone plan. The wires still belong to one company; the state checks those prices." },
+    "hybrid": { "label": "In between", "color": "#8bb296", "body": "Some people here can pick, but with big limits." },
+    "monopoly": { "label": "One company", "color": "#d8dbc9", "body": "One utility is the only choice. A state board checks its prices." }
+  },
+  "states": {
+    "TX": { "bucket": "choice", "note": "Most Texans pick their power company. Areas served by co-ops, city utilities, and the parts of Texas outside ERCOT still have one company." },
+    "CT": { "bucket": "choice" },
+    "ME": { "bucket": "choice" },
+    "MA": { "bucket": "choice" },
+    "NH": { "bucket": "choice" },
+    "RI": { "bucket": "choice" },
+    "NY": { "bucket": "choice" },
+    "NJ": { "bucket": "choice" },
+    "PA": { "bucket": "choice" },
+    "MD": { "bucket": "choice", "note": "A 2024 law capped prices and put new limits on sellers. Most sellers stopped offering home plans. A court fight over part of the law is still going.", "sources": ["https://mgaleg.maryland.gov/2024RS/fnotes/bil_0001/sb0001.pdf", "https://www.energychoicematters.com/stories/20260515aaa.html"] },
+    "DE": { "bucket": "choice" },
+    "OH": { "bucket": "choice" },
+    "IL": { "bucket": "choice" },
+    "DC": { "bucket": "choice" },
+    "MI": { "bucket": "hybrid", "note": "Michigan lets only 10% of its power load switch. That line is full. There is a waiting list to leave the utility." },
+    "CA": { "bucket": "hybrid", "note": "California opened its market in the 1990s, hit a crisis in 2000, and closed most of it. Many cities now team up to buy power for their residents instead." },
+    "NE": { "bucket": "monopoly", "note": "Nebraska is the only state where every utility is owned by the public." },
+    "NV": { "bucket": "monopoly", "note": "Big companies can pay a fee to leave the utility and buy power on their own. Homes cannot." },
+    "MT": { "bucket": "monopoly", "note": "Montana tried choice in the 1990s. Prices went up instead of down, and the state went back in 2007." },
+    "OR": { "bucket": "monopoly", "note": "The biggest business customers can shop. Homes cannot." },
+    "VA": { "bucket": "monopoly", "note": "Choice exists on paper for 100% renewable plans. The utilities' own green plans closed that door for homes. Only the very biggest power users can still shop." },
+    "AL": { "bucket": "monopoly" }, "AK": { "bucket": "monopoly" }, "AZ": { "bucket": "monopoly" },
+    "AR": { "bucket": "monopoly" }, "CO": { "bucket": "monopoly" }, "FL": { "bucket": "monopoly" },
+    "GA": { "bucket": "monopoly" }, "HI": { "bucket": "monopoly" }, "ID": { "bucket": "monopoly" },
+    "IN": { "bucket": "monopoly" }, "IA": { "bucket": "monopoly" }, "KS": { "bucket": "monopoly" },
+    "KY": { "bucket": "monopoly" }, "LA": { "bucket": "monopoly" }, "MN": { "bucket": "monopoly" },
+    "MS": { "bucket": "monopoly" }, "MO": { "bucket": "monopoly" }, "NM": { "bucket": "monopoly" },
+    "NC": { "bucket": "monopoly" }, "ND": { "bucket": "monopoly" }, "OK": { "bucket": "monopoly" },
+    "SC": { "bucket": "monopoly" }, "SD": { "bucket": "monopoly" }, "TN": { "bucket": "monopoly" },
+    "UT": { "bucket": "monopoly" }, "VT": { "bucket": "monopoly" }, "WA": { "bucket": "monopoly" },
+    "WV": { "bucket": "monopoly" }, "WI": { "bucket": "monopoly" }, "WY": { "bucket": "monopoly" }
+  }
+}
