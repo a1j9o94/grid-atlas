@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { setAtlasState, useAtlas } from "../lib/store";
+import { useDialog } from "../lib/useDialog";
 
 function close(): void {
   setAtlasState({ modalOpen: false });
@@ -9,14 +9,9 @@ function close(): void {
 
 export default function MethodologyModal() {
   const open = useAtlas((s) => s.modalOpen);
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === "Escape") close();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("keydown", onKey); };
-  }, [open]);
+  // Escape used to be handled here, written out a second time; the hook owns
+  // that plus the focus handling neither modal had.
+  const ref = useDialog<HTMLDivElement>(open, close);
   return (
     <div
       className="modal-backdrop"
@@ -26,7 +21,7 @@ export default function MethodologyModal() {
         if (e.target === e.currentTarget) close();
       }}
     >
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="method-title">
+      <div ref={ref} className="modal" role="dialog" aria-modal="true" aria-labelledby="method-title">
         <button className="modal-close" id="method-close" aria-label="Close" onClick={close}>✕</button>
         <h2 id="method-title">How this map is made</h2>
         <p className="note"><b>Where the shapes come from.</b> Utility service areas are federal HIFLD data (2,900+ utilities). Market regions are built by merging those utilities by the market each one belongs to. Zip shapes are the Census version of zip codes. Region borders are honest but not smooth, and blank gaps are areas where no utility is mapped; much of that is wilderness.</p>

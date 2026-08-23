@@ -23,7 +23,17 @@ body {
   margin: 0; height: 100dvh; overflow: hidden;
   background: var(--paper); color: var(--ink);
   font: 16px/1.5 var(--ui);
-  padding: 12px; display: flex;
+  /* The layout opts into viewport-fit=cover so the evidence sheet can reach the
+     glass, which means the paper would otherwise slide under a notch. max(),
+     not calc(12px + env()): on a phone with no cutout this is exactly the 12px
+     it always was, and where there is one the paper steps out of its way rather
+     than stacking a second margin on top of it. */
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  display: flex;
 }
 
 /* paper grain */
@@ -218,7 +228,15 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
 
 /* ---- mobile: chip rail on top, card as bottom panel ---- */
 @media (max-width: 700px) {
-  body { padding: 8px; }
+  /* Same max() shape as the base rule: this is the breakpoint where a cutout
+     is most likely, so a flat 8px here would undo the inset entirely. */
+  body {
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+  }
   .plate-inner { padding: 4px; }
   .head { padding: 10px 14px 2px; }
   .dek { display: none; }
@@ -499,7 +517,8 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   background: rgba(38, 48, 31, 0.35); padding: 18px;
 }
 .modal {
-  position: relative; max-width: 520px; max-height: 84dvh; overflow-y: auto;
+  position: relative; max-width: 520px; max-height: 84dvh;
+  overflow-y: auto; overscroll-behavior: contain;
   background: var(--card-bg); border: 1px solid var(--ink);
   box-shadow: 4px 4px 0 rgba(38, 48, 31, 0.25); padding: 18px 20px;
 }
@@ -1143,17 +1162,72 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   text-transform: uppercase; letter-spacing: 0.08em; padding-top: 4px; }
 
 /* the lightbox: the scan itself, or the words of the law */
-.modal.evidence { max-width: 720px; }
-.modal.evidence h2 { font-size: 17px; padding-right: 28px; }
+/* Two zeroes worth explaining.
+   margin, because this modal is a <figure> and the UA sheet gives figures
+   1em 40px. It never showed while the box was centred and width-capped; as a
+   full-bleed sheet it was 80px of the phone's width handed back to the
+   backdrop, and the plate is what pays for that.
+   padding-top, because the sticky header supplies its own. Pulling the header
+   up with a negative margin instead does not work: a sticky box is constrained
+   to its containing block, so the pull is cancelled in the rendered position
+   while the content after it still flows from the pulled one, and the header
+   ends up sitting on the first line of the gloss. */
+.modal.evidence { max-width: 720px; margin: 0; padding-top: 0; }
+.modal.evidence h2 { font-size: 17px; }
+/* The close control used to be an absolute box inside .modal, which is the
+   scroll container: that pins it to the top of the *content*, not the top of
+   the visible frame, so on a landscape phone (84dvh is 328px there) it sat
+   several hundred pixels above anything the reader could see. A sticky header
+   keeps it in flow and on screen. The negative side margins cancel .modal's
+   20px of horizontal padding so the bar spans the full width; the modal gives
+   up its own padding-top so the bar starts flush with the scrollport, and
+   top:0 holds it there. figcaption stays the figure's last child. */
+.ev-head {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin: 0 -20px 10px; padding: 18px 20px 8px;
+  background: var(--card-bg); border-bottom: 1px solid var(--hair);
+}
+.ev-head h2 { margin: 0; flex: 1; min-width: 0; }
+.modal.evidence .modal-close { position: static; flex: none; }
 .ev-quote {
   margin: 0 0 10px; padding: 10px 12px; background: var(--choice-bg);
   border-left: 3px solid var(--ink2); font: italic 14px/1.5 var(--display);
 }
 .ev-gloss { font-size: 13px; line-height: 1.5; margin: 0 0 12px; color: var(--ink); }
-/* The plate pans inside its own frame, like reading a survey sheet under glass,
-   rather than being squeezed into the modal and made illegible. */
-.ev-scan { overflow: auto; max-height: 52dvh; border: 1px solid var(--hair); background: #fff; }
-.ev-scan img { display: block; max-width: none; }
+/* Fitted by default, on every screen: the plate arrives whole and the reader
+   asks for detail. It used to arrive at natural size so it could be panned like
+   a survey sheet under glass, which is right on a desk and useless on a phone —
+   these sheets are 1000-2400px wide, the frame on a 390px screen is about
+   314px, and the reader got the top-left corner with no sign of the rest.
+   Both caps are needed: max-width alone leaves a portrait 1190x1600 plate
+   422px tall in a 338px frame. */
+.ev-scan { overflow: auto; overscroll-behavior: contain;
+  border: 1px solid var(--hair); background: #fff; }
+.ev-scan img { display: block; margin: 0 auto; cursor: zoom-in;
+  max-width: 100%; max-height: 52dvh; width: auto; height: auto; }
+/* Natural size, and the frame becomes the window onto it. The frame's own
+   max-height belongs here and not on the fitted state, where it would leave a
+   dead white box under a short scan. overscroll-behavior is what stops a drag
+   that runs off the edge of the plate from scrolling the sheet behind it.
+   No touch-action: the default already allows a one-finger pan on a scroll
+   container, and pinning it to `pan-x pan-y` would take pinch-zoom away from
+   the one element on the site where a reader most wants it. */
+.ev-scan.zoomed { max-height: 52dvh; cursor: grab;
+  scrollbar-width: thin; scrollbar-color: var(--ink2) var(--hair); }
+.ev-scan.zoomed:active { cursor: grabbing; }
+.ev-scan.zoomed img { max-width: none; max-height: none; margin: 0; cursor: grab; }
+.ev-scan-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+/* Shaped like .ev-chip, which is the other "act on this source" control. */
+.ev-zoom {
+  font: 600 10.5px/1 var(--mono); letter-spacing: 0.04em; cursor: pointer;
+  border: 1px solid rgba(38, 48, 31, 0.4); background: transparent; color: var(--ink);
+  /* nowrap and 30px, not 28px: the audit fails a button under 28px tall or one
+     whose label overflows its own box, and both want headroom. */
+  padding: 8px; min-height: 30px; white-space: nowrap;
+}
+.ev-zoom:hover { background: var(--choice-bg); border-color: var(--ink); }
+.ev-hint { font: 10.5px/1.4 var(--mono); color: var(--ink2); }
 .ev-cite { font: 10.5px/1.5 var(--mono); color: var(--ink2); margin-top: 10px; }
 .ev-cite a { color: var(--ink); }
 
@@ -1181,5 +1255,37 @@ svg.has-hover .region.hov { opacity: 1; filter: brightness(0.92) saturate(1.2); 
   .tl-year { font-size: 8.5px; letter-spacing: 0.02em; }
   .tl-play, .tl-step-btn { min-width: 28px; min-height: 28px; }
   .modal.evidence h2 { font-size: 15px; }
-  .ev-scan { max-height: 40dvh; }
+  /* The lightbox was already near-fullscreen on a phone while behaving like a
+     small desktop dialog. Make it the sheet it already was. The insets live on
+     the backdrop rather than on the modal, so the modal keeps its own padding
+     and the sticky header needs no per-breakpoint arithmetic; nothing in this
+     file used env() before, and in landscape the flat 18px backdrop padding put
+     the modal edge, and the ✕ inside it, under the notch. Scoped by id so the
+     methodology modal keeps the centred dialog. */
+  #evidence-modal {
+    place-items: stretch;
+    padding:
+      env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  #evidence-modal .modal.evidence {
+    max-width: none; max-height: none; border: none; box-shadow: none;
+  }
+  /* 30px of --ink2 was the other half of "the x isn't visible": a small,
+     low-contrast target on a screen where the thumb is the pointer. */
+  #evidence-modal .modal-close {
+    min-width: 44px; min-height: 44px; font-size: 17px; color: var(--ink);
+  }
+  .ev-scan img, .ev-scan.zoomed { max-height: 46dvh; }
+}
+
+/* A landscape phone has 390px of height to show a 1600px-tall plate, and the
+   title and the citation are fixed costs against it. Give the plate the room
+   instead: it is what the reader pressed a chip to see, and 46dvh there left a
+   1190x1600 sheet 133px wide, whole but too small to read. Anything the taller
+   frame pushes below the fold is still reachable — the sheet scrolls, and the
+   close control is sticky, so nothing can be pushed out of reach. */
+@media (max-height: 500px) {
+  .modal.evidence h2 { font-size: 13.5px; }
+  .ev-scan img, .ev-scan.zoomed { max-height: 62dvh; }
 }
