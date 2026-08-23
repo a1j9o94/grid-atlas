@@ -324,12 +324,21 @@ function paintHoldings(year: string): void {
     const parsed = parseHoldingsTrace(rows[fips] ?? "unknown-served");
     p.setAttribute("class", `holdings-county holdings-${parsed.status}`);
     p.dataset.trace = parsed.raw;
-    const colour = holdingColour(parsed.groups[0], h.trace.key_rollup?.[year]);
+    const rollup = h.trace.key_rollup?.[year];
+    const colour = holdingColour(parsed.groups[0], rollup);
     // Clearing first matters: a county that had a group in 1925 and none in
     // 1932 would otherwise keep the old custom property and paint the old
-    // colour under a "no fill" class.
+    // colour under a "no fill" class. The same applies to the system below.
     p.style.removeProperty("--holding-fill");
     if (colour !== undefined) p.style.setProperty("--holding-fill", colour);
+    // The system this county rolls up to, as an attribute, so pointing at a
+    // legend row can find its counties. It is the rolled-up key rather than the
+    // raw one because that is exactly how the legend counts them: Map IV prints
+    // two Insull cells where Map III prints one, and a row saying "Insull · 412"
+    // has to light 412 counties.
+    p.removeAttribute("data-sys");
+    const raw = parsed.groups[0];
+    if (raw !== undefined) p.dataset.sys = rollup?.[raw] ?? raw;
   }
   renderLegend("history");
 }
@@ -466,6 +475,9 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
           const now = ctx();
           if (now.dead || now.frameId !== want) return;
           drawMembership(fk);
+          // The strip names marks, so it is rebuilt once they exist: a key
+          // minted over an empty group would have nothing to point at.
+          renderLegend("history");
         });
       }
     }
@@ -482,6 +494,9 @@ export function setFrame(id: string, urlMode: UrlMode = "replace"): void {
         const still = frameById(now.frameId);
         if (now.dead || now.frameId !== want || !still) return;
         applySeamState(still);
+        // Same as membership above: the machines exist now, so the keys that
+        // name them can be minted.
+        renderLegend("history");
       });
     }
   }

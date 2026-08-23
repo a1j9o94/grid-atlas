@@ -3,7 +3,11 @@ import type { GroupKey } from "./ctx";
 
 // The one write of svg.innerHTML: filters, patterns, and the layer groups in
 // stacking order. Everything after this appends into the groups.
-export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGElement>; wobbleDisp: SVGElement } {
+export function buildScaffold(svg: SVGSVGElement): {
+  g: Record<GroupKey, SVGGElement>;
+  wobbleDisp: SVGElement;
+  legendStyle: SVGStyleElement;
+} {
   svg.innerHTML = `
   <defs>
     <filter id="wobble" filterUnits="userSpaceOnUse" x="-20" y="-20" width="1020" height="660" primitiveUnits="userSpaceOnUse">
@@ -39,6 +43,12 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
       <line x1="1" y1="0" x2="1" y2="5" stroke="#92988b" stroke-width="1"/>
     </pattern>
   </defs>
+  <!-- Empty on purpose. The engine rewrites this one rule while a legend key is
+       pointed at, naming the marks that key stands for; nothing else may write
+       here. It lives inside the svg so destroy takes it away with the rest of
+       the ink, and every value it uses is a custom property declared in the
+       stylesheet, so what a fade looks like stays a design decision there. -->
+  <style id="lh-rules"></style>
   <g id="g-rto" filter="url(#wobble)"></g>
   <g id="g-transitions" filter="url(#wobble)"></g>
   <g id="g-rules" filter="url(#wobble)" hidden></g>
@@ -98,5 +108,6 @@ export function buildScaffold(svg: SVGSVGElement): { g: Record<GroupKey, SVGGEle
       seamLines: pick("#g-seam-lines"),
     },
     wobbleDisp: req(svg.querySelector<SVGElement>("#wobble feDisplacementMap"), "#wobble feDisplacementMap"),
+    legendStyle: req(svg.querySelector<SVGStyleElement>("#lh-rules"), "#lh-rules"),
   };
 }
