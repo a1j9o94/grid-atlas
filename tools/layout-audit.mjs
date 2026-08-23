@@ -117,6 +117,17 @@ const REDIRECTS = [
 ];
 const NOT_FOUND = ["/nonsense", "/wires/notameasure", "/wires/by-nothing", "/rules/blue", "/you/1234"];
 
+// Every entrance has to draw its map. This is checked twice, once as a first
+// visit and once as a reader who has been here before, because the difference
+// is what hid it for a whole release: on the first visit the tour offers itself
+// and changes layer to do it, and changing layer is the only thing that takes
+// the "map is being drawn" note down. Come back a second time, with the tour
+// already dismissed, and the two entrances whose layer is the one the engine
+// starts named with — the front page and every trivia link — sat on that note
+// forever. Nothing else here saw it: every viewport gets a fresh profile, so
+// the audit was a first-time visitor 216 times over.
+const ENTRANCES = ["/", "/trivia/caldwell-switched-grids", "/rules", "/wires/parent", "/then/1932"];
+
 // Boxes that must never overlap each other. All of them are chrome floating
 // over or beside the map, which is exactly where collisions hide.
 const PANELS = {
@@ -226,6 +237,31 @@ if (flag("shots")) mkdirSync(join(here, "shots"), { recursive: true });
     if (resp && resp.status() !== 404) add("404s", `${path} answered ${resp.status()}, wanted 404`);
   }
   await page.close();
+
+  for (const returning of [false, true]) {
+    const ctx = await browser.newContext({ viewport: { width: 1400, height: 900 } });
+    if (returning) {
+      await ctx.addInitScript(() => {
+        try { localStorage.setItem("ga-tour-done", "1"); } catch { /* private mode */ }
+      });
+    }
+    const p = await ctx.newPage();
+    for (const path of ENTRANCES) {
+      await p.goto(withBypass(host.url + path), { waitUntil: "load" });
+      // the marks, not the note: a hidden svg full of paths is still no map
+      const drawn = await p.waitForFunction(() => {
+        const svg = document.getElementById("map");
+        if (!svg || svg.hasAttribute("hidden")) return false;
+        return svg.querySelectorAll("path, circle").length > 0;
+      }, null, { timeout: 20000 }).then(() => true).catch(() => false);
+      const note = await p.evaluate(
+        () => document.getElementById("drawing-note")?.hasAttribute("hidden") === false);
+      const who = returning ? "second visit" : "first visit";
+      if (!drawn) add("entrances", `${path} drew no map on a ${who}`);
+      else if (note) add("entrances", `${path} still says it is drawing, on a ${who}`);
+    }
+    await ctx.close();
+  }
 }
 
 for (const vp of VIEWPORTS) {

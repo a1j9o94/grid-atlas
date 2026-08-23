@@ -68,6 +68,13 @@ export interface EngineCtx {
   zip: string | null;
   // monotonic token guarding async layer switches against staleness
   routeToken: number;
+  // Whether a layer has actually been drawn, as opposed to `current` merely
+  // naming the one this context was created with. Boot has to draw its layer
+  // even when the route agrees with that name: the svg starts hidden and the
+  // drawing note starts showing, and setLayer is the only thing that clears
+  // either. Without this, "/" and "/trivia/..." both sat on "The map is being
+  // drawn" forever, because wholesale is the name the engine starts with.
+  layerDrawn: boolean;
 
   // wires layer state (DOM-bound, rebuilt per mount; fetches cache elsewhere)
   wiresFeatures: WireFeature[] | null;
