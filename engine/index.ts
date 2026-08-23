@@ -97,6 +97,7 @@ export function createEngine(): Engine {
         legendTargets: new Map(),
         legendGen: 0,
         legendHover: null,
+        legendPin: null,
         legendStyle,
       };
       mine = c;

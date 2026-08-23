@@ -180,6 +180,11 @@ export interface AtlasState {
   layer: LayerKey;
   card: CardModel | null;
   legend: LegendModel | null;
+  // The key the reader asked the plate to keep showing, as its own handle
+  // rather than a flag inside the model: the model is rebuilt on every repaint
+  // and the pin outlives a repaint of the same plate. The strip compares it
+  // against each key's `match` to render which one is pressed.
+  legendPin: string | null;
   shadeControls: ControlsModel | null;
   colourControls: ColourControlsModel | null;
   sizeControls: ControlsModel | null;
@@ -199,6 +204,7 @@ const INITIAL: AtlasState = {
   layer: "wholesale",
   card: null,
   legend: null,
+  legendPin: null,
   shadeControls: null,
   colourControls: null,
   sizeControls: null,

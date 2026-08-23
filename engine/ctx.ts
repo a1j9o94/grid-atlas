@@ -103,7 +103,12 @@ export interface EngineCtx {
   // inert rather than a handle to whatever key now sits at that index.
   legendTargets: Map<string, LegendTarget>;
   legendGen: number;
+  // What the reader is pointing at, and what they asked to keep. A finger
+  // raises no hover, so a tap pins instead; the pin is what the plate shows
+  // once the pointer moves on, and a preview of another key sits on top of it
+  // for as long as the pointer is there.
   legendHover: string | null;
+  legendPin: string | null;
   // The one rule the engine writes at runtime. It lives inside the svg, so
   // destroy takes it away with everything else the engine inked.
   legendStyle: SVGStyleElement;

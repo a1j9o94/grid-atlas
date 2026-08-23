@@ -40,6 +40,13 @@ const VIEWPORTS = [
   { name: "phone-landscape-tall", w: 915, h: 412 },
   { name: "tablet", w: 768, h: 1024 },
   { name: "laptop-short", w: 1280, h: 660 },
+  // A 1280x540 window belongs here and is deliberately absent. Adding it turns
+  // the audit red on arrival for a reason that predates this list: on the wires
+  // layer the colour and size controls are 94px tall floating over a 606x379
+  // map, which is 25% of it against a 22% contract. That is a real failure and
+  // it is not the legend's — the legend is not even drawn at that height any
+  // more. Add this viewport in the same change that makes those two controls
+  // fit, not before: a check that is red on every pull request is not a check.
   { name: "desktop", w: 1500, h: 950 },
   // the map is the product, and a fixed-width plate wasted two thirds of a
   // large display before anyone measured it
@@ -332,6 +339,27 @@ for (const vp of VIEWPORTS) {
       for (const el of document.querySelectorAll("button, .step, input")) {
         const b = el.getBoundingClientRect();
         if (b.height > 0 && b.height < 28) out.tiny.push(`${el.id || el.className || el.tagName} ${Math.round(b.height)}px`);
+      }
+
+      // Legend keys are pressable and deliberately small: a fourteen-row strip
+      // at 28px a row would not fit anywhere. They earn that by carrying their
+      // reach in an overlay instead of in the box, which the rule above cannot
+      // see — it measures the box. So measure the press instead: put a point
+      // where a thumb would land, twelve pixels off centre, and ask the
+      // document what it would have hit. A key that cannot be hit at its own
+      // centre is scrolled out of the strip and is not this check's business.
+      for (const el of document.querySelectorAll("[data-lh]")) {
+        const b = el.getBoundingClientRect();
+        if (b.height === 0) continue;
+        const cx = b.x + b.width / 2;
+        const cy = b.y + b.height / 2;
+        const hits = (y) => {
+          const at = document.elementFromPoint(cx, y);
+          return at !== null && (at === el || el.contains(at));
+        };
+        if (!hits(cy)) continue;
+        if (!hits(cy - 12) || !hits(cy + 12))
+          out.tiny.push(`${el.className || el.tagName} reach ${Math.round(b.height)}px box, under 24px pressable`);
       }
 
       // content wider than its own box: an input that clips its value, a

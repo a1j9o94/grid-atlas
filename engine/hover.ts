@@ -4,7 +4,7 @@
 // for the same thing. This file is only the arbiter: which mark is under the
 // pointer, and which card that opens.
 import { ctx } from "./ctx";
-import { clearLegendHover, clearMapHover, setHover } from "./highlight";
+import { clearLegendHover, clearMapHover, legendPinned, setHover } from "./highlight";
 import { svgPoint } from "./viewbox";
 import { showRegion, showState, showWire } from "./ui/cards";
 
@@ -12,7 +12,8 @@ export function bindHover(): void {
   const c = ctx();
   const signal = c.ac.signal;
   c.svg.addEventListener("mousemove", (e) => {
-    // The pointer is on the map, so whatever the legend was showing is over.
+    // The pointer is on the map, so the key it was resting on is no longer the
+    // question. A pinned key is: that one the reader asked for, and it stands.
     // A null check rather than a call, because this is the hot path.
     if (c.legendHover !== null) clearLegendHover();
     const target = e.target as SVGElement;
@@ -33,9 +34,13 @@ export function bindHover(): void {
       setHover(c.g.rules, (p) => p.dataset.state === state);
       showState(state);
     } else if (c.current === "wires" && d.wire !== undefined) {
-      if (c.hoveredWire) c.hoveredWire.classList.remove("hov");
-      c.hoveredWire = target;
-      c.hoveredWire.classList.add("hov");
+      // The one mark that highlights itself rather than its whole family, so it
+      // needs the pinned check setHover makes for everything else.
+      if (!legendPinned()) {
+        if (c.hoveredWire) c.hoveredWire.classList.remove("hov");
+        c.hoveredWire = target;
+        c.hoveredWire.classList.add("hov");
+      }
       showWire(Number(d.wire));
     }
   }, { signal });

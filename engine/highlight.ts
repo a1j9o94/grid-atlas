@@ -6,14 +6,27 @@
 // it used to be written out in hover's mouseleave and again in setLayer, and a
 // second highlight mechanism with its own third copy would guarantee a fourth.
 //
-// The two are never on at once. Each entry point clears the other.
+// The two are never on at once. Each entry point clears the other, except for
+// a pinned key: a reader who asked the plate to keep showing one is looking at
+// the map next, and the map yields rather than argues with it.
+import { setAtlasState } from "../lib/store";
 import { maybeCtx, type LegendTarget } from "./ctx";
+
+// Whether the reader has asked the plate to hold a legend key. While they have,
+// the map still names what you point at but stops re-dimming underneath it: two
+// explanations at once is one too many.
+export function legendPinned(): boolean {
+  return maybeCtx()?.legendPin != null;
+}
 
 // Map hover: the reader is pointing at the marks themselves, so the marks carry
 // the state as a class. Moved here verbatim from hover.ts.
 export function setHover(group: SVGGElement, match: (p: SVGElement) => boolean): void {
   const c = maybeCtx();
   if (!c) return;
+  // A held key is the reader's own question. The map answers it in the card and
+  // leaves the dimming alone.
+  if (c.legendPin !== null) return;
   c.svg.classList.add("has-hover");
   for (const p of group.children) {
     const el = p as SVGElement;
@@ -41,18 +54,30 @@ export function clearMapHover(): void {
   }
 }
 
+// Drop the preview only. What the reader pinned stays, which is what makes the
+// pin worth having: they can look at the map without losing the key.
 export function clearLegendHover(): void {
   const c = maybeCtx();
   if (!c) return;
+  if (c.legendHover === null) return;
   c.legendHover = null;
-  c.legendStyle.textContent = "";
-  c.svg.classList.remove("has-legend-hover");
+  paint();
 }
 
-// Layer changes, repaints and teardown all want both gone.
+export function clearLegendPin(): void {
+  const c = maybeCtx();
+  if (!c) return;
+  c.legendPin = null;
+  setAtlasState({ legendPin: null });
+  paint();
+}
+
+// Layer changes, repaints and teardown all want everything gone.
 export function clearHighlights(): void {
   clearMapHover();
-  clearLegendHover();
+  const c = maybeCtx();
+  if (c) c.legendHover = null;
+  clearLegendPin();
 }
 
 const scope = (sels: readonly string[]): string =>
@@ -73,18 +98,53 @@ const scope = (sels: readonly string[]): string =>
 export function highlightLegend(token: string | null): void {
   const c = maybeCtx();
   if (!c) return;
-  const t = token === null ? undefined : c.legendTargets.get(token);
-  clearMapHover();
-  if (!t || !lights(t)) {
-    clearLegendHover();
+  c.legendHover = token;
+  paint();
+}
+
+// A tap, or Enter on a focused key. Tapping the key that is already held lets
+// it go — and drops the preview with it, because a finger raises no mouseleave
+// and the key would otherwise stay lit under a finger that had gone.
+export function pinLegendKey(token: string): void {
+  const c = maybeCtx();
+  if (!c) return;
+  if (c.legendPin === token) {
+    c.legendHover = null;
+    clearLegendPin();
     return;
   }
+  c.legendPin = token;
+  setAtlasState({ legendPin: token });
+  paint();
+}
+
+// The one place the rule is written. What the plate shows is the preview if
+// there is one, otherwise the pin, otherwise nothing.
+function paint(): void {
+  const c = maybeCtx();
+  if (!c) return;
+  const token = c.legendHover ?? c.legendPin;
+  const t = token === null ? undefined : c.legendTargets.get(token);
+  if (!t || !lights(t)) {
+    // A pin outlives the pointer, so it is the handle most likely to be left
+    // holding marks that are gone. Drop it rather than leave the map's own
+    // hover switched off with nothing on screen to say why.
+    if (c.legendPin !== null) {
+      c.legendPin = null;
+      setAtlasState({ legendPin: null });
+    }
+    c.legendStyle.textContent = "";
+    c.svg.classList.remove("has-legend-hover");
+    return;
+  }
+  // The map's own highlight and a legend key are two explanations of the same
+  // marks, so the newer one wins. A pin is the exception, handled in setHover.
+  clearMapHover();
   c.legendStyle.textContent =
     (t.dim.length > 0
       ? `${scope(t.dim)}{fill-opacity:var(--lh-dim,0.28);stroke-opacity:var(--lh-dim,0.28)}`
       : "") +
     (t.lit.length > 0 ? `${scope(t.lit)}{filter:var(--lh-emph,none)}` : "");
-  c.legendHover = token;
   c.svg.classList.add("has-legend-hover");
 }
 

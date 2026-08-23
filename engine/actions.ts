@@ -9,7 +9,7 @@ import { setAtlasState } from "../lib/store";
 import { HOME_VIEW, READY } from "./constants";
 import { ctx, setHidden } from "./ctx";
 import { isColourMeasure, measureSpec } from "./data";
-import { clearHighlights, highlightLegend } from "./highlight";
+import { clearHighlights, clearLegendPin, highlightLegend, pinLegendKey } from "./highlight";
 import { buildParentGroups, ensureWires, morphCircles, renderSizeKey, repaintWires } from "./layers/wires";
 import { repaintRules } from "./layers/rules";
 import { flyToTrivia } from "./layers/wholesale";
@@ -247,6 +247,22 @@ export function showEventCard(id: string): void {
 // way out.
 export function hoverLegendKey(token: string | null): void {
   highlightLegend(token);
+}
+
+// A tap, a click, or Enter on a focused key: the reader asking the plate to
+// keep showing this one while they look at the map. Tapping it again lets go.
+//
+// A reader action, so it stops the auto-advance first, for the same reason
+// pickFrame and walkFrame do: holding a key and then watching the plate change
+// out from under it seven seconds later is the timeline overruling a request.
+export function toggleLegendPin(token: string): void {
+  stopPlay();
+  pinLegendKey(token);
+}
+
+// Escape, or a tap on something that is neither the strip nor the map.
+export function releaseLegendPin(): void {
+  clearLegendPin();
 }
 
 export function backToFrame(): void {

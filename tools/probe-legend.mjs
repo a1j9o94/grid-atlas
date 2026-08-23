@@ -200,6 +200,90 @@ for (const sheetYear of ["1925", "1932"]) {
   want(`${sheetYear}: every system row lights the number it prints`, bad, []);
 }
 
+// ---- the press, on a screen that has no pointer to hover with ----
+//
+// A finger raises no mouseenter and never a mouseleave, so the strip's whole
+// reveal has to work off a press instead. This drives a real touch context with
+// real taps: emulated touch is the only way to see what a phone sees, and the
+// tap has to be real for the same reason the hover above is real.
+{
+  const phone = await browser.newContext({
+    viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true,
+  });
+  const t = await phone.newPage();
+  t.on("pageerror", e => noise.push(String(e)));
+  t.on("console", m => { if (m.type() === "error") noise.push(m.text()); });
+  const read = () => t.evaluate(() => {
+    const svg = document.getElementById("map");
+    const key = document.querySelector('.legend .lg-item[data-lh]');
+    return {
+      pressed: key?.getAttribute("aria-pressed") ?? null,
+      lit: svg.classList.contains("has-legend-hover"),
+      // the map's own highlight must stay out of the way of a held key
+      mapHover: svg.classList.contains("has-hover"),
+      card: document.querySelector(".card")?.textContent?.slice(0, 24) ?? "",
+    };
+  });
+  const tapKey = async () => {
+    await t.locator(".legend .lg-item[data-lh]").first().tap();
+    await t.waitForTimeout(250);
+    return read();
+  };
+
+  await t.goto(`${url}/wires/parent`, { waitUntil: "networkidle" });
+  await t.waitForSelector(".legend .lg-item[data-lh]", { timeout: 30000 });
+  await t.waitForTimeout(600);
+  want("a phone starts with nothing held", await read(), {
+    pressed: "false", lit: false, mapHover: false,
+    card: (await read()).card,
+  });
+
+  const held = await tapKey();
+  want("a tap holds the key", { pressed: held.pressed, lit: held.lit }, { pressed: "true", lit: true });
+
+  // The one that matters: a finger raises no mouseleave, so if the preview were
+  // left standing the second tap would look like it did nothing at all.
+  const released = await tapKey();
+  want("a second tap lets it go", { pressed: released.pressed, lit: released.lit },
+    { pressed: "false", lit: false });
+
+  // Held, then the reader looks at the map. The card answers; the highlight stays.
+  await tapKey();
+  const box = await t.evaluate(() => {
+    const b = document.getElementById("map").getBoundingClientRect();
+    return { x: Math.round(b.x + b.width / 2), y: Math.round(b.y + b.height / 2) };
+  });
+  await t.touchscreen.tap(box.x, box.y);
+  await t.waitForTimeout(250);
+  const afterMap = await read();
+  want("tapping the map leaves the key held", { pressed: afterMap.pressed, lit: afterMap.lit },
+    { pressed: "true", lit: true });
+  want("and the map does not argue with it", afterMap.mapHover, false);
+
+  await t.keyboard.press("Escape");
+  await t.waitForTimeout(250);
+  const afterEsc = await read();
+  want("escape lets it go", { pressed: afterEsc.pressed, lit: afterEsc.lit },
+    { pressed: "false", lit: false });
+
+  // Every key on a phone has to be big enough to hit. The strip is 10.5px text
+  // in a scroller, so this is where the target is tightest.
+  want("every key on a phone is a real target", await t.evaluate(() => {
+    const small = [];
+    for (const el of document.querySelectorAll("[data-lh]")) {
+      const b = el.getBoundingClientRect();
+      if (b.height === 0) continue;
+      const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+      const hits = (y) => { const a = document.elementFromPoint(cx, y); return a !== null && (a === el || el.contains(a)); };
+      if (!hits(cy)) continue;
+      if (!hits(cy - 13) || !hits(cy + 13)) small.push(`${el.className} ${Math.round(b.height)}px`);
+    }
+    return small;
+  }), []);
+
+  await phone.close();
+}
+
 // The map's own hover must be exactly what it was: the legend borrowed its
 // effect, it did not replace it.
 await page.goto(`${url}/`, { waitUntil: "networkidle" });
