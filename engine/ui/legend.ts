@@ -197,26 +197,25 @@ function holdingsLegend(keys: KeyMint): LegendModel | null {
   const byStatus = (status: string): LegendTarget => keys.within(`.holdings-${status}`);
   if (maybe > 0) {
     items.push(keys.custom(
-      { swatch: HOLDINGS_MAYBE_SWATCH, label: "Possible, not defended" }, byStatus("maybe")));
+      { swatch: HOLDINGS_MAYBE_SWATCH, label: "Possible group" }, byStatus("maybe")));
   }
   if (amb > 0) {
     items.push(keys.custom(
-      { swatch: HOLDINGS_AMB_SWATCH, label: "Two candidates" }, byStatus("amb")));
+      { swatch: HOLDINGS_AMB_SWATCH, label: "Two possible groups" }, byStatus("amb")));
   }
   if (unknown > 0) {
     items.push(keys.custom(
-      { swatch: HOLDINGS_UNKNOWN_SWATCH, label: "Filled, system unreadable" }, byStatus("unknown")));
+      { swatch: HOLDINGS_UNKNOWN_SWATCH, label: "Group name unreadable" }, byStatus("unknown")));
   }
   if (none > 0) {
-    items.push(keys.custom({ swatch: "#e4e7db", label: "No county fill" }, byStatus("none")));
+    items.push(keys.custom({ swatch: "#e4e7db", label: "No major group shown" }, byStatus("none")));
   }
   return {
     kind: "swatches",
     items,
-    note: "Counts are counties on this sheet. Colour separates systems; the FTC plate is "
-      + "monochrome, and the hatch swatches mark counties the engraving does not settle. "
-      + "Click a county for the printed name, the operating company where the plate names "
-      + "one, and how sure the reading is.",
+    note: "Counts show counties on this source map. Color identifies holding-company groups. "
+      + "Patterns mark uncertain readings from the original engraving. Select a county to "
+      + "compare its 1925 and 1932 assignments.",
   };
 }
 
@@ -254,7 +253,7 @@ function ramp(
 // standing in for it and cannot be matched by colour: the key names the group.
 function transitionKey(keys: KeyMint): LegendKey {
   return keys.custom(
-    { swatch: TRANSITION_SWATCH, label: "Changed grids in 2026" },
+    { swatch: TRANSITION_SWATCH, label: "Changed physical grids in 2026" },
     { dim: [`#${ctx().g.rto.id} .region`], lit: [`#${ctx().g.transitions.id} .region`] },
   );
 }
@@ -358,7 +357,7 @@ function frameLegend(keys: KeyMint, f: TimelineFrame | undefined): LegendModel {
   return {
     kind: "swatches",
     items,
-    ...(f?.ship === false ? { note: "This plate is still being inked." } : {}),
+    ...(f?.ship === false ? { note: "This history map is still being prepared." } : {}),
   };
 }
 

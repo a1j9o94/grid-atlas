@@ -10,6 +10,26 @@ export interface LayerCopy {
   gloss: string;
   explainer: string;
 }
+export interface UiCopy {
+  site_title: string;
+  site_dek: string;
+  stack_heading: string;
+  map_aria: string;
+  methodology_button: string;
+  tour_button: string;
+  github_link: string;
+  zip_label: string;
+  zip_button: string;
+  zoom_reset: string;
+  tour_skip: string;
+  tour_next: string;
+  tour_finish: string;
+}
+export interface MethodologyCopy {
+  title: string;
+  sections: { title: string; body: string }[];
+  source_link: string;
+}
 export interface TourStep {
   layer: LayerKey;
   title: string;
@@ -60,6 +80,8 @@ export interface ControlsCopy {
   [key: string]: string | undefined;
 }
 export interface CopyDeck {
+  ui: UiCopy;
+  methodology: MethodologyCopy;
   layers: Record<LayerKey, LayerCopy>;
   tour: TourStep[];
   regions: Record<string, RegionCopy>;

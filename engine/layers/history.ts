@@ -530,7 +530,7 @@ export function renderTimelineBar(): void {
   const stops: TimelineStop[] = all.map((f) => ({
     id: f.id,
     label: f.label,
-    title: f.ship ? f.title : `${f.title} · still being inked`,
+    title: f.ship ? f.title : `${f.title} · still being prepared`,
     pressed: f.id === c.frameId,
     pending: !f.ship,
   }));

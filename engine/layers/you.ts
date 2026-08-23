@@ -31,7 +31,7 @@ export function youBase(): void {
 
 export async function findZip(zip: string, urlMode: UrlMode = "replace"): Promise<void> {
   const c = ctx();
-  setAtlasState({ zipMsg: "Looking…" });
+  setAtlasState({ zipMsg: "Searching…" });
   const shard = await zctaShard(zip.substring(0, 2));
   if (c.dead) return;
   const topo = shard.geo;
@@ -39,7 +39,7 @@ export async function findZip(zip: string, urlMode: UrlMode = "replace"): Promis
   const target = fc.features.find((f) => f.properties.GEOID20 === zip);
   const utils = shard.lookup?.[zip] ?? [];
   if (!target && !utils.length) {
-    setAtlasState({ zipMsg: "We can't find that zip. Try another?" });
+    setAtlasState({ zipMsg: "We could not find that zip code. Check the number and try again." });
     return;
   }
   setAtlasState({ zipMsg: "" });

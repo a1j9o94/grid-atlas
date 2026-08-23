@@ -58,8 +58,8 @@ const ROUTES = [
 //   /rules/res  — every state reports a residential price, so "not reported"
 //                 names no state. The row is still printed, because the reader
 //                 is owed the scale's own out-of-range colour.
-//   membership  — the geometry carries no NONE feature: "nobody running the
-//                 traffic" is a hole in the map rather than a shape on it.
+//   membership  — the geometry carries no NONE feature: "no regional market
+//                 operator" is a hole in the map rather than a shape on it.
 const NAMES_NOTHING = { "/rules/res": 1, "/then/1999": 1, "/then/2014": 1 };
 
 const KEYS = ".legend .lg-item, .legend .lg-step";
@@ -174,9 +174,9 @@ want("1967's one row names both machines", await page.evaluate((sel) =>
 // A key that names a hole in the map must not offer itself as one that does
 // something: no cursor, no tab stop.
 await open("/then/1999");
-want("the key for nobody running the traffic stays inert", await page.evaluate(() => {
+want("the key for no regional market operator stays inert", await page.evaluate(() => {
   const key = [...document.querySelectorAll(".legend .lg-item")]
-    .find(e => e.textContent.includes("Nobody running"));
+    .find(e => e.textContent.includes("No regional market operator"));
   return { found: !!key, live: key?.hasAttribute("data-lh") ?? null };
 }), { found: true, live: false });
 

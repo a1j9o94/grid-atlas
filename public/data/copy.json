@@ -1,191 +1,261 @@
 {
   "meta": {
-    "version": "2026-08-15",
+    "version": "2026-08-23",
     "reading_level": "5th-6th grade",
-    "notes": "Source of truth for every string the map shows. Anchors are [lon, lat] EPSG:4326; the site projects them. verified:false entries need a fact-check pass before launch. People counts in region cards are rough and marked with ~.",
+    "notes": "Source of truth for the main layers, tour, region cards, controls, and shared interface copy. History copy lives in public/data/timeline.json. Anchors are [lon, lat] EPSG:4326; the site projects them. verified:false entries need a fact-check pass before launch. People counts in region cards are rough and marked with ~.",
     "honesty_footnotes": [
       "Region shapes come from utility service areas, so borders are honest but not smooth.",
       "Zip shapes are the Census version of zip codes (ZCTAs). They are very close, not exact.",
       "Where the map shows a blank white gap, no utility is mapped there. Much of it is wilderness."
     ]
   },
+  "ui": {
+    "site_title": "How electricity reaches you",
+    "site_dek": "See who coordinates the market, who sets the rules, and who owns your local wires. Then trace the decisions that built the system.",
+    "stack_heading": "The system",
+    "map_aria": "Interactive map of the United States electricity system",
+    "methodology_button": "How this map was made",
+    "tour_button": "▶ 30-second tour",
+    "github_link": "Check the sources on GitHub ↗",
+    "zip_label": "Enter your zip code",
+    "zip_button": "Find my address",
+    "zoom_reset": "← Whole country",
+    "tour_skip": "Skip",
+    "tour_next": "Next",
+    "tour_finish": "Explore the map"
+  },
+  "methodology": {
+    "title": "How this map was made",
+    "sections": [
+      {
+        "title": "Map boundaries",
+        "body": "Local utility territories come from the federal HIFLD dataset. The source contains more than 2,900 utilities. Wholesale market regions are built by grouping each utility under its regional market operator. Zip boundaries use Census ZCTAs, which approximate postal zip codes. Source boundaries can be rough, and white gaps indicate areas where no utility territory is mapped."
+      },
+      {
+        "title": "Corrections",
+        "body": "Federal territory data contains stale records and overlapping shapes. Every correction is documented in the repository. Caldwell, Texas, moved from the Eastern grid to ERCOT in March 2026. A group of western utilities joined Southwest Power Pool in April 2026. Generation-only companies and other shapes that duplicate local wires utilities are excluded."
+      },
+      {
+        "title": "Utility numbers",
+        "body": "Utility size and operating measures come from the 2024 EIA-861 annual report. A meter is a billing account. Homes, businesses, and factories all count. Texas delivery utilities require a separate EIA table because electricity sellers hold the customer accounts there. A missing report stays blank instead of becoming zero."
+      },
+      {
+        "title": "Size view",
+        "body": "The size view turns each utility into a circle. Circle area represents meters, electricity delivered, revenue, or customer-owned solar. Circles begin near the real utility territory and move apart until they stop overlapping. Area remains proportional to the measure. Position becomes approximate. A minimum circle size keeps small utilities visible."
+      },
+      {
+        "title": "Reliability, solar, and smart meters",
+        "body": "Reliability reports cover utilities serving about four fifths of the country's meters. Major storms are shown separately. Customer-owned solar combines EIA net-metering and non-net-metering reports so states such as Texas are represented. It excludes utility-scale solar farms. Smart meter share compares advanced meters with all meters served by the utility."
+      },
+      {
+        "title": "Electricity prices",
+        "body": "Prices are shown separately for homes, businesses, and industrial customers. A blended average would describe a price that no customer class pays. The utility maps work where one company sells electricity and delivers it. ERCOT is blank because separate companies perform those jobs. State-level household prices provide the cleanest comparison of what residents pay."
+      },
+      {
+        "title": "Blank price territories",
+        "body": "Small utilities may report one total without separating customer classes. Wires-only utilities report delivery charges but do not sell electricity. A utility may also have no customers in a class, especially industrial customers. These territories remain blank instead of receiving an invented value."
+      },
+      {
+        "title": "Delivery prices",
+        "body": "The delivery map isolates the household charge for poles and wires. Only a few dozen utilities report this charge separately. Most utilities send one combined bill, so the public data does not separate the cost of electricity from the cost of delivery."
+      },
+      {
+        "title": "History",
+        "body": "The history layer contains ten dated snapshots. It does not invent annual boundaries between the surviving source dates. The 1900 map uses city power stations. The 1925 and 1932 maps trace Federal Trade Commission hatch patterns onto modern counties while preserving uncertain readings. Later maps distinguish the three synchronized grids from the regional wholesale markets operating inside them."
+      },
+      {
+        "title": "Sources and uncertainty",
+        "body": "History cards link to original maps, laws, reports, and tables. Unverified event cards are labeled as drafts. Approximate counts use a tilde. Historical boundaries, modern utility territories, and archival hatch patterns all carry limits explained beside the relevant map."
+      },
+      {
+        "title": "About",
+        "body": "This is part of a series about electricity markets. I work at Light, a company whose business depends on retail electricity choice. That experience informs the questions in this project. The code, data, sources, and corrections are public."
+      }
+    ],
+    "source_link": "View the code, data, and corrections on GitHub ↗"
+  },
   "layers": {
     "wholesale": {
-      "title": "Wholesale",
-      "gloss": "who runs the market",
-      "explainer": "An RTO is a referee for electricity. It doesn't make power or own wires. It runs the market and keeps the grid balanced, second by second. About a third of the country has no RTO at all."
+      "title": "Markets",
+      "gloss": "who coordinates wholesale power",
+      "explainer": "Regional market operators coordinate electricity sold between power companies. They also balance supply and demand across the high-voltage grid. They do not own most power plants or local wires. About a third of the country has no regional market operator."
     },
     "rules": {
-      "title": "Rules",
-      "gloss": "can you pick your seller?",
-      "explainer": "Each state writes its own rules. In some states you can pick the company that sells you power, like picking a phone plan. In most states one company is the only choice, and a state board checks its prices."
+      "title": "State rules",
+      "gloss": "can you choose your electricity seller?",
+      "explainer": "Each state decides whether households can choose an electricity seller. The company selling electricity may be different from the utility delivering it. In most states one utility provides both services. A state regulator approves its prices."
     },
     "wires": {
-      "title": "Wires",
-      "gloss": "who owns the poles",
-      "explainer": "Almost 3,000 different companies own the poles and wires in America. Some are owned by investors. Some are owned by cities. Some are co-ops, owned by the very customers they serve."
+      "title": "Local wires",
+      "gloss": "who delivers the electricity",
+      "explainer": "Almost 3,000 utilities own the local poles, wires, and meters that deliver electricity. Investors own some. Cities and public districts own others. Co-ops belong to their customers."
     },
     "you": {
-      "title": "You",
-      "gloss": "your zip code",
-      "explainer": "Type your zip code and see your place in the stack: your utility, your state's rules, and your grid."
+      "title": "Your address",
+      "gloss": "how the layers meet",
+      "explainer": "Enter your zip code. The map will show your local wires utility, your state's rules, and the wholesale market serving the area."
     },
     "history": {
-      "title": "Then",
-      "gloss": "how it got this way",
-      "explainer": "None of this was planned. It was built city by city, then stitched together, then broken up by law, then stitched again. Scrub back to 1900 and watch the country go dark."
+      "title": "History",
+      "gloss": "how today's system formed",
+      "explainer": "Electricity began as thousands of isolated city systems. Companies consolidated them. Federal law broke the largest empires apart. Engineers connected the country into three physical grids, and regional markets arrived decades later."
     }
   },
   "tour": [
     {
       "layer": "wholesale",
-      "title": "Start wide",
-      "body": "This is the whole country, split by who runs each power market. These referees are called RTOs. The gray areas have no referee at all."
+      "title": "Wholesale markets",
+      "body": "The colors show regional market operators. They coordinate wholesale trading and balance supply with demand. Gray areas have no regional market operator."
     },
     {
       "layer": "rules",
-      "title": "States make the rules",
-      "body": "Color by state now. In the bright states you can pick who sells you power. In the rest, one company is the only choice."
+      "title": "State rules",
+      "body": "States decide whether households can choose an electricity seller. Dark green states allow broad choice. Pale states keep one local utility as the seller."
     },
     {
       "layer": "wires",
-      "title": "Almost 3,000 wire owners",
-      "body": "Zoom in and the map shatters into almost 3,000 pieces. Every piece is a company that owns poles and wires. Co-ops, city utilities, big investor companies."
+      "title": "Local wires",
+      "body": "Each shape is a utility territory. Almost 3,000 utilities own the poles and wires that deliver electricity. The colors show who owns each utility."
     },
     {
       "layer": "you",
-      "title": "Find yourself",
-      "body": "Type your zip code. The map flies to your neighborhood and shows your utility, your rules, and your grid."
+      "title": "Your address",
+      "body": "Enter your zip code. The map shows the local wires utility, the state rules, and the wholesale market serving that area."
+    },
+    {
+      "layer": "history",
+      "title": "How the system formed",
+      "body": "Move through ten dated maps from 1900 to today. Each map explains one change in ownership, law, engineering, or market structure."
     }
   ],
   "regions": {
     "PJM": {
       "name": "PJM",
-      "body": "PJM runs the power market for 13 states plus Washington, DC, from Chicago to the coast. It is the biggest grid operator in America.",
+      "body": "PJM coordinates the wholesale power market across parts of 13 states and Washington, DC. Its territory stretches from Chicago to the Atlantic coast. It is the largest regional market operator in the country.",
       "stats": {
         "states": "13 + DC",
         "people": "~65M"
       },
-      "choice": "Can people pick their power company? In most PJM states, yes."
+      "choice": "Can households choose an electricity seller? In most PJM states, yes."
     },
     "ERCOT": {
       "name": "ERCOT",
-      "body": "ERCOT runs the grid for most of Texas. Think of it as air-traffic control for electricity. It doesn't own the power plants or the wires. It keeps supply and demand matched every second. Texas keeps its grid separate from the rest of the country, on purpose.",
+      "body": "ERCOT coordinates the wholesale market and physical grid for most of Texas. It keeps supply and demand matched every second. It owns neither the power plants nor the local wires. Most of its grid remains separate from the rest of the country.",
       "stats": {
         "states": "1",
         "people": "~27M"
       },
-      "choice": "Can people pick their power company? In most of Texas, yes."
+      "choice": "Can households choose an electricity seller? In most of ERCOT, yes."
     },
     "MISO": {
       "name": "MISO",
-      "body": "MISO stretches from Minnesota down to Louisiana. It runs the wholesale market for about 15 states in the middle of the country.",
+      "body": "MISO coordinates the wholesale power market across parts of about 15 states. Its territory reaches from Minnesota to Louisiana.",
       "stats": {
         "states": "~15",
         "people": "~45M"
       },
-      "choice": "Can people pick their power company? Mostly no. One utility per town."
+      "choice": "Can households choose an electricity seller? Usually no. Most areas have one local utility."
     },
     "SPP": {
       "name": "SPP",
-      "body": "Southwest Power Pool runs the market across the windy middle of the country, from the Dakotas down through Kansas and Oklahoma into the Texas Panhandle.",
+      "body": "Southwest Power Pool coordinates a wholesale market across the central United States. Its eastern territory reaches from the Dakotas through Kansas and Oklahoma into the Texas Panhandle.",
       "stats": {
         "states": "~14 (parts)",
         "people": "~18M"
       },
-      "choice": "Can people pick their power company? No. One utility per town."
+      "choice": "Can households choose an electricity seller? Usually no. Most areas have one local utility."
     },
     "CAISO": {
       "name": "CAISO",
-      "body": "CAISO runs most of California's grid. California opened its market in the 1990s, hit a crisis in 2000, and mostly closed it again.",
+      "body": "CAISO coordinates the wholesale market across most of California. Several city-owned utilities remain outside it. California opened retail electricity sales in the 1990s and restricted them after the 2000 crisis.",
       "stats": {
         "states": "1 (most of CA)",
         "people": "~30M"
       },
-      "choice": "Can people pick their power company? Mostly no. Some cities buy power together for everyone in town."
+      "choice": "Can households choose an electricity seller? Usually no. Many communities choose a seller on behalf of their residents."
     },
     "NYISO": {
       "name": "NYISO",
-      "body": "NYISO runs the grid for exactly one state: New York.",
+      "body": "NYISO coordinates the wholesale power market across New York State.",
       "stats": {
         "states": "1",
         "people": "~20M"
       },
-      "choice": "Can people pick their power company? Yes."
+      "choice": "Can households choose an electricity seller? Yes."
     },
     "ISONE": {
       "name": "ISO-NE",
-      "body": "ISO New England runs the grid for all six New England states.",
+      "body": "ISO New England coordinates the wholesale power market across all six New England states.",
       "stats": {
         "states": "6",
         "people": "~15M"
       },
-      "choice": "Can people pick their power company? Yes, in most of New England."
+      "choice": "Can households choose an electricity seller? Yes, in most of New England."
     },
     "SPPWEST": {
       "name": "SPP West",
-      "body": "This is brand new. In April 2026 a group of western utilities switched on a second SPP market, this one on the Western grid. The same referee now runs markets on both sides of the great East-West seam. But the two grids still connect only through a few special converter stations, so power cannot flow freely between them.",
+      "body": "In April 2026, western utilities opened a second market run by Southwest Power Pool. SPP now operates markets on both the Eastern and Western grids. The two physical grids remain separate and exchange limited power through converter stations.",
       "stats": {
         "states": "~8 (parts)",
         "people": "~3.5M"
       },
-      "choice": "Can people pick their power company? No."
+      "choice": "Can households choose an electricity seller? Usually no."
     },
     "NONE": {
-      "name": "No RTO",
+      "name": "No regional market",
       "display_split": {
         "NONE_W": {
-          "label": "NO RTO",
+          "label": "NO REGIONAL MARKET",
           "anchor": [
             -114.0,
             42.5
           ],
-          "body": "No shared market here. In most of the West, one company does everything: makes the power, moves it, sells it. A state board checks its prices. That is starting to change: in 2026 a group of western utilities joined SPP's market."
+          "body": "Most western utilities remain outside a regional wholesale market. A utility may generate electricity, move it over high-voltage lines, and sell it to customers. State regulators approve its prices. Some western utilities joined SPP's new market in 2026."
         },
         "NONE_SE": {
-          "label": "NO RTO",
+          "label": "NO REGIONAL MARKET",
           "anchor": [
             -84.5,
             33.5
           ],
-          "body": "No shared market in the Southeast either. Big utilities here do it all: one company, one bill. A state board checks the prices."
+          "body": "Most southeastern utilities remain outside a regional wholesale market. Large utilities often generate, transmit, and sell electricity. Customers receive one bill, and state regulators approve the prices."
         }
       },
       "stats": {
         "states": "~17",
         "people": "~70M"
       },
-      "choice": "Can people pick their power company? No."
+      "choice": "Can households choose an electricity seller? Usually no."
     }
   },
   "wires_types": {
     "INVESTOR OWNED": {
       "label": "Investor-owned",
-      "body": "A company owned by investors. It answers to shareholders and to a state board that checks its prices."
+      "body": "Investors own this wires utility. It answers to shareholders, while state regulators approve the prices it charges."
     },
     "COOPERATIVE": {
       "label": "Co-op",
-      "body": "A power company owned by its own customers. Every member gets a vote. Co-ops keep the lights on across most of rural America."
+      "body": "The customers own this wires utility as members of a cooperative. Co-ops serve much of rural America."
     },
     "MUNICIPAL": {
       "label": "City-owned",
-      "body": "A power company owned by the town it serves, like the library or the fire department."
+      "body": "A city or town owns this wires utility on behalf of the public."
     },
     "POLITICAL SUBDIVISION": {
       "label": "Public power district",
-      "body": "A public utility run by a local district, owned by the public it serves."
+      "body": "A local public district owns and runs this wires utility."
     },
     "STATE": {
       "label": "State-owned",
-      "body": "A utility owned by the state."
+      "body": "A state government owns this utility."
     },
     "FEDERAL": {
       "label": "Federal",
-      "body": "A utility run by the federal government, usually selling power from big dams."
+      "body": "The federal government runs this utility. Many federal utilities sell electricity from large dams."
     },
     "NOT AVAILABLE": {
       "label": "Utility",
-      "body": "A local power company."
+      "body": "The source data does not record who owns this local wires utility."
     }
   },
   "trivia": [
@@ -202,8 +272,8 @@
           "state": "TX"
         }
       },
-      "title": "The town that switched grids",
-      "body": "Until March 2026, the little city of Caldwell was a MISO island about 80 miles northeast of Austin. Its power came through the Eastern grid. New lines were built, and Caldwell joined ERCOT. Older maps still show the island.",
+      "title": "Caldwell moved from the Eastern grid to ERCOT",
+      "body": "Until March 2026, Caldwell was a small pocket of the Eastern grid inside central Texas. It participated in the MISO market. New transmission lines connected the city to ERCOT's physical grid and wholesale market.",
       "verified": true,
       "sources": [
         "https://www.ercot.com/news/release/03122026-ercot-welcomes-the",
@@ -220,8 +290,8 @@
           35.2
         ]
       },
-      "title": "The Panhandle isn't on the Texas grid",
-      "body": "ERCOT's border is not the Texas border. The Panhandle and the South Plains run on the Eastern grid, inside SPP. Lubbock, the biggest city up here, began moving its wires to ERCOT in 2021 and finished in 2023. In 2024 its people got to shop for their power for the first time.",
+      "title": "The Texas Panhandle uses the Eastern grid",
+      "body": "ERCOT does not cover all of Texas. The Panhandle and much of the South Plains use the Eastern grid and participate in the SPP market. Lubbock moved most of its system to ERCOT between 2021 and 2023. Retail electricity choice began there in 2024.",
       "verified": true,
       "sources": [
         "https://www.publicpower.org/periodical/article/lubbock-power-light-completes-historic-move-ercot",
@@ -238,7 +308,7 @@
         ]
       },
       "title": "El Paso is on the Western grid",
-      "body": "El Paso is in Texas, but not on the Texas grid. Its utility is part of the Western grid that runs to the Pacific. In the big freeze of 2021, most of Texas lost power. El Paso mostly kept its lights on.",
+      "body": "El Paso is in Texas but outside ERCOT. Its utility operates on the Western grid. During the February 2021 freeze, El Paso avoided most of the outages that affected ERCOT.",
       "verified": true,
       "sources": []
     },
@@ -251,8 +321,8 @@
           30.5
         ]
       },
-      "title": "Southeast Texas runs on a different grid",
-      "body": "The land from Beaumont up past Lufkin is Texas, but its market is MISO, the same referee as Minnesota. Pockets of this eastern-grid territory reach west past Bryan-College Station, woven between ERCOT co-ops.",
+      "title": "Southeast Texas participates in MISO",
+      "body": "The area from Beaumont north past Lufkin uses the Eastern grid and participates in the MISO wholesale market. Parts of this territory extend west of Bryan-College Station between utilities served by ERCOT.",
       "verified": true,
       "shape_note": "Entergy's own map confirms service in Burleson, Robertson, Leon, Limestone, and Madison counties; the HIFLD polygon overshoots ~20mi into Milam County (true edge is the Brazos line, ~-96.9).",
       "sources": [
@@ -269,8 +339,8 @@
           32.6
         ]
       },
-      "title": "The SPP fingers in East Texas",
-      "body": "See the yellow fingers reaching into East Texas? Those co-ops get their power through SPP, on the Eastern grid, not through ERCOT. The border between grids runs right between neighboring farms.",
+      "title": "Some East Texas co-ops participate in SPP",
+      "body": "Several electric co-ops in northeast Texas use the Eastern grid and participate in the SPP market. They sit beside utilities served by ERCOT, so the physical grid boundary passes between nearby communities.",
       "verified": true,
       "sources": [
         "https://www.spp.org/documents/36494/2016-03-01_east%20texas%20cooperatives%20stated%20rate_er16-1054-000.pdf",
@@ -286,8 +356,8 @@
           35.8
         ]
       },
-      "title": "The holes in SPP",
-      "body": "Eastern Oklahoma looks like Swiss cheese. The holes are co-ops that never joined SPP. They buy power through KAMO Power, part of a family of co-ops called Associated Electric, based in Missouri. Associated runs its own control room and never joined any RTO.",
+      "title": "Some Oklahoma co-ops sit outside SPP",
+      "body": "Several electric co-ops in eastern Oklahoma do not participate in the SPP market. They receive wholesale power through KAMO Power, part of Associated Electric Cooperative. Associated balances its own system instead of joining a regional market operator.",
       "verified": true,
       "sources": [
         "https://www.aeci.org/three-tiered-system-service-area",
@@ -303,8 +373,8 @@
           41.8
         ]
       },
-      "title": "Nebraska sits on two grids",
-      "body": "The line between America's Eastern and Western grids runs through Nebraska. Towns in the panhandle are on the Western grid, tied to federal dams. The rest of the state is on the Eastern grid. Today one operator, SPP, runs markets on both sides. But power still cannot flow freely across the seam. It must pass through special converter stations, like the one near Sidney.",
+      "title": "Nebraska spans two physical grids",
+      "body": "The Eastern and Western grids meet in Nebraska. The panhandle uses the Western grid. Most of the state uses the Eastern grid. SPP now operates wholesale markets on both sides, but electricity crosses the boundary only through converter stations such as the one near Sidney.",
       "verified": true,
       "sources": [
         "https://spp.org/news-list/spp-and-member-utilities-successfully-complete-historic-western-expansion/",
@@ -320,8 +390,8 @@
           45.6
         ]
       },
-      "title": "The corner of Maine that routes through Canada",
-      "body": "The far eastern and northern edges of Maine are not connected to New England's grid at all. Their power comes through New Brunswick, Canada. To reach the rest of America's grid, it crosses the border twice. New England's grid operator is now planning a line to finally connect this area.",
+      "title": "Northern Maine connects through Canada",
+      "body": "Northern and eastern Maine are not directly connected to the rest of New England's grid. The area connects through New Brunswick, Canada. Reaching the rest of the United States requires crossing the international border twice. ISO New England is planning a direct connection.",
       "verified": true,
       "sources": [
         "https://www.nmisa.com/wp-content/uploads/2022/04/2022-Seven-Year-Outlook-final-1.pdf",
@@ -337,8 +407,8 @@
           34.05
         ]
       },
-      "title": "Los Angeles runs its own grid",
-      "body": "The big hole in CAISO is Los Angeles. The city's own utility, LADWP, has run its own grid for a hundred years. It never joined California's market.",
+      "title": "Los Angeles remains outside CAISO",
+      "body": "The Los Angeles Department of Water and Power operates its own balancing area. It does not participate as a member of CAISO's regional wholesale market, which creates the large gap on this map.",
       "verified": true,
       "sources": []
     },
@@ -351,8 +421,8 @@
           38.58
         ]
       },
-      "title": "Sacramento opted out too",
-      "body": "California's capital is also a hole in CAISO. Sacramento's city-owned utility runs its own balancing authority with a few neighbors. It trades power in CAISO's markets, but it controls its own piece of the grid.",
+      "title": "Sacramento also operates outside CAISO",
+      "body": "Sacramento's city-owned utility belongs to a separate balancing authority with several neighboring utilities. It trades electricity through CAISO programs but remains outside CAISO's main balancing area.",
       "verified": true,
       "sources": [
         "https://thebanc.org/",
@@ -368,8 +438,8 @@
           47.6
         ]
       },
-      "title": "North Dakota is split down the middle",
-      "body": "Co-ops in eastern North Dakota trade power in MISO, the market that stretches from Minnesota to Louisiana. Co-ops in the west trade in SPP. The west runs on power from federal dams on the Missouri River and from Basin Electric's big plants. That whole system joined SPP in 2015. The east had already tied its lines to Minnesota, so it runs with MISO.",
+      "title": "North Dakota is split between two markets",
+      "body": "Utilities in eastern North Dakota participate in MISO. Utilities in the west participate in SPP. The western system, including Basin Electric and federal transmission lines, joined SPP in 2015. Both markets operate on the Eastern grid.",
       "verified": true,
       "sources": [
         "https://www.basinelectric.com/about-us/transmission/SPP-Upper-Missouri-Zone",
@@ -385,55 +455,12 @@
           42.0
         ]
       },
-      "title": "Michigan's odd corner",
-      "body": "Michigan is MISO country, except its far southwest corner. There, an Indiana-based utility and its neighbors buy and sell power through PJM, the market centered hundreds of miles east.",
+      "title": "Southwest Michigan participates in PJM",
+      "body": "Most Michigan utilities participate in MISO. An Indiana-based utility serving the state's southwest corner participates in PJM instead. Both markets operate on the Eastern grid.",
       "verified": true,
       "sources": [
         "https://www.michigan.gov/mpsc/commission/news-releases/2025/08/21/michigan-electricity-providers-file-reports-showing-they-again-have-enough-capacity",
         "https://www.ferc.gov/industries-data/electric/electric-power-markets/pjm"
-      ]
-    },
-    {
-      "id": "small-towns-one-number",
-      "layer": "wires",
-      "anchor": {
-        "lonlat": [
-          -94.93,
-          38.81
-        ],
-        "feature": {
-          "name": "CITY OF GARDNER",
-          "state": "KS"
-        }
-      },
-      "title": "The towns that report one number",
-      "body": "Gardner, Kansas runs its own power company, and it is blank on the price maps. So are 1,698 others. They all have houses on them. What they do not have is a price broken out for those houses: a small company files a short form with three figures on it, total money, total power, total customers, and nothing about who paid which part. Kansas, Iowa and Nebraska lose most of their shapes this way. They lose almost none of their electricity, because these are town utilities and co-ops. All 1,699 together are about one meter in forty.",
-      "verified": true,
-      "sources": [
-        "https://www.eia.gov/electricity/data/eia861/",
-        "https://www.eia.gov/survey/form/eia_861/instructions.pdf"
-      ]
-    },
-    {
-      "id": "oncor-sells-nobody-power",
-      "layer": "wires",
-      "anchor": {
-        "lonlat": [
-          -96.8,
-          32.78
-        ],
-        "feature": {
-          "name": "ONCOR ELECTRIC DELIVERY COMPANY LLC",
-          "state": "TX"
-        }
-      },
-      "title": "The company that sells you nothing",
-      "body": "Oncor owns the poles for Dallas and about four million meters, and it has never sold anyone a kilowatt hour. In most of Texas the company that owns the wires is forbidden to sell you the power. A retailer sells you that, bills you for both halves, and hands the delivery part back to Oncor. So Oncor has no price to put on this map, only a delivery charge, and it is blank here for the opposite reason to a small town: not too little reported, but the wrong half. What Dallas households actually paid is on the state map.",
-      "verified": true,
-      "sources": [
-        "https://www.oncor.com/content/oncorwww/us/en/home/about-us/who-we-are.html",
-        "https://www.puc.texas.gov/industry/electric/directories/rep/reptcert.aspx",
-        "https://www.eia.gov/electricity/data/eia861/"
       ]
     }
   ],
@@ -441,32 +468,32 @@
     "toggle_land": "By land",
     "toggle_size": "By size",
     "toggle_label": "Draw the map",
-    "intro_title": "The same country, drawn by size",
-    "intro_body": "Now every company is a circle, and bigger means more. The map still puts each one about where it belongs, but circles push each other aside to make room. Watch the empty middle of the country shrink.",
-    "legend_note": "Circle area shows the amount. Tiny companies are drawn at a smallest size so they do not disappear.",
-    "missing_note": "{n} companies report no number and are not drawn.",
+    "intro_title": "Utility size",
+    "intro_body": "Each utility becomes a circle. Circle area represents the selected measure. The circles begin near their real territories and move apart until they no longer overlap.",
+    "legend_note": "Circle area represents the amount. A minimum size keeps the smallest utilities visible.",
+    "missing_note": "{n} utilities report no number and are not drawn.",
     "measures": {
       "cust": {
         "label": "Meters",
-        "blurb": "How many meters each company serves. A meter is a bill, not a person, and shops and factories have them too."
+        "blurb": "The number of billing meters each utility serves. Homes, businesses, and factories all have meters."
       },
       "mwh": {
         "label": "Electricity delivered",
-        "blurb": "How much electricity flows over each company's wires in a year. Factories move this number more than people do."
+        "blurb": "The electricity delivered across each utility's wires in one year. Large industrial customers can dominate this measure."
       },
       "rev": {
         "label": "Money collected",
-        "blurb": "What each company collects from customers in a year."
+        "blurb": "The revenue each utility collects from customers in one year."
       },
       "solarmw": {
         "label": "Rooftop solar",
-        "blurb": "How much solar sits on customer roofs in each company's territory. California draws most of the picture. Most companies report none at all, so most of the map is empty."
+        "blurb": "The solar capacity installed behind customer meters in each utility territory. This excludes utility-scale solar farms."
       }
     }
   },
   "controls": {
     "shade_label": "Shade by",
-    "colour_label": "Colour by",
+    "colour_label": "Color by",
     "colour_type": "Who owns it",
     "colour_parent": "Parent company",
     "colour_saidi": "Time without power",
@@ -477,31 +504,31 @@
     "colour_rateind": "Industry",
     "colour_delivrate": "Wires only",
     "not_reported": "not reported",
-    "parent_intro_title": "Almost 3,000 companies, twenty owners",
-    "parent_intro_body": "Most of these companies belong to a bigger one. Twenty parent companies own the wires for about half the meters in America. Hundreds more own a piece of the rest. What is left in pale grey is towns and co-ops that answer to nobody but their own customers.",
-    "saidi_intro_title": "How long the lights stay off",
-    "saidi_intro_body": "Darker means more minutes without power in a year. This counts an ordinary year. Flip to storms and the map turns dark wherever a hurricane landed.",
-    "saidi_note": "Big storms are counted separately because one hurricane can outweigh everything else a company does. CenterPoint in Houston went from 150 minutes to 4,316 in the year of Hurricane Beryl.",
-    "solarw_intro_title": "Where the roofs make power",
-    "solarw_intro_body": "Darker means more solar per household on that company's system. This is only the small solar behind a customer's meter. The big solar farms out in the desert are generation and belong to a different map. Hawaii and the Southwest are dark. Most of the country is barely shaded.",
-    "solarw_note": "The number spreads a company's residential solar across every household it serves, so it is not the size of one array. A thousand watts per home means roughly one house in six has panels.",
-    "amishare_intro_title": "The meter on the side of the house",
-    "amishare_intro_body": "A smart meter talks both ways. The company can read it without sending anyone out, and it can carry an hourly price back to the customer. Dark means nearly every meter has been swapped. Pale means almost none have.",
-    "amishare_note": "This map is nearly black and white because the rollout is. A company has either done it or it has not. Los Angeles, Boston and most of Connecticut still have none.",
-    "rateres_intro_title": "What a house pays",
-    "rateres_intro_body": "Darker means more expensive. This is the whole household bill: the power itself, the wires, and the cost of running the company, divided by the electricity homes used. Texas is blank, because there the company that owns the poles and the company that sells you power are two different businesses, and neither one billed you the whole amount.",
-    "rateres_note": "Homes only. Shops and factories buy the same electricity for less, because they take more of it through one connection, so mixing them in would have shown you a price nobody is charged. Small companies that report one lump sum instead of a breakdown are blank here; they are 1 meter in 40.",
-    "ratecom_intro_title": "What a shop pays",
-    "ratecom_intro_body": "The same map for businesses: shops, offices, schools, restaurants. Not factories, which buy differently again. It runs a few cents under the household price nearly everywhere, and the size of that gap is the thing worth looking at. Where it is wide, households are carrying more of the cost of the system.",
-    "ratecom_note": "Commercial customers as the annual report counts them, which is the service sector rather than anything that makes things. Factories are their own class, on their own map.",
-    "rateind_intro_title": "What a factory pays",
-    "rateind_intro_body": "About half what a house pays for the same electricity. A factory takes an enormous, steady amount of power through one connection, often straight off the big transmission lines, so it skips most of the local poles and wires that a house depends on. Compare this map with the first one: where the two are furthest apart, households are carrying the most of the system's cost.",
-    "rateind_note": "Factories, mines, refineries and farms. Blank where a company reports no industrial customers at all, which is honest rather than missing: plenty of places have no factories.",
-    "delivrate_intro_title": "Just the poles and wires",
-    "delivrate_intro_body": "This is the delivery charge on a household bill, with the cost of the power taken out. Nearly the whole map is blank, and that is the finding rather than a hole. A company only bills delivery separately where you are allowed to buy your power from somebody else. Everywhere else one company sends one bill, and how much of it is the wires is not written down anywhere.",
-    "delivrate_note": "Homes only, so it lines up with what a house pays. A few dozen companies out of almost 3,000 report it. Where it is blank the number is not being withheld; it does not exist, because the company was never required to split its bill in two.",
-    "price_intro_title": "What power costs, and what it costs to deliver",
-    "price_intro_body": "Darker means more expensive. Switch between what households pay, what factories pay, and what the wires alone cost. The gap between them is not the same everywhere."
+    "parent_intro_title": "Parent companies",
+    "parent_intro_body": "Many local wires utilities belong to a larger parent company. Twenty parent companies own utilities serving about half of the country's meters. Pale areas are mostly city utilities and co-ops without a corporate parent.",
+    "saidi_intro_title": "Time without power",
+    "saidi_intro_body": "Darker territories report more outage minutes per customer. The default view excludes major storms. Use the storm control to include them.",
+    "saidi_note": "A major storm can outweigh every ordinary outage in the year. CenterPoint reported 150 minutes without major storms and 4,316 minutes with them in the year of Hurricane Beryl.",
+    "solarw_intro_title": "Rooftop solar per home",
+    "solarw_intro_body": "Darker territories have more customer-owned solar capacity per household meter. The measure includes panels behind a customer's meter. It excludes large solar farms.",
+    "solarw_note": "This is an average across every household meter. It does not show the size of one installation. One thousand watts per home means roughly one home in six has panels.",
+    "amishare_intro_title": "Smart meter adoption",
+    "amishare_intro_body": "A smart meter sends usage data to the utility and can receive time-based prices. Dark territories have replaced nearly every meter. Pale territories have replaced few or none.",
+    "amishare_note": "Adoption is concentrated at the extremes. Most utilities have replaced nearly every meter or almost none of them.",
+    "rateres_intro_title": "Household electricity price",
+    "rateres_intro_body": "Darker territories report a higher average price paid by homes. The measure includes electricity and delivery where one utility provides both. ERCOT is blank because its wires utilities do not sell electricity and its electricity sellers do not own utility territories.",
+    "rateres_note": "This map shows homes only. Small utilities that report one total instead of separate customer classes remain blank.",
+    "ratecom_intro_title": "Business electricity price",
+    "ratecom_intro_body": "Darker territories report a higher average price paid by businesses such as shops, offices, schools, and restaurants. Factories and other industrial customers appear on a separate map.",
+    "ratecom_note": "Business customers usually pay less per unit than homes because they buy more electricity through fewer connections.",
+    "rateind_intro_title": "Industrial electricity price",
+    "rateind_intro_body": "Darker territories report a higher average price paid by factories, mines, refineries, and farms. These customers often take large, steady loads at high voltage and pay less per unit than homes.",
+    "rateind_note": "A blank territory may have no industrial customers or no customer-class breakdown in the utility's report.",
+    "delivrate_intro_title": "Electricity delivery price",
+    "delivrate_intro_body": "This measure isolates the household charge for poles and wires. Utilities report it separately where customers can choose an electricity seller. Most utilities send one combined bill, so most territories have no separate delivery price to report.",
+    "delivrate_note": "Only a few dozen utilities report a separate household delivery price. A blank territory usually means the utility was never required to split the bill into electricity and delivery charges.",
+    "price_intro_title": "Electricity prices",
+    "price_intro_body": "Darker means more expensive. Compare prices for homes, businesses, and industrial customers. The delivery view isolates the household charge for poles and wires."
   },
   "wires_groups": {
     "iou": {
@@ -509,7 +536,7 @@
       "phrase": "owned by investors"
     },
     "coop": {
-      "label": "Residents",
+      "label": "Members",
       "phrase": "owned by its members"
     },
     "public": {

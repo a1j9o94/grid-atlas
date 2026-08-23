@@ -209,8 +209,8 @@ const INITIAL: AtlasState = {
   colourControls: null,
   sizeControls: null,
   drawingNote: {
-    title: "The map is being drawn.",
-    sub: "Check back shortly. The boundaries of 2,900 utilities take a moment to ink.",
+    title: "Loading the map",
+    sub: "Utility boundaries may take a moment to appear.",
   },
   zipMsg: "",
   zoomResetVisible: false,

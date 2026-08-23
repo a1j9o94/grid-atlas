@@ -3,6 +3,7 @@
 // The chrome that shares the map panel: the drawing note, the zip search,
 // and the zoom reset.
 import { resetZoom, submitZip } from "../engine/actions";
+import { copy } from "../lib/data";
 import { useAtlas } from "../lib/store";
 
 export function DrawingNote() {
@@ -29,7 +30,7 @@ export function ZipSearch() {
         if (input instanceof HTMLInputElement) submitZip(input.value.trim());
       }}
     >
-      <label htmlFor="zip-input">Type your zip code</label>
+      <label htmlFor="zip-input">{copy.ui.zip_label}</label>
       <div className="zip-row">
         {/* uncontrolled on purpose: the engine sets its value on zip deep
             links and focuses it when the tour ends */}
@@ -41,7 +42,7 @@ export function ZipSearch() {
           <svg className="ico-search" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
             <circle cx="6.8" cy="6.8" r="4.4" /><path d="M10.1 10.1 L14 14" />
           </svg>
-          <span className="btn-txt">Find me</span>
+          <span className="btn-txt">{copy.ui.zip_button}</span>
         </button>
       </div>
       <p className="zip-msg" id="zip-msg">{zipMsg}</p>
@@ -53,7 +54,7 @@ export function ZoomReset() {
   const visible = useAtlas((s) => s.zoomResetVisible);
   return (
     <button className="zoom-reset" id="zoom-reset" hidden={!visible} onClick={() => { resetZoom(); }}>
-      ← Whole country
+      {copy.ui.zoom_reset}
     </button>
   );
 }

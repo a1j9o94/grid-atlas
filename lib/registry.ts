@@ -86,7 +86,7 @@ export function staticViewParams(): { view: string[] }[] {
   return views.map((view) => ({ view }));
 }
 
-const SITE = "How your electricity works";
+const SITE = copy.ui.site_title;
 
 function trimBody(body: string, max = 200): string {
   if (body.length <= max) return body;
@@ -134,7 +134,10 @@ export function describeRoute(r: RouteState): { title?: string; description?: st
   }
   if (parts.length === 0) return { title: `${copy.layers.wires.title} · ${SITE}`, description: copy.layers.wires.explainer };
   const colourDesc = r.colour !== "type" && r.colour !== "parent"
-    ? resolveColour(r.colour)?.spec?.note
+    ? (() => {
+        const spec = resolveColour(r.colour)?.spec;
+        return spec ? copy.controls[`${spec.id}_note`] ?? spec.note : undefined;
+      })()
     : undefined;
   return {
     title: `${parts.join(", ")} · ${SITE}`,

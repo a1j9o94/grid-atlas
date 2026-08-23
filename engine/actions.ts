@@ -64,7 +64,7 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   }
   if (key === "wires" && !c.wiresFeatures) {
     setHidden(c.svg, true);
-    setAtlasState({ drawingNote: { title: "Inking 2,907 utilities.", sub: "One moment." } });
+    setAtlasState({ drawingNote: { title: "Loading 2,907 utility territories", sub: "This may take a moment." } });
     await ensureWires();
     // the reader may have moved on while 5.7MB of geometry inked
     if (c.dead || c.routeToken !== token) return;
@@ -72,7 +72,7 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   }
   if (key === "history" && !c.timeline) {
     setHidden(c.svg, true);
-    setAtlasState({ drawingNote: { title: "Opening the plates.", sub: "One moment." } });
+    setAtlasState({ drawingNote: { title: "Loading the history maps", sub: "This may take a moment." } });
     await ensureTimeline();
     // the reader may have moved on while the timeline loaded
     if (c.dead || c.routeToken !== token) return;
@@ -80,8 +80,8 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   setHidden(c.svg, !ready);
   setAtlasState({
     drawingNote: ready ? null : {
-      title: `The ${copy.layers[key].title} layer is being inked.`,
-      sub: "It lands in the next update. Wholesale, Rules, and Wires are live now.",
+      title: `The ${copy.layers[key].title} layer is not available yet.`,
+      sub: "Choose another layer to keep exploring.",
     },
   });
   if (key === "wires") {
