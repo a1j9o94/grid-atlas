@@ -74,13 +74,16 @@ The layout contract is that the page fits the viewport at every size: no scrolli
 npm install
 npx playwright install chromium   # or set CHROME_PATH to one you have
 npm run build
-npm run audit                     # add -- --shots to also write PNGs
+npm run audit                     # full 28-view, 9-viewport sweep
+npm run audit -- --changed origin/main
+npm run audit -- --views history-all,wires-parent --viewports phone,desktop
+npm run audit -- --shots          # also write PNGs
 npm run probe:history             # the plates draw what they claim
 npm run probe:legend              # the strip is wired to the plate
 npm run validate:holdings         # the FTC artifact; no browser or build needed
 ```
 
-The audit starts the production build itself with `next start` and drives that, never the dev server: dev mode double-invokes effects and its overlay logs would trip the console-error check. It first asserts the legacy-link redirect matrix and that junk paths 404, then drives nine viewports across twenty-four views, 216 combinations, and fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, chrome covering more than 22% of the drawn map, a map smaller than 12% of the viewport or under 150px tall, a map clipped by its own panel, a tap target under 28px, a legend key a thumb cannot reach, text clipped by its own box, an open dialog whose close control is not on screen at every scroll position, an archival plate that overflows its own frame when nobody asked it to, or any console error.
+The audit starts the production build itself with `next start` and drives that, never the dev server: dev mode double-invokes effects and its overlay logs would trip the console-error check. A full run first asserts the legacy-link redirect matrix and that junk paths 404, then drives nine viewports across twenty-eight views, 252 combinations. `--changed BASE` maps the Git diff to the affected route families and runs only those views. Shared chrome, routing, unknown runtime files, and the audit itself fail safe to the full set. `--views` and `--viewports` provide explicit comma-separated filters for local work. The audit fails on a page that scrolls, a panel that runs offscreen, two panels that overlap, chrome covering more than 22% of the drawn map, a map smaller than 12% of the viewport or under 150px tall, a map clipped by its own panel, a tap target under 28px, a legend key a thumb cannot reach, text clipped by its own box, an open dialog whose close control is not on screen at every scroll position, an archival plate that overflows its own frame when nobody asked it to, or any console error.
 
 The two probes assert meaning rather than geometry. `probe:history` checks the plates say the right thing: both FTC sheets draw exactly 3,108 counties with the tallies their trace claims, the 1967 plate paints East and West as one machine, and a market keeps one colour from 1999 to today. `probe:legend` checks the strip and the plate are wired to each other: pointing at a key fades everything it does not name, a key naming something the plate does not draw stays inert, a held key survives a look at the map, and — the assertion the file exists for — every key on every plate has a target, so a future plate that forgets to register in `PLATE_MARKS` fails by name instead of shipping a legend that quietly does nothing.
 
@@ -90,4 +93,4 @@ Assert the property you want, not the absence of the bug you just fixed. And mea
 
 Typing and linting are part of the same contract. `npm run typecheck` runs strict TypeScript with `noUncheckedIndexedAccess`, because this codebase is full of keyed registry lookups that would otherwise produce a silent `undefined`. `npm run lint` runs typescript-eslint's type-checked strict presets at zero warnings.
 
-All six gate every pull request. Typecheck, lint, the holdings validation and the build run in one job and report in about a minute; the audit and the two probes run beside it in a second job with a real Chromium, because a check that only runs when someone remembers is not a contract.
+These checks gate every pull request. Typecheck, lint, the holdings validation, the audit-selection tests, and the build run in one job and report in about a minute. The browser job diffs against the pull request base, audits the affected views, and runs only the probes relevant to those files. A full `npm run audit` remains available before a release or after a shared layout change.

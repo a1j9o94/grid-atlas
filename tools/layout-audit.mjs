@@ -9,6 +9,9 @@
 //                                          free port, runs headless)
 //        npm run audit -- --url https://grid-atlas-coral.vercel.app
 //        npm run audit -- --shots  (also write PNGs to tools/shots/)
+//        npm run audit -- --views history-all,wires-parent
+//        npm run audit -- --viewports phone,desktop
+//        npm run audit -- --changed origin/main
 //
 // The audit drives the production build, never `next dev`: dev mode double-
 // invokes effects and its overlay logs would trip the console-error check.
@@ -24,6 +27,7 @@ import { existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { chromium } from "playwright";
+import { changedFiles, impactOf, parseList, selectByName } from "./audit-selection.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -62,6 +66,10 @@ const VIEWS = [
   { name: "wires-outages", q: "/wires/saidi" },
   { name: "wires-solar", q: "/wires/solarw" },
   { name: "wires-smart", q: "/wires/amishare" },
+  { name: "wires-price-homes", q: "/wires/rateres" },
+  { name: "wires-price-businesses", q: "/wires/ratecom" },
+  { name: "wires-price-industry", q: "/wires/rateind" },
+  { name: "wires-price-delivery", q: "/wires/delivrate" },
   { name: "wires-solar-size", q: "/wires/by-solarmw" },
   { name: "wires-size-colour", q: "/wires/saidi/by-cust" },
   // Three stats plus a long legend label is the widest the card and the legend
@@ -102,6 +110,59 @@ const VIEWS = [
   },
 ];
 
+const VIEW_GROUPS = {
+  "rules-all": (v) => v.name.startsWith("rules"),
+  "wires-all": (v) => v.name.startsWith("wires"),
+  "history-all": (v) => v.name.startsWith("history"),
+  "evidence-all": (v) => v.name.startsWith("history-evidence"),
+};
+
+const VIEWPORT_GROUPS = {
+  phones: (v) => v.name.startsWith("phone"),
+  desktops: (v) => v.name.startsWith("desktop"),
+};
+
+let changed = null;
+let impact = null;
+try {
+  if (flag("changed")) {
+    changed = changedFiles(opt("changed", null));
+    impact = impactOf(changed);
+  }
+} catch (e) {
+  console.error(e.message);
+  process.exit(2);
+}
+
+let selectedViews;
+let selectedViewports;
+try {
+  const requestedViews = parseList(opt("views", null)) ?? (impact?.selectors ?? null);
+  selectedViews = selectByName(VIEWS, requestedViews, VIEW_GROUPS);
+  selectedViewports = selectByName(VIEWPORTS, parseList(opt("viewports", null)), VIEWPORT_GROUPS);
+} catch (e) {
+  console.error(e.message);
+  console.error(`views: ${VIEWS.map((v) => v.name).join(", ")}`);
+  console.error(`viewports: ${VIEWPORTS.map((v) => v.name).join(", ")}`);
+  process.exit(2);
+}
+
+// The redirect and repeat-entrance sweeps are global checks. A full audit runs
+// them; changed mode runs them only when shared chrome, routing, or the audit
+// itself changed. --fixed opts a focused manual run back into those sweeps.
+const fixedChecks = flag("fixed") || (impact === null && !flag("views")) || impact?.fixed === true;
+
+if (selectedViews.length === 0 || selectedViewports.length === 0) {
+  const why = changed === null ? "the requested filters" : `${String(changed.length)} changed files`;
+  console.log(`layout audit: no rendered views selected by ${why}; skipped`);
+  process.exit(0);
+}
+
+const selectionNote = changed === null
+  ? `${String(selectedViews.length)} views × ${String(selectedViewports.length)} viewports`
+  : `${String(selectedViews.length)} affected views × ${String(selectedViewports.length)} viewports from ${String(changed.length)} changed files`;
+console.log(`layout audit: ${selectionNote}${fixedChecks ? " + fixed checks" : ""}`);
+
 // The query links this site shipped with. Each must answer with a redirect to
 // its canonical path before any JavaScript runs, and junk must 404 rather
 // than quietly render the default map.
@@ -125,7 +186,7 @@ const NOT_FOUND = ["/nonsense", "/wires/notameasure", "/wires/by-nothing", "/rul
 // already dismissed, and the two entrances whose layer is the one the engine
 // starts named with — the front page and every trivia link — sat on that note
 // forever. Nothing else here saw it: every viewport gets a fresh profile, so
-// the audit was a first-time visitor 216 times over.
+// the audit was a first-time visitor once per viewport/view combination.
 const ENTRANCES = ["/", "/trivia/caldwell-switched-grids", "/rules", "/wires/parent", "/then/1932"];
 
 // Boxes that must never overlap each other. All of them are chrome floating
@@ -221,7 +282,7 @@ try {
 if (flag("shots")) mkdirSync(join(here, "shots"), { recursive: true });
 
 // redirect + 404 matrix, once, before the layout sweep
-{
+if (fixedChecks) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   for (const [from, to] of REDIRECTS) {
     await page.goto(withBypass(host.url + from), { waitUntil: "commit" });
@@ -264,13 +325,13 @@ if (flag("shots")) mkdirSync(join(here, "shots"), { recursive: true });
   }
 }
 
-for (const vp of VIEWPORTS) {
+for (const vp of selectedViewports) {
   const page = await browser.newPage({ viewport: { width: vp.w, height: vp.h } });
   const errs = [];
   page.on("pageerror", e => errs.push(String(e)));
   page.on("console", m => m.type() === "error" && errs.push(m.text()));
 
-  for (const view of VIEWS) {
+  for (const view of selectedViews) {
     const tag = `${vp.name}/${view.name}`;
     await page.goto(withBypass(host.url + view.q), { waitUntil: "networkidle" });
     // the wires layer lazy-loads 5.5MB of geometry and then tweens
@@ -484,7 +545,7 @@ for (const vp of VIEWPORTS) {
 await browser.close();
 host.server?.close();
 
-const checks = VIEWPORTS.length * VIEWS.length;
+const checks = selectedViewports.length * selectedViews.length;
 if (problems.length) {
   console.error(`layout audit: ${problems.length} problems across ${checks} viewport/view combinations\n`);
   for (const p of problems) console.error("  - " + p);

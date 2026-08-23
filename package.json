@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "validate:holdings": "node tools/validate-holdings.mjs",
+    "test:audit-selection": "node tools/audit-selection.test.mjs",
     "audit": "node tools/layout-audit.mjs",
     "probe:history": "node tools/probe-history.mjs",
     "probe:legend": "node tools/probe-legend.mjs"

@@ -23,41 +23,53 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run validate:holdings
+      - run: npm run test:audit-selection
       - run: npm run build
 
-  # What the page actually does, in a real browser against the real production
-  # build. These three found every layout and legend regression this project has
-  # had, and until now they only ran on someone's laptop when they remembered.
-  # They are slow — the audit alone drives 216 viewport/view combinations — so
-  # they run beside the fast job rather than after it.
+  # What the changed views actually do, in a real browser against the real
+  # production build. Shared or unknown runtime changes fail safe to the full
+  # matrix; layer-specific work audits that family and runs only relevant probes.
   browser:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
+      - name: Select browser checks
+        id: plan
+        run: node tools/audit-plan.mjs "${{ github.event.pull_request.base.sha || github.event.before }}"
       - run: npm ci
+        if: steps.plan.outputs.any == 'true'
       # Keyed on the resolved Playwright version, because a browser build is
       # pinned to the client that drives it.
       - name: Playwright version
         id: pw
         run: echo "v=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+        if: steps.plan.outputs.any == 'true'
       - uses: actions/cache@v4
         id: pw-cache
+        if: steps.plan.outputs.any == 'true'
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.pw.outputs.v }}
       - run: npx playwright install --with-deps chromium
-        if: steps.pw-cache.outputs.cache-hit != 'true'
+        if: steps.plan.outputs.any == 'true' && steps.pw-cache.outputs.cache-hit != 'true'
       # The system libraries are not in the cache, so they are installed even on
       # a hit; the browser download is what the cache saves.
       - run: npx playwright install-deps chromium
-        if: steps.pw-cache.outputs.cache-hit == 'true'
+        if: steps.plan.outputs.any == 'true' && steps.pw-cache.outputs.cache-hit == 'true'
       - run: npm run build
+        if: steps.plan.outputs.any == 'true'
       # Sequential, so a red run names one check rather than three interleaved
       # logs. Each starts and stops its own `next start`.
-      - run: npm run audit
+      - name: Run changed-view layout audit
+        run: npm run audit -- --changed "${{ github.event.pull_request.base.sha || github.event.before }}"
+        if: steps.plan.outputs.views != ''
       - run: npm run probe:history
+        if: steps.plan.outputs.history == 'true'
       - run: npm run probe:legend
+        if: steps.plan.outputs.legend == 'true'
