@@ -48,9 +48,9 @@ function Scan({ src, alt }: { src: string; alt: string }) {
             accessible name. No aria-pressed alongside it: "Fit to screen,
             pressed" would announce the state as the opposite of what it is. */}
         <button type="button" className="ev-zoom" onClick={toggle}>
-          {zoomed ? "⤡ Fit to screen" : "⤢ Full size"}
+        {zoomed ? "⤡ Fit to screen" : "⤢ View full size"}
         </button>
-        {zoomed && <span className="ev-hint">Drag to move around the plate.</span>}
+      {zoomed && <span className="ev-hint">Drag to move across the page.</span>}
       </div>
     </>
   );
@@ -85,11 +85,11 @@ export default function EvidenceModal() {
           {ev.sourceUrl !== undefined && (
             <>
               {" "}
-              <a href={ev.sourceUrl} target="_blank" rel="noopener">View at source ↗</a>
+          <a href={ev.sourceUrl} target="_blank" rel="noopener">Open the original source ↗</a>
             </>
           )}
-          {ev.missingPlate && <i> The plate itself is not committed yet; the link goes to the archive.</i>}
-          {ev.unverified && <i> Quotation still being checked against the printed text.</i>}
+          {ev.missingPlate && <i> The scanned page is not included here yet. Use the archive link to view it.</i>}
+          {ev.unverified && <i> This quotation still needs to be checked against the printed text.</i>}
         </figcaption>
       </figure>
     </div>
