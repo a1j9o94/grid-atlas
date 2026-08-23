@@ -26,6 +26,11 @@ export interface DragState { x: number; y: number; vb: ViewBox }
 export interface LegendTarget {
   dim: readonly string[];
   lit: readonly string[];
+  // What the card should say while this key is showing, for a key that names
+  // one thing the atlas can already describe — a market, a machine. Pointing at
+  // PJM on the strip and reading about ERCOT is the card contradicting the map.
+  // Keys that name a set with no card of its own leave it alone.
+  describe?: () => void;
 }
 
 export interface ParentGroup { color: string; meters: number; n: number; rank: number }
@@ -63,6 +68,13 @@ export interface EngineCtx {
   zip: string | null;
   // monotonic token guarding async layer switches against staleness
   routeToken: number;
+  // Whether a layer has actually been drawn, as opposed to `current` merely
+  // naming the one this context was created with. Boot has to draw its layer
+  // even when the route agrees with that name: the svg starts hidden and the
+  // drawing note starts showing, and setLayer is the only thing that clears
+  // either. Without this, "/" and "/trivia/..." both sat on "The map is being
+  // drawn" forever, because wholesale is the name the engine starts with.
+  layerDrawn: boolean;
 
   // wires layer state (DOM-bound, rebuilt per mount; fetches cache elsewhere)
   wiresFeatures: WireFeature[] | null;

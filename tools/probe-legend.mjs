@@ -200,6 +200,35 @@ for (const sheetYear of ["1925", "1932"]) {
   want(`${sheetYear}: every system row lights the number it prints`, bad, []);
 }
 
+// ---- the card follows the key ----
+//
+// A key that names one thing the atlas can describe has to say so in the card
+// too. This shipped once without it: the strip lit SPP and the card went on
+// talking about ERCOT, because the plate opens on ERCOT and nothing had told it
+// otherwise. A highlight and a description of two different regions, side by
+// side, is worse than no highlight.
+await open("/");
+for (const region of ["SPP", "MISO", "PJM"]) {
+  await page.locator(".legend .lg-item[data-lh]", { hasText: new RegExp(`^${region}$`) }).first().hover();
+  await page.waitForTimeout(250);
+  want(`pointing at ${region} makes the card say ${region}`, await page.evaluate(
+    () => document.querySelector(".card .c-name, .card h3, .card b")?.textContent?.trim()
+      ?? document.querySelector(".card")?.textContent?.trim().slice(0, 12)), region);
+}
+
+// The same on a past plate, where a market and a machine have cards of their own.
+await open("/then/2005");
+await page.locator(".legend .lg-item[data-lh]", { hasText: "MISO" }).first().hover();
+await page.waitForTimeout(250);
+want("a market key names its market", await page.evaluate(
+  () => document.querySelector(".card")?.textContent?.includes("MISO") ?? false), true);
+
+await open("/then/1967");
+await page.locator(".legend .lg-item[data-lh]", { hasText: "Texas" }).first().hover();
+await page.waitForTimeout(250);
+want("a machine key names its machine, counted for the plate", await page.evaluate(
+  () => document.querySelector(".card")?.textContent?.startsWith("one of two") ?? false), true);
+
 // ---- the press, on a screen that has no pointer to hover with ----
 //
 // A finger raises no mouseenter and never a mouseleave, so the strip's whole

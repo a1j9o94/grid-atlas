@@ -140,6 +140,9 @@ function paint(): void {
   // The map's own highlight and a legend key are two explanations of the same
   // marks, so the newer one wins. A pin is the exception, handled in setHover.
   clearMapHover();
+  // The card is the third. A key that names something the atlas can describe
+  // says so there too, exactly as pointing at the marks themselves would.
+  t.describe?.();
   c.legendStyle.textContent =
     (t.dim.length > 0
       ? `${scope(t.dim)}{fill-opacity:var(--lh-dim,0.28);stroke-opacity:var(--lh-dim,0.28)}`

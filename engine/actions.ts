@@ -38,6 +38,7 @@ export async function setLayer(key: LayerKey, urlMode: UrlMode = "push"): Promis
   const c = ctx();
   const token = ++c.routeToken;
   c.current = key;
+  c.layerDrawn = true;
   setAtlasState({ layer: key });
   const ready = READY.has(key);
   if (!ready) setAtlasState({ card: null });
@@ -182,12 +183,14 @@ function splitColour(colour: string): { base: string; variant: string | null } {
 export async function applyRoute(route: RouteState): Promise<void> {
   const c = ctx();
   if (route.trivia !== null) {
-    if (c.current !== "wholesale") await setLayer("wholesale", "none");
+    if (!c.layerDrawn || c.current !== "wholesale") await setLayer("wholesale", "none");
     if (c.dead) return;
     flyToTrivia(route.trivia);
     return;
   }
-  if (c.current !== route.layer) {
+  // Not just when the layer changes: on boot nothing has been drawn yet, and
+  // the layer the route asks for is usually the one `current` already names.
+  if (!c.layerDrawn || c.current !== route.layer) {
     await setLayer(route.layer, "none");
     // a later route may have superseded this one while wires inked
     if (c.dead || c.current !== route.layer) return;
