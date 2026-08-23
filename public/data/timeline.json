@@ -494,7 +494,7 @@
     "https://spp.org/news-list/spp-and-member-utilities-successfully-complete-historic-western-expansion/",
     "https://www.ercot.com/news/release/03122026-ercot-welcomes-the"
    ],
-   "verify_notes": "Cards still draft-flagged: pacific-intertie."
+   "verify_notes": "All event cards in this frame are verified."
   }
  ],
  "dots": [
@@ -1693,12 +1693,13 @@
   "pacific-intertie": {
    "date": "1970-01-01",
    "when": "1970",
-   "title": "The Pacific Intertie connects north and south",
-   "body": "The Pacific direct-current intertie runs from the Columbia River region to Los Angeles. It carries surplus hydroelectricity south during spring runoff and can send other power north during winter demand.",
-   "verified": false,
-   "verify_notes": "Length, voltage and capacity were all corrected during research and the figures have grown over time with upgrades. Do not print a capacity without checking which year it belongs to.",
+   "title": "The Pacific DC Intertie links the Northwest and Los Angeles",
+   "body": "In 1970, the Pacific DC Intertie linked the Columbia River power system with Los Angeles. It gave Northwest hydropower a direct route to Southern California and became part of a larger system for exchanging electricity across the West.",
+   "verified": true,
+   "verify_notes": "The date and route describe the direct-current line. Seasonal exchanges belong to the broader Pacific Intertie and are not assigned to this line in 1970.",
    "sources": [
     "https://www.oregonhistoryproject.org/articles/historical-records/celilo-converter-station/",
+    "https://www.oregonencyclopedia.org/articles/intertie/",
     "https://www.eia.gov/analysis/studies/electricity/hvdctransmission/pdf/transmission.pdf",
     "https://ewh.ieee.org/conf/tdc/Litzenberger-HVDC.pdf",
     "https://www.energy.gov/oe/articles/connecting-country-hvdc"

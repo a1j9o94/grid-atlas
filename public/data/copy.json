@@ -49,7 +49,15 @@
       },
       {
         "title": "Electricity prices",
-        "body": "The combined price map works where one utility sells electricity and delivers it. ERCOT is blank because separate companies perform those jobs. The delivery map shows only the charge for poles and wires. Few utilities report that charge separately because most states still use one combined bill. State-level household prices provide the cleanest comparison of what residents pay."
+        "body": "Prices are shown separately for homes, businesses, and industrial customers. A blended average would describe a price that no customer class pays. The utility maps work where one company sells electricity and delivers it. ERCOT is blank because separate companies perform those jobs. State-level household prices provide the cleanest comparison of what residents pay."
+      },
+      {
+        "title": "Blank price territories",
+        "body": "Small utilities may report one total without separating customer classes. Wires-only utilities report delivery charges but do not sell electricity. A utility may also have no customers in a class, especially industrial customers. These territories remain blank instead of receiving an invented value."
+      },
+      {
+        "title": "Delivery prices",
+        "body": "The delivery map isolates the household charge for poles and wires. Only a few dozen utilities report this charge separately. Most utilities send one combined bill, so the public data does not separate the cost of electricity from the cost of delivery."
       },
       {
         "title": "History",
@@ -491,8 +499,10 @@
     "colour_saidi": "Time without power",
     "colour_solarw": "Rooftop solar",
     "colour_amishare": "Smart meters",
-    "colour_rate": "What power costs",
-    "colour_delivrate": "Cost of the wires",
+    "colour_rateres": "Homes",
+    "colour_ratecom": "Businesses",
+    "colour_rateind": "Industry",
+    "colour_delivrate": "Wires only",
     "not_reported": "not reported",
     "parent_intro_title": "Parent companies",
     "parent_intro_body": "Many local wires utilities belong to a larger parent company. Twenty parent companies own utilities serving about half of the country's meters. Pale areas are mostly city utilities and co-ops without a corporate parent.",
@@ -505,14 +515,20 @@
     "amishare_intro_title": "Smart meter adoption",
     "amishare_intro_body": "A smart meter sends usage data to the utility and can receive time-based prices. Dark territories have replaced nearly every meter. Pale territories have replaced few or none.",
     "amishare_note": "Adoption is concentrated at the extremes. Most utilities have replaced nearly every meter or almost none of them.",
-    "rate_intro_title": "Average electricity price",
-    "rate_intro_body": "Darker territories report a higher average price for electricity and delivery together. This measure works where one utility provides both services. ERCOT is blank because separate companies sell the electricity and deliver it.",
-    "rate_note": "This average combines homes, businesses, and factories. A utility serving large factories may appear cheaper than its household rate. Use the state map for household prices alone.",
+    "rateres_intro_title": "Household electricity price",
+    "rateres_intro_body": "Darker territories report a higher average price paid by homes. The measure includes electricity and delivery where one utility provides both. ERCOT is blank because its wires utilities do not sell electricity and its electricity sellers do not own utility territories.",
+    "rateres_note": "This map shows homes only. Small utilities that report one total instead of separate customer classes remain blank.",
+    "ratecom_intro_title": "Business electricity price",
+    "ratecom_intro_body": "Darker territories report a higher average price paid by businesses such as shops, offices, schools, and restaurants. Factories and other industrial customers appear on a separate map.",
+    "ratecom_note": "Business customers usually pay less per unit than homes because they buy more electricity through fewer connections.",
+    "rateind_intro_title": "Industrial electricity price",
+    "rateind_intro_body": "Darker territories report a higher average price paid by factories, mines, refineries, and farms. These customers often take large, steady loads at high voltage and pay less per unit than homes.",
+    "rateind_note": "A blank territory may have no industrial customers or no customer-class breakdown in the utility's report.",
     "delivrate_intro_title": "Electricity delivery price",
-    "delivrate_intro_body": "This measure isolates the charge for poles and wires. Utilities report it separately where customers can choose an electricity seller. Most utilities send one combined bill, so most territories have no separate delivery price to report.",
-    "delivrate_note": "Only a few dozen utilities report a separate delivery price. A blank territory usually means the utility was never required to split the bill into electricity and delivery charges.",
+    "delivrate_intro_body": "This measure isolates the household charge for poles and wires. Utilities report it separately where customers can choose an electricity seller. Most utilities send one combined bill, so most territories have no separate delivery price to report.",
+    "delivrate_note": "Only a few dozen utilities report a separate household delivery price. A blank territory usually means the utility was never required to split the bill into electricity and delivery charges.",
     "price_intro_title": "Electricity prices",
-    "price_intro_body": "Darker means more expensive. Compare household prices, industrial prices, and separate delivery charges. Each measure answers a different question."
+    "price_intro_body": "Darker means more expensive. Compare prices for homes, businesses, and industrial customers. The delivery view isolates the household charge for poles and wires."
   },
   "wires_groups": {
     "iou": {
