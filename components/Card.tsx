@@ -117,23 +117,6 @@ function CardBody({ card }: { card: CardModel }) {
           <div className="c-kicker">{card.kicker}</div>
           <h3>{card.title}</h3>
           <p className="c-body">{card.body}</p>
-          {card.changeLine !== undefined && <p className="c-body c-change">{card.changeLine}</p>}
-          {card.method !== undefined && (
-            <details className="c-method">
-              <summary>How this source map was interpreted</summary>
-              <dl>
-                {card.method.rows.map((r) => (
-                  <div key={r.label}>
-                    <dt>{r.label}</dt>
-                    <dd>{r.value}</dd>
-                  </div>
-                ))}
-              </dl>
-              {card.method.notes.map((n) => (
-                <p key={n} className="c-caveat">{n}</p>
-              ))}
-            </details>
-          )}
           {card.note !== undefined && <p className="c-body c-note">{card.note}</p>}
           {card.pending && (
             <p className="c-body c-note">

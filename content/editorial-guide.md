@@ -28,14 +28,18 @@ Use **grid** only for the physical electrical system. Use **market** for wholesa
 
 ## History frame contract
 
-Each frame answers four questions in this order:
+The history is a chain of causes and consequences. Each frame answers four questions in this order:
 
-1. What changed?
-2. What does the map show?
-3. Who made the change?
-4. Why does it matter now?
+1. What pressure or problem had developed?
+2. What did a company, engineer, regulator, or lawmaker do about it?
+3. What changed on the map?
+4. What possibility or problem did that create next?
 
-The main body carries the story. The note explains a limit or qualification. Methodology stays inside the methodology disclosure. Event cards add detail without carrying facts required to understand the frame.
+The main body carries the causal story. The note explains only a limit that changes how the map should be read. Event cards add detail without carrying facts required to understand the frame.
+
+Production methods belong in the repository. Do not put tracing procedures, georeferencing, crosswalk construction, reader-agreement statistics, validation thresholds, or pipeline details in a history frame. Keep uncertainty visible in the product when it changes the meaning of a mark.
+
+The narrative spine is scale. Electricity repeatedly grew beyond the institution built to manage it. Transmission outgrew the city system. Interstate corporate control outgrew state regulation. Large physical grids required regional reliability rules. Wholesale competition required neutral access to shared transmission. Today's map contains the settlements left by each response.
 
 ## Voice
 

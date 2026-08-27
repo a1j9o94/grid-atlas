@@ -1,6 +1,6 @@
 {
  "meta": {
-  "version": "2026-08-23",
+  "version": "2026-08-27",
   "reading_level": "5th-6th grade",
   "notes": "Source of truth for the history layer. Frames are snapshots, not a continuous scrub: the archives support dated moments, not annual geometry. Dot anchors are [lon, lat] EPSG:4326 and the site projects them, same as trivia. A frame's verified flag describes the frame's own words; each event card carries its own, so an uncertain detail flags itself without casting doubt on the plate around it. ship:false frames appear on the scrubber and say they are still being inked.",
   "honesty_footnotes": [
@@ -24,10 +24,9 @@
     1882,
     1926
    ],
-   "kicker": "isolated city systems",
-   "title": "Local power stations",
-   "body": "Electricity reached cities before it connected the country. Each glowing dot marks a city with a central power station. Most stations served only nearby blocks. Homes beyond the local wires had no service. The United States had thousands of separate electric systems and no national grid.",
-   "note": "Early direct-current systems could not move electricity far without expensive copper losses. Alternating current and transformers later allowed power to travel farther.",
+   "kicker": "electricity starts local",
+   "title": "Cities build their own power stations",
+   "body": "Early power stations had to sit near their customers because direct current could not travel far. Each glowing dot marks a city with its own central station. Alternating current and transformers later moved electricity over longer distances. That made larger systems possible and began connecting places that had generated power separately.",
    "geometry": {
     "kind": "dots",
     "scale": {
@@ -74,9 +73,9 @@
     1920,
     1928
    ],
-   "kicker": "utility consolidation",
-   "title": "Holding companies spread",
-   "body": "Local utilities were being gathered into national corporate groups. A holding company owned other companies. An operating utility ran power plants and wires. Each patterned county shows where one of twenty major groups operated a utility in 1925. Blank counties may still have had city utilities or companies omitted from the federal map.",
+   "kicker": "corporate control crosses state lines",
+   "title": "Holding companies gather local utilities",
+   "body": "As electric service expanded, holding companies gathered local utilities under common corporate control. A holding company owned operating utilities that ran power plants and wires. Each patterned county shows where one of twenty major groups operated in 1925. Their reach crossed state lines, while most utility regulation stopped at state borders.",
    "geometry": {
     "kind": "holdings",
     "year": "1925"
@@ -93,7 +92,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "This is a hand trace of Federal Trade Commission Map III. The source shows fields of operation: counties where each group ran utilities. It does not show stock ownership or separately served cities. Unclear hatch patterns remain marked as uncertain.",
+   "note": "The map records where each group operated utilities. Corporate stockholdings differed. Blank counties could still have local service, and unclear patterns remain uncertain.",
    "verify_notes": "Map III county trace released with explicit exact, possible, ambiguous, unreadable, and unfilled states."
   },
   {
@@ -104,9 +103,9 @@
     1929,
     1934
    ],
-   "kicker": "national utility empires",
-   "title": "Holding companies reach most counties",
-   "body": "Holding-company groups operated across most of the country by 1932. Only 195 counties were blank on the federal map, down from 1,173 in 1925. Samuel Insull's system operated in 32 of the 48 states. Sixteen systems produced about three quarters of investor-owned electricity. Middle West Utilities entered receivership that April.",
+   "kicker": "corporate control concentrates",
+   "title": "Utility empires outgrow state regulation",
+   "body": "Seven years later, the much fuller map shows how quickly corporate control had concentrated. Sixteen systems produced about three quarters of investor-owned electricity, and Samuel Insull's group operated in 32 states. Congress had already ordered the Federal Trade Commission to investigate the groups' ownership, finances, and operations. When Middle West Utilities collapsed in 1932, its operating utilities kept serving customers. The failure exposed the difference between the corporate empire and the local utilities beneath it.",
    "geometry": {
     "kind": "holdings",
     "year": "1932"
@@ -128,7 +127,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "This is a hand trace of Federal Trade Commission Map IV. Some counties also carry a number naming the operating utility inside the larger group. The source omits separately served cities. Unclear hatch patterns remain marked as uncertain.",
+   "note": "The map shows operating reach rather than every stockholding. Blank cities and unclear counties remain as the federal map recorded them.",
    "verify_notes": "Map IV county trace released with explicit exact, possible, ambiguous, unreadable and unfilled states, an expanded machine-checked anchor set, and a published residual error estimate."
   },
   {
@@ -139,9 +138,9 @@
     1935,
     1960
    ],
-   "kicker": "federal regulation",
-   "title": "Federal law breaks up utility holding companies",
-   "body": "Roosevelt signed the Public Utility Act on August 26, 1935. One part forced the layered holding companies to simplify. Another gave the federal government authority over interstate electricity sales. Texas utilities separated their system from Oklahoma. That decision helped create today's Texas grid.",
+   "kicker": "Congress responds",
+   "title": "Federal law breaks up the corporate empires",
+   "body": "Congress acted after the federal investigation documented the reach and complexity of utility holding companies. The Public Utility Act forced the deepest corporate layers to dissolve and gave federal regulators authority over interstate electricity sales. The operating utilities remained and became many of today's regional wires companies. Because an interstate connection could bring federal jurisdiction, Texas utilities disconnected from Oklahoma. That choice helped create today's separate ERCOT grid.",
    "geometry": {
     "kind": "seam",
     "unified": false,
@@ -161,7 +160,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "Federal jurisdiction can follow a synchronized grid even when one utility has no wire crossing a state line. Courts settled that principle decades later.",
+   "note": "Federal jurisdiction can follow a synchronized grid even when one utility has no wire crossing a state line.",
    "legend": [
     {
      "swatch": "var(--sm-east)",
@@ -189,9 +188,9 @@
     1961,
     1974
    ],
-   "kicker": "East and West synchronize",
-   "title": "Eastern and Western grids connect",
-   "body": "The map colors the Eastern and Western grids as one system. In February 1967, federal engineers closed several connections in Montana and Nebraska. Both grids began running in sync for the first time. Earlier tests had lasted only minutes or hours. This connection held for months.",
+   "kicker": "utilities connect the physical system",
+   "title": "Eastern and Western grids run together",
+   "body": "Utilities connected their physical systems so they could share power across larger regions. The 1965 Northeast blackout showed that failures could also spread across a large interconnection. In February 1967, federal engineers synchronized the Eastern and Western grids for the first time. The map colors them as one electrical machine. The connection proved too unstable to last.",
    "geometry": {
     "kind": "seam",
     "unified": true,
@@ -210,7 +209,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "The connection remained unstable. Utilities opened it in July, closed it again in December, and watched it separate 381 times over the next eight months. The Texas grid remained separate throughout.",
+   "note": "Texas remained separate throughout the East-West experiment.",
    "legend": [
     {
      "swatch": "var(--sm-east)",
@@ -234,9 +233,9 @@
     1975,
     1995
    ],
-   "kicker": "three synchronized grids",
+   "kicker": "three physical grids take shape",
    "title": "East and West separate again",
-   "body": "Utilities opened the unstable connections between East and West. The country returned to three synchronized grids: Eastern, Western, and Texas. No electricity crossed the East-West boundary in 1975. The blank boundary on this map represents a physical separation.",
+   "body": "The East-West connection could not stay stable, so utilities opened it. The map again shows three synchronized grids: Eastern, Western, and Texas. Converter stations later allowed limited power transfers without forcing East and West to run together. The country had returned to the three-grid structure that still exists. A new argument was beginning over who could use its transmission lines.",
    "geometry": {
     "kind": "seam",
     "unified": false,
@@ -257,7 +256,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "The first converter station opened at Stegall, Nebraska, in 1977. It allowed limited power transfers without forcing both grids to run in sync. Later stations added more crossings.",
+   "note": "The blank East-West seam separates two working grids. Communities on both sides still had electricity service.",
    "legend": [
     {
      "swatch": "var(--sm-east)",
@@ -285,9 +284,9 @@
     1996,
     2003
    ],
-   "kicker": "regional market operators",
+   "kicker": "competition needs neutral coordination",
    "title": "Independent market operators emerge",
-   "body": "The colors now show wholesale markets instead of synchronized grids. A 1996 federal order required transmission owners to give competitors equal access to their high-voltage lines. It encouraged independent operators without requiring utilities to join one. Five regional operators were running by the end of 1999.",
+   "body": "Congress had opened wholesale generation to competitors, but established utilities still controlled the transmission lines. In 1996, federal regulators required the owners to carry competing power on equal terms. Independent operators emerged to coordinate transmission and wholesale trading without favoring one utility. Each color shows one of the five operators running by the end of 1999. Participation remained voluntary, which left most of the country outside a regional market.",
    "geometry": {
     "kind": "membership",
     "frame_key": "f1999"
@@ -308,7 +307,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "Texas and California created operators under state orders. Existing power pools in PJM, New England, and New York reorganized under federal rules. Most of the country still had no regional operator.",
+   "note": "The colors now show wholesale markets. The boundaries between synchronized grids remain underneath.",
    "legend": [
     {
      "swatch": "var(--r-ercot)",
@@ -344,9 +343,9 @@
     2004,
     2012
    ],
-   "kicker": "markets expand inland",
+   "kicker": "utilities choose regional markets",
    "title": "Regional markets expand",
-   "body": "Each color shows the utilities participating in one wholesale market. PJM expanded west through Chicago, Ohio, Pittsburgh, and Virginia. MISO opened its five-minute energy market in 2005. Southwest Power Pool also became a regional market operator. The markets now covered much of the Midwest and Mid-Atlantic.",
+   "body": "Regional operators coordinated power across many utility territories. Utilities could still join, leave, or switch operators. By 2005, PJM had expanded west, MISO was trading power every five minutes, and Southwest Power Pool had become a regional operator. Each color shows a market rather than a physical grid. These membership decisions moved market boundaries without moving the three synchronized grids beneath them.",
    "geometry": {
     "kind": "membership",
     "frame_key": "f2005"
@@ -367,7 +366,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "Membership could change. Two Kentucky utilities left MISO in 2006. Ohio utilities moved from MISO to PJM in 2011 and 2012, shifting the market boundary several hundred miles west.",
+   "note": "Later moves by utilities in Kentucky and Ohio shifted the market boundary again.",
    "legend": [
     {
      "swatch": "var(--r-pjm)",
@@ -411,9 +410,9 @@
     2013,
     2025
    ],
-   "kicker": "MISO reaches the Gulf",
-   "title": "MISO expands to the Gulf Coast",
-   "body": "Twelve utilities joined MISO on December 19, 2013. Its wholesale market had stretched from Minnesota to Indiana. It now reached the Gulf of Mexico through a southern region separated from the northern territory. Southwest Power Pool opened its own integrated market three months later.",
+   "kicker": "separate choices make a patchwork",
+   "title": "Regional markets stretch farther",
+   "body": "Federal rules left utilities and state regulators to make separate market-membership decisions. When twelve southern utilities joined MISO in December 2013, its market reached the Gulf even though the new territory did not touch its northern region. Southwest Power Pool opened its own integrated market three months later. The map followed market membership. A single market could span separate territories inside the same physical grid.",
    "geometry": {
     "kind": "membership",
     "frame_key": "f2014"
@@ -429,7 +428,7 @@
    "ship": true,
    "verified": true,
    "sources": [],
-   "note": "The frame is labeled 2014 because Southwest Power Pool opened its integrated market in March of that year. MISO's southern expansion occurred in December 2013.",
+   "note": "MISO expanded south in December 2013. Southwest Power Pool opened its market in March 2014.",
    "legend": [
     {
      "swatch": "var(--r-miso)",
@@ -473,10 +472,10 @@
     2026,
     2026
    ],
-   "kicker": "today's system",
+   "kicker": "every earlier decision remains visible",
    "title": "Seven markets across three physical grids",
-   "body": "The colors show seven regional market operators. About a third of the country has none. Under this market map, the United States still has three synchronized grids: Eastern, Western, and ERCOT. East and West exchange limited power through converter stations. ERCOT remains mostly separate inside Texas.",
-   "note": "This frame uses the same data as the Markets layer. The earlier frames explain how the physical grids and wholesale markets formed.",
+   "body": "Today's map contains every earlier settlement. Three synchronized grids reflect where utilities connected their physical systems and where engineers kept them separate. Seven regional operators, plus large areas with none, reflect later choices about wholesale competition. ERCOT's separation preserves Texas utilities' effort to remain mainly under state authority. Many local wires companies descend from the operating utilities left after the holding-company breakup.",
+   "note": "The colors show wholesale markets. East and West still exchange limited power through converter stations.",
    "geometry": {
     "kind": "current"
    },
@@ -1126,15 +1125,14 @@
   "insull-collapse-1932": {
    "date": "1932-04-15",
    "title": "Middle West Utilities enters receivership",
-   "body": "A federal judge in Chicago placed Middle West Utilities into receivership. It was the largest receivership in American business history at the time. The company could not pay $10 million in notes due June 1. Samuel Insull became one of three court-appointed receivers.",
+   "body": "Middle West Utilities could not pay $10 million in notes, so a federal judge placed it into receivership. The holding company failed while its operating utilities kept delivering electricity across 32 states. The collapse showed that the corporate empire and the companies providing local service were separate things.",
    "verified": true,
    "sources": [
     "https://www.loc.gov/resource/sn82015313/1932-04-15/ed-1/?sp=1",
     "https://www.loc.gov/resource/sn83045293/1932-04-15/ed-1/?sp=1",
     "https://www.loc.gov/resource/sn85042243/1932-04-14/ed-1/?sp=1",
     "https://www.loc.gov/resource/sn82015313/1932-04-22/ed-1/?sp=17"
-   ],
-   "note": "The holding companies failed while their operating utilities kept delivering electricity. Service continued across the system's 32 states."
+   ]
   },
   "northeast-blackout-1965": {
    "date": "1965-11-09",
@@ -1186,8 +1184,7 @@
     "https://www.govinfo.gov/content/pkg/STATUTE-92/pdf/STATUTE-92-Pg3117.pdf",
     "https://www.govinfo.gov/content/pkg/COMPS-838/pdf/COMPS-838.pdf",
     "https://www.ecfr.gov/current/title-18/chapter-I/subchapter-K/part-292"
-   ],
-   "note": "The price was capped at what the utility would have spent making the power itself. The 80 megawatt size limit applied only to small power producers, not to cogeneration."
+   ]
   },
   "epact-1992": {
    "date": "1992-10-24",
@@ -1368,7 +1365,7 @@
    "when": "1930",
    "title": "Insull's system reaches 32 states",
    "body": "Samuel Insull's Middle West Utilities controlled more than 85 utility companies. The Federal Trade Commission found that the group operated in 32 states and Canada at the end of 1930. It served more than 5,000 communities with over 6.5 million residents.",
-   "note": "The system expanded quickly. Company reports named 15 states in 1923 and 29 in 1929. Each figure on this map keeps the year of its source.",
+   "note": "Company reports named 15 states in 1923 and 29 in 1929. The system reached 32 states by 1930.",
    "sources": [
     "https://archive.org/details/americasnewfront00midd_1",
     "https://archive.org/details/essentialservice00midd",
@@ -1416,8 +1413,8 @@
   },
   "ftc-investigation-1928": {
    "date": "1928-02-15",
-   "title": "Congress orders an investigation",
-   "body": "Senate Resolution 83 ordered the Federal Trade Commission to investigate utility holding companies. The commission examined their ownership, finances, and operations for years. The final record filled 95 printed volumes.",
+   "title": "Congress investigates the utility empires",
+   "body": "Holding-company groups crossed state lines, while state regulators could reach only the utilities inside their own borders. Congress ordered the Federal Trade Commission to investigate the groups' ownership, finances, and operations. The investigation documented the problem across 95 printed volumes and became the basis for the 1935 law.",
    "sources": [
     "https://www.ftc.gov/sites/default/files/documents/reports_annual/annual-report-1929/ar1929_0.pdf",
     "https://www.govinfo.gov/content/pkg/SERIALSET-08858_57_02/pdf/SERIALSET-08858_57_02.pdf",
@@ -1431,9 +1428,9 @@
   },
   "public-utility-act-1935": {
    "date": "1935-08-26",
-   "title": "Roosevelt signs the Public Utility Act",
-   "body": "Roosevelt signed the Public Utility Act of 1935. Title I forced utility holding companies to simplify. Title II became the Federal Power Act and gave a federal commission authority over interstate electricity sales. Both sections still shape the map.",
-   "note": "Congress cited the Federal Trade Commission investigation. Section 11(b)(2) limited the corporate stack: one company could sit above a holding company, while deeper holding-company layers had to go.",
+   "title": "Congress restructures the utility business",
+   "body": "The Public Utility Act responded to two problems documented by the federal investigation. It forced layered holding companies to simplify and gave federal regulators authority over interstate electricity sales. The law changed corporate ownership and government authority while leaving local operating utilities in place.",
+   "note": "Roosevelt signed the law on August 26, 1935.",
    "excerpt": "puhca-1935",
    "sources": [
     "https://www.govinfo.gov/content/pkg/STATUTE-49/pdf/STATUTE-49-Pg803.pdf",
@@ -1478,8 +1475,8 @@
   "puhca-breakup": {
    "date": "1949-01-01",
    "when": "1945 to 1950",
-   "title": "Holding companies simplify",
-   "body": "The Securities and Exchange Commission enforced the 1935 law by simplifying utility holding companies. Their operating utilities became many of the regional companies known today. Major restructurings occurred between 1945 and 1950.",
+   "title": "The corporate empires come apart",
+   "body": "The 1935 law targeted the holding-company layers above local electric service. The Securities and Exchange Commission dismantled those structures through major reorganizations from 1945 to 1950. Their operating utilities continued and became many of the regional wires companies known today.",
    "sources": [
     "https://www.fundinguniverse.com/company-histories/texas-utilities-company-history/",
     "https://www.fundinguniverse.com/company-histories/fpl-group-inc-history/",
@@ -1522,8 +1519,7 @@
    "date": "1977-01-01",
    "when": "1977",
    "title": "A converter reconnects East and West",
-   "body": "A cooperative opened a 100-megawatt converter station at Stegall, Nebraska. It converted alternating current to direct current and back. Electricity could cross while the Eastern and Western grids continued running separately.",
-   "note": "Some later accounts identify the 1988 Virginia Smith station as the first East-West converter. Its engineering award does not make that claim. The Stegall record dates this earlier connection to 1977.",
+   "body": "A cooperative opened a converter station at Stegall, Nebraska. It converted alternating current to direct current and back. Electricity could cross while the Eastern and Western grids continued running separately.",
    "sources": [
     "https://www.eia.gov/analysis/studies/electricity/hvdctransmission/pdf/transmission.pdf",
     "https://www.niskanencenter.org/boosting-reliability-how-hvdc-back-to-backs-improve-power-sharing-between-grids/",
@@ -1666,8 +1662,7 @@
    "date": "2026-01-01",
    "when": "today",
    "title": "Converters link the Eastern and Western grids",
-   "body": "About seven converter stations connect the Eastern and Western grids. Together they can transfer roughly 1,300 megawatts. Both grids serve hundreds of thousands of megawatts, so the connection remains small relative to their size.",
-   "note": "Sources count six or seven stations depending on how they classify one site. Adding nameplate ratings also overstates the power that can move at the same time.",
+   "body": "A small number of converter stations connect the Eastern and Western grids. They let electricity cross without making both grids run as one machine. The transfer capacity remains small compared with the size of either grid.",
    "sources": [
     "https://www.osti.gov/biblio/1832179",
     "https://docs.nlr.gov/docs/fy21osti/76850.pdf",

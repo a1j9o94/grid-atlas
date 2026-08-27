@@ -12,7 +12,7 @@ import {
 } from "../../lib/store";
 import { swatchBackground, wireGroup } from "../constants";
 import { ctx } from "../ctx";
-import { holdingsChange, holdingsYears, shownHoldingsYear } from "../layers/history";
+import { holdingsYears, shownHoldingsYear } from "../layers/history";
 import { colourValue, isColourMeasure, measureSpec, measureValue } from "../data";
 import { WIRE_GROUPS } from "../wiregroups";
 import { ensureWires } from "../layers/wires";
@@ -268,104 +268,9 @@ function evidenceChips(ids: readonly string[] | undefined): EvidenceChip[] {
   return chips;
 }
 
-// Once both sheets are traced the plate card carries what changed between
-// them, because that is the argument the second plate exists to make and it
-// should not be something the reader has to derive by flipping.
-function holdingsChangeLine(f: TimelineFrame): string | null {
-  if (f.geometry.kind !== "holdings") return null;
-  const ch = holdingsChange();
-  if (ch === null) return null;
-  const moved = ch.gained + ch.lost + ch.changed;
-  if (moved === 0) return null;
-  const parts: string[] = [];
-  if (ch.gained) parts.push(`${String(ch.gained)} counties gained a named group`);
-  if (ch.changed) parts.push(`${String(ch.changed)} counties changed groups`);
-  if (ch.lost) parts.push(`${String(ch.lost)} counties lost a named group`);
-  return `Between the two maps, ${parts.join(", ")}. `
-    + `${String(ch.same)} counties have the same reading in both years. ${String(ch.uncertain)} `
-    + `cannot be compared because at least one reading is uncertain.`;
-}
-
-// A map that states its own error rate is worth more than one that looks certain, and
-// none of this was reaching the reader: the figures sat in the artifact's meta where only
-// someone reading the JSON would find them. Everything here is read off that meta, so the
-// card cannot claim an accuracy the trace does not have.
-function holdingsMethod(f: TimelineFrame): {
-  rows: { label: string; value: string }[]; notes: string[];
-} | null {
-  if (f.geometry.kind !== "holdings") return null;
-  const h = ctx().holdings;
-  if (!h) return null;
-  const meta = h.trace.meta;
-  const year = shownHoldingsYear();
-  if (year === undefined) return null;
-  const rows: { label: string; value: string }[] = [];
-  const notes: string[] = [];
-  const pct = (v: number): string => `${(100 * v).toFixed(1)}%`;
-
-  const trace = h.trace.years[year] ?? {};
-  const total = Object.keys(trace).length;
-  if (total > 0) {
-    rows.push({
-      label: "Counties reviewed",
-      value: `${total.toLocaleString()}, covering the full source map`,
-    });
-    let unc = 0;
-    for (const raw of Object.values(trace)) {
-      const st = parseHoldingsTrace(raw).status;
-      if (st === "amb" || st === "maybe" || st === "unknown") unc++;
-    }
-    rows.push({
-      label: "Uncertain readings",
-      value: `${unc.toLocaleString()} counties, ${pct(unc / total)} of the map`,
-    });
-  }
-  const anchors = (meta.trace_anchors as Record<string, unknown[]> | undefined)?.[year];
-  if (anchors) {
-    rows.push({
-      label: "External checks",
-      value: `${String(anchors.length)} locations checked against other sources`,
-    });
-  }
-  // Both of the checks below were run on Map IV. Showing a Map IV figure under the 1925
-  // sheet would credit one plate with the other's verification, so each carries the year
-  // it belongs to and appears only there.
-  const est = meta.trace_error_estimate as Record<string, unknown> | undefined;
-  if (est?.year === year && typeof est.served_status_agreement === "number") {
-    rows.push({
-      label: "Independent second reading",
-      value: `${pct(est.served_status_agreement)} agreement on filled or blank, `
-        + `${pct((est.which_system_compatible as number | undefined) ?? 0)} on the named group, `
-        + `across ${String(est.sample_counties)} counties`,
-    });
-    if (typeof est.limitation === "string") notes.push(est.limitation);
-  }
-  const third = meta.trace_third_reader as Record<string, unknown> | undefined;
-  if (third?.year === year && typeof third.counties_read === "number") {
-    rows.push({
-      label: "Third review of disagreements",
-      value: `${String(third.counties_read)} counties reviewed: `
-        + `${pct((third.upheld_primary_share as number | undefined) ?? 0)} matched this reading, `
-        + `${pct((third.upheld_blind_share as number | undefined) ?? 0)} matched the second, `
-        + `${pct((third.third_mark_share as number | undefined) ?? 0)} matched neither`,
-    });
-    if (typeof third.note === "string") notes.push(third.note);
-  }
-  const weak = meta.trace_known_weaknesses as
-    { year?: string; state_name?: string; status?: string }[] | undefined;
-  const worst = weak?.find((w) => w.year === year && (w.status ?? "").includes("weakest"));
-  if (worst?.state_name !== undefined) {
-    notes.push(`${worst.state_name} has the least certain readings on this map. Treat its county assignments with extra caution.`);
-  }
-  if (rows.length === 0) return null;
-  return { rows, notes };
-}
-
 export function showFrame(f: TimelineFrame): void {
   const t = ctx().timeline;
   const kicker = `${f.label}${f.kicker !== undefined ? ` · ${f.kicker}` : ""}${draftFlag(f)}`;
-  const changeLine = holdingsChangeLine(f);
-  const method = holdingsMethod(f);
   const events: FrameEventRow[] = [];
   for (const id of f.events ?? []) {
     const e = t?.events[id];
@@ -381,8 +286,6 @@ export function showFrame(f: TimelineFrame): void {
       events,
       evidence: evidenceChips(f.evidence),
       pending: !f.ship,
-      ...(changeLine !== null ? { changeLine } : {}),
-      ...(method !== null ? { method } : {}),
     },
   });
 }

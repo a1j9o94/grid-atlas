@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "2026-08-23",
+    "version": "2026-08-27",
     "reading_level": "5th-6th grade",
     "notes": "Source of truth for the main layers, tour, region cards, controls, and shared interface copy. History copy lives in public/data/timeline.json. Anchors are [lon, lat] EPSG:4326; the site projects them. verified:false entries need a fact-check pass before launch. People counts in region cards are rough and marked with ~.",
     "honesty_footnotes": [
@@ -61,11 +61,11 @@
       },
       {
         "title": "History",
-        "body": "The history layer contains ten dated snapshots. It does not invent annual boundaries between the surviving source dates. The 1900 map uses city power stations. The 1925 and 1932 maps trace Federal Trade Commission hatch patterns onto modern counties while preserving uncertain readings. Later maps distinguish the three synchronized grids from the regional wholesale markets operating inside them."
+        "body": "The history layer follows ten moments when electricity outgrew the system built to manage it. It begins with local power stations, follows the rise and breakup of interstate utility empires, then shows physical grids and regional markets forming for different reasons."
       },
       {
         "title": "Sources and uncertainty",
-        "body": "History cards link to original maps, laws, reports, and tables. Unverified event cards are labeled as drafts. Approximate counts use a tilde. Historical boundaries, modern utility territories, and archival hatch patterns all carry limits explained beside the relevant map."
+        "body": "History cards link to the original maps, laws, reports, and tables behind their claims. A map keeps visible uncertainty when the historical source is unclear. Full reconstruction and validation methods are documented in the repository."
       },
       {
         "title": "About",
@@ -98,7 +98,7 @@
     "history": {
       "title": "History",
       "gloss": "how today's system formed",
-      "explainer": "Electricity began as thousands of isolated city systems. Companies consolidated them. Federal law broke the largest empires apart. Engineers connected the country into three physical grids, and regional markets arrived decades later."
+      "explainer": "Electricity began as thousands of local systems. New transmission technology let utilities connect across larger regions. Holding companies placed local utilities under interstate corporate control, which outgrew state regulation. Congress broke up the layered structures. Later competition created regional market operators. Today's map preserves each decision."
     }
   },
   "tour": [
@@ -125,7 +125,7 @@
     {
       "layer": "history",
       "title": "How the system formed",
-      "body": "Move through ten dated maps from 1900 to today. Each map explains one change in ownership, law, engineering, or market structure."
+      "body": "Move through ten maps from 1900 to today. Electricity kept outgrowing the system built to manage it. Each response changed corporate ownership, government authority, physical connections, or market coordination."
     }
   ],
   "regions": {
