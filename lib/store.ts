@@ -50,13 +50,6 @@ export type CardModel =
       // the plate's map is not built yet, so the card says so instead of
       // leaving the reader in an empty country wondering
       pending: boolean;
-      // what moved between two traced source plates, present only when the
-      // plate carries more than one
-      changeLine?: string;
-      // How the plate was read and how wrong it might be. Every figure is read
-      // off the artifact's own meta rather than written here, so the card cannot
-      // drift from the trace it describes.
-      method?: { rows: { label: string; value: string }[]; notes: string[] };
     }
   | {
       kind: "event";
