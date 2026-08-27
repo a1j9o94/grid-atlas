@@ -79,7 +79,9 @@ function buildTrivia(): void {
     g.setAttribute("class", "trivia" + (transitionTriviaIds.has(t.id) ? " transition-trivia" : ""));
     g.setAttribute("transform", `translate(${pt[0].toFixed(1)},${pt[1].toFixed(1)})`);
     g.dataset.trivia = String(i);
+    g.dataset.triviaId = t.id;
     g.dataset.layer = t.layer;
+    if (t.view) g.dataset.view = t.view;
     g.dataset.x = pt[0].toFixed(1);
     g.dataset.y = pt[1].toFixed(1);
     if (transitionTriviaIds.has(t.id)) {
@@ -105,10 +107,16 @@ function buildTrivia(): void {
 export function syncTrivia(): void {
   const c = ctx();
   const suppressed = c.current === "wires" && c.sizeBy !== null;
+  const activeView = c.current === "wires" ? c.colourBy
+    : c.current === "rules" ? c.shadeBy
+      : null;
   let shown = 0;
   for (const m of c.g.trivia.children) {
     const el = m as SVGGElement;
-    const mine = !suppressed && el.dataset.layer === c.current;
+    const view = el.dataset.view;
+    const mine = !suppressed
+      && el.dataset.layer === c.current
+      && (view === undefined || view === activeView);
     setHidden(el, !mine);
     if (mine) shown++;
   }

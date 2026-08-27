@@ -49,7 +49,11 @@ export interface RegionCopy {
 }
 export interface TriviaEntry {
   id: string;
-  layer: string;
+  layer: LayerKey;
+  // A layer can contain several maps. When `view` is present, the marker only
+  // belongs on that variation (for example, `rateres` on the wires layer).
+  // View-scoped trivia is currently supported by the wires and rules layers.
+  view?: string;
   anchor: { lonlat: [number, number]; feature?: { name: string; state: string } };
   title: string;
   body: string;

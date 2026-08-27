@@ -462,6 +462,51 @@
         "https://www.michigan.gov/mpsc/commission/news-releases/2025/08/21/michigan-electricity-providers-file-reports-showing-they-again-have-enough-capacity",
         "https://www.ferc.gov/industries-data/electric/electric-power-markets/pjm"
       ]
+    },
+    {
+      "id": "small-towns-one-number",
+      "layer": "wires",
+      "view": "rateres",
+      "anchor": {
+        "lonlat": [
+          -94.93,
+          38.81
+        ],
+        "feature": {
+          "name": "CITY OF GARDNER",
+          "state": "KS"
+        }
+      },
+      "title": "Why some town utilities have no household price",
+      "body": "Gardner, Kansas, runs its own utility but has no household price on this map. Like many small utilities, it files one total for revenue, electricity sold, and customers without separating homes from businesses or factories. The map leaves its household price blank instead of inventing one.",
+      "verified": true,
+      "sources": [
+        "https://www.eia.gov/electricity/data/eia861/",
+        "https://www.eia.gov/survey/form/eia_861/instructions.pdf"
+      ]
+    },
+    {
+      "id": "oncor-sells-nobody-power",
+      "layer": "wires",
+      "view": "rateres",
+      "anchor": {
+        "lonlat": [
+          -96.8,
+          32.78
+        ],
+        "feature": {
+          "name": "ONCOR ELECTRIC DELIVERY COMPANY LLC",
+          "state": "TX"
+        }
+      },
+      "title": "Why Oncor has no household price",
+      "body": "Oncor owns the poles and wires serving Dallas, but it does not sell electricity. In most of ERCOT, a separate retailer sells the power and sends the customer a bill that includes Oncor's delivery charge. Oncor therefore has a delivery price but no complete household electricity price to show on this map.",
+      "verified": true,
+      "sources": [
+        "https://www.oncor.com/content/oncorwww/us/en/home/about-us/who-we-are.html",
+        "https://www.puc.texas.gov/industry/electric/directories/rep/reptcert.aspx",
+        "https://www.eia.gov/electricity/data/eia861/"
+      ]
     }
   ],
   "cartogram": {

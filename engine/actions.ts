@@ -127,6 +127,7 @@ export function setSizeBy(key: string | null, urlMode: UrlMode = "replace"): voi
 export function setColourBy(key: string, urlMode: UrlMode = "replace"): void {
   const c = ctx();
   c.colourBy = key;
+  syncTrivia();
   if (key === "parent") buildParentGroups();
   repaintWires();
   renderColourControls();
@@ -140,6 +141,7 @@ export function setColourBy(key: string, urlMode: UrlMode = "replace"): void {
 export function setShadeBy(key: string, urlMode: UrlMode = "replace"): void {
   const c = ctx();
   c.shadeBy = key;
+  syncTrivia();
   repaintRules();
   renderShadeControls();
   renderLegend("rules");
@@ -185,8 +187,15 @@ function splitColour(colour: string): { base: string; variant: string | null } {
 export async function applyRoute(route: RouteState): Promise<void> {
   const c = ctx();
   if (route.trivia !== null) {
-    if (!c.layerDrawn || c.current !== "wholesale") await setLayer("wholesale", "none");
+    const trivia = copy.trivia.find((t) => t.id === route.trivia);
+    if (!trivia) return;
+    if (!c.layerDrawn || c.current !== trivia.layer) await setLayer(trivia.layer, "none");
     if (c.dead) return;
+    if (trivia.view && trivia.layer === "wires" && trivia.view !== c.colourBy
+      && isColourMeasure(trivia.view)) setColourBy(trivia.view, "none");
+    if (trivia.view && trivia.layer === "rules" && trivia.view !== c.shadeBy
+      && (trivia.view === "bucket" || c.priceScales[trivia.view])) setShadeBy(trivia.view, "none");
+    syncTrivia();
     flyToTrivia(route.trivia);
     return;
   }

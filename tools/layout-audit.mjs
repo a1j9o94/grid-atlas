@@ -187,7 +187,10 @@ const NOT_FOUND = ["/nonsense", "/wires/notameasure", "/wires/by-nothing", "/rul
 // starts named with — the front page and every trivia link — sat on that note
 // forever. Nothing else here saw it: every viewport gets a fresh profile, so
 // the audit was a first-time visitor once per viewport/view combination.
-const ENTRANCES = ["/", "/trivia/caldwell-switched-grids", "/rules", "/wires/parent", "/then/1932"];
+const ENTRANCES = [
+  "/", "/trivia/caldwell-switched-grids", "/trivia/small-towns-one-number",
+  "/rules", "/wires/parent", "/then/1932",
+];
 
 // Boxes that must never overlap each other. All of them are chrome floating
 // over or beside the map, which is exactly where collisions hide.
@@ -320,6 +323,12 @@ if (fixedChecks) {
       const who = returning ? "second visit" : "first visit";
       if (!drawn) add("entrances", `${path} drew no map on a ${who}`);
       else if (note) add("entrances", `${path} still says it is drawing, on a ${who}`);
+      if (path === "/trivia/small-towns-one-number") {
+        const visible = await p.evaluate(() => [...document.querySelectorAll(".trivia:not([hidden])")]
+          .map(el => el.dataset.triviaId));
+        if (JSON.stringify(visible) !== JSON.stringify(["small-towns-one-number", "oncor-sells-nobody-power"]))
+          add("entrances", `${path} showed ${JSON.stringify(visible)} on a ${who}`);
+      }
     }
     await ctx.close();
   }
@@ -352,7 +361,11 @@ for (const vp of selectedViewports) {
     const r = await page.evaluate(panels => {
       const de = document.documentElement;
       const vw = de.clientWidth, vh = de.clientHeight;
-      const out = { scrollX: de.scrollWidth - vw, scrollY: de.scrollHeight - vh, offscreen: [], overlaps: [], tiny: [], clipped: [], noExit: [], unfitted: [] };
+      const out = {
+        scrollX: de.scrollWidth - vw, scrollY: de.scrollHeight - vh,
+        offscreen: [], overlaps: [], tiny: [], clipped: [], noExit: [], unfitted: [],
+        trivia: [...document.querySelectorAll(".trivia:not([hidden])")].map(el => el.dataset.triviaId),
+      };
 
       // What the reader can actually see, which is the layout rect clipped by
       // every scrolling or hidden ancestor above it. An element inside a scroll
@@ -516,6 +529,12 @@ for (const vp of selectedViewports) {
     }, PANELS);
 
     if (r.mapClipped) add(tag, `map clipped: ${r.mapClipped}`);
+    if (view.name.startsWith("wires")) {
+      const wantTrivia = view.name === "wires-price-homes"
+        ? ["small-towns-one-number", "oncor-sells-nobody-power"] : [];
+      if (JSON.stringify(r.trivia) !== JSON.stringify(wantTrivia))
+        add(tag, `visible provider trivia ${JSON.stringify(r.trivia)}, wanted ${JSON.stringify(wantTrivia)}`);
+    }
     // A little overlap is the design: the legend deliberately sits over ocean.
     // A quarter of the map is not.
     if (r.mapCovered > 22) add(tag, `chrome covers ${r.mapCovered}% of the drawn map (${r.mapDrawn})`);
